@@ -4,7 +4,8 @@
 </head>
 
 <body>
-Populate with available missions- online? offline?
+<?php include("topmenu.php"); ?>
+Choose your mission:
 
 
 </body>

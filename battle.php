@@ -1,13 +1,10 @@
 <html>
-
 <head>
 </head>
-
 <body>
 
-<br>
-Who do you want to battle?
+<?php include("topmenu.php"); ?>
+Who would you like to battle?
 
 </body>
-
 </html>
