@@ -6,6 +6,8 @@
 <body>
 <?php include("topmenu.php"); ?>
 
+These buttons don't work yet
+
 <form action="changealias.php"> 
 <input type="submit" value="Change Alias" />
 </form>

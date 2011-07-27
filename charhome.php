@@ -2,7 +2,6 @@
 <head>
 </head>
 
-
 <body>
 <?php include("topmenu.php"); ?>
 <form action="choosemission.php"> 
@@ -24,6 +23,11 @@
 <form action="playeritemlist.php"> 
 <input type="submit" value="My Gear" />
 </form>
+
+<form action="recruit.php"> 
+<input type="submit" value="Recruit" />
+</form>
+
 </body>
 
 </html>
