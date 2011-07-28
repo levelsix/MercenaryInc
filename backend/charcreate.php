@@ -21,9 +21,9 @@ else if (strcmp($playertype, $type3) == 0) {
 	$defense = $type3def;
 }
 	
-$query = "INSERT INTO users (name, level, type, attack) VALUES
+$query = "INSERT INTO users (name, level, type, attack, defense) VALUES
 ('". $charname ."', ". $initlevel ." , '" . $playertype . 
-"', ". $attack .");"; 
+"', ". $attack .", " . $defense . ");"; 
 
 mysql_query($query) or die(mysql_error()); 
 $justAddedID = mysql_insert_id();
@@ -31,7 +31,5 @@ mysql_close();
 
 session_start();
 $_SESSION['userID']=$justAddedID;
-flush();
-header("Location: ../charhome.php");
-exit();       
+header("Location: ../charhome.php")
 ?>
