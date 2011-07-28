@@ -1,3 +1,6 @@
 *~
 tmp/
 properties/dbproperties.php
+.project
+.settings
+.buildpath
