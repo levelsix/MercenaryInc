@@ -3,11 +3,13 @@
 <input type="submit" value="Home" />
 </form>
 
-<form action="choosemission.php"> 
+<form action="levelchecker.php" method="post"> 
+<input type="hidden" name="pageRequestType" value="mission" />
 <input type="submit" value="Choose Mission" />
 </form>
 
-<form action="battle.php"> 
+<form action="levelchecker.php" method="post"> 
+<input type="hidden" name="pageRequestType" value="battle" />
 <input type="submit" value="Battle" />
 </form>
 
@@ -15,7 +17,8 @@
 <input type="submit" value="Preferences" />
 </form>
 
-<form action="shoplist.php"> 
+<form action="levelchecker.php" method="post"> 
+<input type="hidden" name="pageRequestType" value="shop" />
 <input type="submit" value="Shop" />
 </form>
 
@@ -23,9 +26,11 @@
 <input type="submit" value="My Gear" />
 </form>
 
-<form action="recruit.php"> 
+<form action="levelchecker.php" method="post">
+<input type="hidden" name="pageRequestType" value="recruit" />
 <input type="submit" value="Recruit" />
 </form>
+
 
 <?php
 include("properties/dbproperties.php");

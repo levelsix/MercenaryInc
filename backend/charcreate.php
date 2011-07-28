@@ -30,7 +30,8 @@ $justAddedID = mysql_insert_id();
 mysql_close();  
 
 session_start();
-$_SESSION['userID']=$justAddedID; 
+$_SESSION['userID']=$justAddedID;
+flush();
 header("Location: ../charhome.php");
-       
+exit();       
 ?>
