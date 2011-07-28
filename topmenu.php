@@ -46,13 +46,18 @@ session_start();
 $query="SELECT * FROM users WHERE id = ". $_SESSION['userID'] . ";";
 $result=mysql_query($query);
 $num=mysql_numrows($result);
-echo "Name :" . mysql_result($result, 0, "name");
+$playername=mysql_result($result, 0, "name");
+$playerlevel=mysql_result($result, 0, "level");
+$playertype=mysql_result($result, 0, "type");
+$playerattack=mysql_result($result,0,"attack");
+
+echo "Name :" . $playername;
 print "  ";
-echo "Level: " . mysql_result($result,0,"level");
+echo "Level: " . $playerlevel;
 print "  ";
-echo "Type: " . mysql_result($result,0,"type");    
+echo "Type: " . $playertype;    
 print "  ";
-echo "Attack: " . mysql_result($result,0,"attack");    
+echo "Attack: " . $playerattack;    
     
 mysql_close();  
 ?>
