@@ -11,16 +11,12 @@ $numRows = mysql_numrows($itemResult);
 
 for ($i = 0; $i < $numRows; $i++) {
     $itemID = mysql_result($itemResult, $i, "item_id");
-    $itemNameQuery = "SELECT name FROM items WHERE item_id = " . $itemID . ";";
-    $itemNameResult = mysql_query($itemResult);
-    
-    $numItemNameResult = mysql_numrows($itemNameResult);
-    print $numItemNameResult;
+        
+    $itemNameQuery = "SELECT name FROM items WHERE id = " . $itemID . ";";    
+    $itemNameResult = mysql_query($itemNameQuery);
     
     $itemName = mysql_result($itemNameResult, 0, "name");
-    print $itemName;
-    $itemQuanity = mysql_result($itemResult, $i, "quantity");
-    print $itemQuantity;
+    $itemQuantity = mysql_result($itemResult, $i, "quantity");
     
     print $itemQuantity . " " . $itemName;
     print "<br>";
