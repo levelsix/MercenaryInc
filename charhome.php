@@ -24,7 +24,7 @@
 </form>
 
 <form action="playeritemlist.php"> 
-<input type="submit" value="My Gear" />
+<input type="submit" value="My Items" />
 </form>
 
 <form action="levelchecker.php" method="post">
