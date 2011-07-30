@@ -1,7 +1,7 @@
 <?php 
 $id = $_POST['id'];
 session_start();
-$_SESSION['userid'] = $id;
+$_SESSION['userID'] = $id;
 header("Location: charhome.php");
 exit;
 ?>
