@@ -8,8 +8,7 @@
 include("topmenu.php");
 mysql_connect($server,$user,$password);
 @mysql_select_db($database) or die( "Unable to select database");
-  
-$query="SELECT * FROM missions WHERE min_level <= ". $playerLevel . ";";
+$query="SELECT * FROM missions WHERE min_level <= ". ($playerLevel+1) . " ORDER BY min_level;";
 $result=mysql_query($query);
 $num=mysql_numrows($result);
 
@@ -19,11 +18,15 @@ if ($num == 0) {
 } else {
 
 	
-	print "Choose your mission: <br><br>";
 	$i = 0;
 	while ($i < $num) {
+		if (mysql_result($result,$i,"min_level") == ($playerLevel+1)) {
+			print "LOCKED <br>";
+		}
+		
 		print "Title: " . mysql_result($result,$i,"name") . "<br>";
 		print "Description: " . mysql_result($result,$i,"description") . "<br>";
+		print "Minimum level: " . mysql_result($result,$i,"min_level") . "<br>";
 		print "Cost: " . mysql_result($result,$i,"energy_cost") . " energy<br>";
 		print "Will Gain: " . mysql_result($result,$i,"exp_gained") . " exp<br>";
 		print "Will Gain " . mysql_result($result,$i,"min_gold_gained") . " - ";
