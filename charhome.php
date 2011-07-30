@@ -32,6 +32,11 @@
 <input type="submit" value="Recruit" />
 </form>
 
+<br>
+<form action="charprofile.php">
+<input type="submit" value="My Profile" />
+</form>
+
 </body>
 
 </html>

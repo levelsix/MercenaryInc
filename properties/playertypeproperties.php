@@ -1,5 +1,5 @@
 <?php
-$type1="sniper";
-$type2="melee";
-$type3="bomber";
+$type1="rebel";
+$type2="marine";
+$type3="fugitive";
 ?>

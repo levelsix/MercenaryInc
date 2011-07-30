@@ -9,7 +9,7 @@ include("topmenu.php");
 mysql_connect($server,$user,$password);
 @mysql_select_db($database) or die( "Unable to select database");
   
-$query="SELECT * FROM missions WHERE min_level <= ". $playerlevel . ";";
+$query="SELECT * FROM missions WHERE min_level <= ". $playerLevel . ";";
 $result=mysql_query($query);
 $num=mysql_numrows($result);
 
@@ -30,7 +30,7 @@ if ($num == 0) {
 		print mysql_result($result, $i, "max_gold_gained") . "<br>";
 		print "Chance of getting loot: " . mysql_result($result,$i,"chance_of_loot") . "<br>";
 		
-		$item_id = mysql_result($result,$i,"item_id");
+		$item_id = mysql_result($result,$i,"loot_item_id");
 		$query="SELECT * FROM items WHERE id = ". $item_id . ";";
 		$itemresult=mysql_query($query);
 		print "You're not supposed to know this but the item you might get is the ";

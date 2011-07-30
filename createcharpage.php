@@ -26,6 +26,7 @@ print ("<option value=" . $type3 . ">" . ucfirst($type3). "</option>");
 </select>
 <br><br>
 
+<!-- 
 Choose your school:
 <br>
 <select name="school">
@@ -34,6 +35,7 @@ Choose your school:
   <option value="Zinanx">Zinan</option>
 </select>
 <br><br>
+-->
 
 
 

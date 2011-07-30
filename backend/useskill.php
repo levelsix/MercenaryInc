@@ -1,5 +1,6 @@
 <?php
 include("../properties/dbproperties.php");
+include("../properties/dbcolumnnames.php");
 
 mysql_connect($server, $user, $password);
 @mysql_select_db($database) or die("Unable to select database");

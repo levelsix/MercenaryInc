@@ -46,19 +46,35 @@ session_start();
 $query="SELECT * FROM users WHERE id = ". $_SESSION['userID'] . ";";
 $result=mysql_query($query);
 $num=mysql_numrows($result);
-$playername=mysql_result($result, 0, "name");
-$playerlevel=mysql_result($result, 0, "level");
-$playertype=mysql_result($result, 0, "type");
-$playerattack=mysql_result($result,0,"attack");
+$playerName=mysql_result($result, 0, "name");
+$playerLevel=mysql_result($result, 0, "level");
+$playerType=mysql_result($result, 0, "type");
+$playerCash=mysql_result($result, 0, "cash");
+$playerStamina=mysql_result($result, 0, "stamina");
+$playerHealth=mysql_result($result, 0, "health");
+$playerEnergy=mysql_result($result, 0, "energy");
+$playerStaminaMax=mysql_result($result, 0, "stamina_max");
+$playerHealthMax=mysql_result($result, 0, "health_max");
+$playerEnergyMax=mysql_result($result, 0, "energy_max");
 
-echo "Name :" . $playername;
-print "  ";
-echo "Level: " . $playerlevel;
-print "  ";
-echo "Type: " . $playertype;    
-print "  ";
-echo "Attack: " . $playerattack;    
-    
+//$playerExpToNextLevel
+
+echo "Name :" . $playerName;
+print "   ";
+echo "Level: " . $playerLevel;
+print "   ";
+echo "Type: " . $playerType;    
+print "   ";
+echo "Cash: " . $playerCash;
+print "   ";
+echo "Stamina: " . $playerStamina . "/" . $playerStaminaMax;
+print "   ";
+echo "Health: " . $playerHealth . "/" . $playerHealthMax;
+print "   ";
+echo "Energy: " . $playerEnergy . "/" . $playerEnergyMax;
+print "   ";
+
+
 mysql_close();  
 ?>
 <br><br>
