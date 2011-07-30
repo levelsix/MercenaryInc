@@ -19,9 +19,9 @@ Choose your specialty:
 <br>
 <select name="playertype">
 <?php
-print ("<option value=" . $type1 . ">" . ucfirst($type1) . "</option>");
-print ("<option value=" . $type2 . ">" . ucfirst($type2). "</option>");
-print ("<option value=" . $type3 . ">" . ucfirst($type3). "</option>");
+print ("<option value=" . $playertype1 . ">" . ucfirst($playertype1) . "</option>");
+print ("<option value=" . $playertype2 . ">" . ucfirst($playertype2). "</option>");
+print ("<option value=" . $playertype3 . ">" . ucfirst($playertype3). "</option>");
 ?>
 </select>
 <br><br>

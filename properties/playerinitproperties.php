@@ -1,11 +1,11 @@
 <?php
-$type1atk=12;
-$type2atk=13;
-$type3atk=14;
+$playertype1atk=12;
+$playertype2atk=13;
+$playertype3atk=14;
 
-$type1def=10;
-$type2def=9;
-$type3def=8;
+$playertype1def=10;
+$playertype2def=9;
+$playertype3def=8;
 
 $initlevel = 1;
 $initgold = 500;

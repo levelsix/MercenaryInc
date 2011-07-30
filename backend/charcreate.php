@@ -8,17 +8,17 @@ mysql_connect($server,$user,$password);
 
 $charname = $_POST['charname'];
 $playertype = $_POST['playertype'];
-if (strcmp($playertype, $type1) == 0) {
-	$attack = $type1atk;
-	$defense = $type1def;
+if (strcmp($playertype, $playertype1) == 0) {
+	$attack = $playertype1atk;
+	$defense = $playertype1def;
 }
-else if (strcmp($playertype, $type2) == 0) {
-	$attack = $type2atk;
-	$defense = $type2def;
+else if (strcmp($playertype, $playertype2) == 0) {
+	$attack = $playertype2atk;
+	$defense = $playertype2def;
 }
-else if (strcmp($playertype, $type3) == 0) {
-	$attack = $type3atk;
-	$defense = $type3def;
+else if (strcmp($playertype, $playertype3) == 0) {
+	$attack = $playertype3atk;
+	$defense = $playertype3def;
 }
 	
 $query = "INSERT INTO users (name, level, type, attack, defense) VALUES
