@@ -21,7 +21,7 @@ if ($num == 0) {
 	$i = 0;
 	while ($i < $num) {
 		if (mysql_result($result,$i,"min_level") == ($playerLevel+1)) {
-			print "LOCKED <br>";
+			print "<b>LOCKED</b> <br>";
 		}
 		
 		print "Title: " . mysql_result($result,$i,"name") . "<br>";
