@@ -23,6 +23,8 @@ print "<form action='backend/useskill.php' method='post'>";
 print "<input type='hidden' name='attributeToIncrease' value='attack' />";
 print "<input type='submit' value='Increase' />";
 print "</form>";
+} else {
+print "<br>Insufficient Skill Points<br><br>";
 }?>
 
 Defense <?php echo $playerDefense;
@@ -31,6 +33,8 @@ print "<form action='backend/useskill.php' method='post'>";
 print "<input type='hidden' name='attributeToIncrease' value='defense' />";
 print "<input type='submit' value='Increase' />";
 print "</form>";
+} else {
+print "<br>Insufficient Skill Points<br><br>";
 }?>
 
 Max Energy <?php echo $playerEnergyMax;
@@ -39,20 +43,26 @@ print "<form action='backend/useskill.php' method='post'>";
 print "<input type='hidden' name='attributeToIncrease' value='energymax' />";
 print "<input type='submit' value='Increase' />";
 print "</form>";
+} else {
+print "<br>Insufficient Skill Points<br><br>";
 }?>
 
-Max Health <?php echo $playerHealthMax;
+Max Health (would add 10) <?php echo $playerHealthMax;
 if ($playerSkill >= 1) { 
 print "<form action='backend/useskill.php' method='post'>";
 print "<input type='hidden' name='attributeToIncrease' value='healthmax' />";
 print "<input type='submit' value='Increase' />";
 print "</form>";
+} else {
+print "<br>Insufficient Skill Points<br><br>";
 }?>
 
-Max Stamina <?php echo $playerStaminaMax;
-if ($playerSkill >= 1) { 
+Max Stamina (takes 2 to plus 1) <?php echo $playerStaminaMax;
+if ($playerSkill >= 2) { 
 print "<form action='backend/useskill.php' method='post'>";
 print "<input type='hidden' name='attributeToIncrease' value='staminamax' />";
 print "<input type='submit' value='Increase' />";
 print "</form>";
+} else {
+print "<br>Insufficient Skill Points<br><br>";
 }?>

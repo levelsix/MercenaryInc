@@ -2,7 +2,7 @@
 include("../properties/dbproperties.php");
 include("../properties/dbcolumnnames.php");
 
-$SELL_RATIO = .5;
+$SELL_RATIO = .6;
 
 mysql_connect($server, $user, $password);
 @mysql_select_db($database) or die("Unable to select database");

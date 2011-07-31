@@ -24,10 +24,18 @@ if (strcmp($attribute, 'staminamax') == 0) {
 }
 
 session_start();
-$query = "UPDATE users SET skill_points=skill_points-1 WHERE id=" . $_SESSION['userID'] . ";";
+if ($columnname == $userTableStaminaMaxCol){
+	$query = "UPDATE users SET skill_points=skill_points-2 WHERE id=" . $_SESSION['userID'] . ";";
+} else {
+	$query = "UPDATE users SET skill_points=skill_points-1 WHERE id=" . $_SESSION['userID'] . ";";
+}
 mysql_query($query) or die(mysql_error());
 
-$query = "UPDATE users SET ".$columnname."=".$columnname."+1 WHERE id=" . $_SESSION['userID'] . ";";
+if ($columnname == $userTableHealthMaxCol){
+	$query = "UPDATE users SET ".$columnname."=".$columnname."+10 WHERE id=" . $_SESSION['userID'] . ";";
+} else {
+	$query = "UPDATE users SET ".$columnname."=".$columnname."+1 WHERE id=" . $_SESSION['userID'] . ";";
+}
 mysql_query($query) or die(mysql_error());
 
 mysql_close();
