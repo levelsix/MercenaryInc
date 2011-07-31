@@ -7,6 +7,12 @@ $query="SELECT * FROM items WHERE min_level <= ". ($playerLevel+1) . " ORDER BY 
 $result=mysql_query($query);
 $num=mysql_numrows($result);
 
+function itemIsLocked($result, $itemNum, $playerLevel) {
+	if (mysql_result($result,$itemNum,"min_level") == ($playerLevel+1)) {
+		return true;
+	}
+	return false;
+}
 
 if ($num == 0) { 
 	echo "No items available";
@@ -14,7 +20,7 @@ if ($num == 0) {
 	
 	$i = 0;
 	while ($i < $num) {
-		if (mysql_result($result,$i,"min_level") == ($playerLevel+1)) {
+		if (itemIsLocked($result, $i, $playerLevel)) {
 			print "<b>LOCKED</b> <br>";
 		}
 		
@@ -26,12 +32,15 @@ if ($num == 0) {
 		} else if (mysql_result($result,$i, "type") == 3) {
 			$itemType = $itemtype3;
 		}		
+		$itemPrice = mysql_result($result,$i,"price");
 		print "Type: " . $itemType . "<br>";
 		print "Minimum level: " . mysql_result($result,$i,"min_level") . "<br>";
-		print "Price: " . mysql_result($result,$i,"price") . "<br>";
-
+		print "Price: " . $itemPrice . "<br>";
+		
+		$item_id = mysql_result($result,$i, "id");
+		
 		$quantityOwnedQuery = "SELECT quantity FROM users_items WHERE user_id = " . $_SESSION['userID'] . " AND ";
-		$quantityOwnedQuery .= "item_id = " . mysql_result($result,$i, "id") . ";";
+		$quantityOwnedQuery .= "item_id = " . $item_id . ";";
 		$quantityResult = mysql_query($quantityOwnedQuery);
 		
 		if (mysql_numrows($quantityResult) > 0) 
@@ -41,12 +50,28 @@ if ($num == 0) {
 		
 		print "Quantity Owned: " . $quantity . "<br>";
 		
-		/*
-		print "<form action='backend/useskill.php' method='post'>";
-		print "<input type='hidden' name='attributeToIncrease' value='energymax' />";
-		print "<input type='submit' value='Buy' />";
-		print "</form>";
-		*/
+		if (($playerCash >= $itemPrice) && (!itemIsLocked($result, $i, $playerLevel))){
+			print "<form action='backend/shopaction.php' method='post'>";
+			print "<input type='hidden' name='actionToDo' value='buy' />";
+			print "<input type='hidden' name='storePrice' value='".$itemPrice."' />";
+			print "<input type='hidden' name='itemID' value='".$item_id."' />";
+			print "<input type='submit' value='Buy' />";
+			print "</form>";
+		} else {
+			echo "you can't buy this item (you don't have enough cash or it's locked)<br>";
+		}
+		if ($quantity >= 1 && !itemIsLocked($result, $i, $playerLevel)) {
+			
+			print "<form action='backend/shopaction.php' method='post'>";
+			print "<input type='hidden' name='actionToDo' value='sell' />";
+			print "<input type='hidden' name='storePrice' value='".$itemPrice."' />";
+			print "<input type='hidden' name='itemID' value='".$item_id."' />";
+			print "<input type='submit' value='Sell' />";
+			print "</form>";
+		} else {
+			print "you can't sell this item (don't have any or it's locked)<br>";
+		}
+
 		
 		print "<br><br>";
 		
