@@ -4,8 +4,6 @@
 
 <?php include("topmenu.php"); ?>
 
-f<
-
 <?php
 // Show pending agency invitations
 echo "Pending agency invitations: <br>";
