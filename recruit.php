@@ -2,11 +2,15 @@
 <head></head>
 <body>
 
-<?php include("topmenu.php"); ?>
+<?php 
+include("topmenu.php");
+// Create link to agency list page
+print "<form action='agencylist.php' method='GET'>";
+print "<input type='submit' value='My Agency'/>";
+print "</form>";
 
-<?php
 // Show pending agency invitations
-echo "Pending agency invitations: <br>";
+print "Pending agency invitations: <br>";
 
 mysql_connect($server, $user, $password);
 @mysql_select_db($database) or die("Unable to select database");
@@ -20,22 +24,28 @@ for ($i = 0; $i < $numPending; $i++) {
 	$usersQuery = "SELECT * FROM users WHERE id = " . $inviterID . ";";
 	$usersResult = mysql_query($usersQuery);
 	$inviterName = mysql_result($usersResult, 0, "name");
-	echo $inviterName;
-	echo "<form action='backend/respondtoinvitation.php' method='POST'>";
-	echo "<input type='submit' value='Acccept' />";
-	echo "<input type='submit' value='Decline' />";
-	echo "</form>";
+	print $inviterName;
+	print "<form action='backend/respondtoinvitation.php' method='POST'>";
+	print "<input type='hidden' name='accepted' value='true'/>";
+	print "<input type='hidden' name='inviterID' value='" . $inviterID . "'/>";
+	print "<input type='submit' value='Accept'/>";
+	print "</form>";
+	print "<form action='backend/respondtoinvitation.php' method='POST'>";
+	print "<input type='hidden' name='accepted' value='false'/>";
+	print "<input type='hidden' name='inviterID' value='" . $inviterID . "'/>";
+	print "<input type='submit' value='Decline'/>";
+	print "</form>";
 }
 
 // Show agency code
-echo "Your agency code: <br>";
+print "Your agency code: <br>";
 
 $userQuery = "SELECT * FROM users WHERE id = ". $_SESSION['userID'] . ";";
 $userResult = mysql_query($userQuery);
 $agencyCode = mysql_result($userResult, 0, "agency_code");
 
-echo $agencyCode;
-echo "<br>";
+print $agencyCode;
+print "<br>";
 
 mysql_close();
 ?>
@@ -46,4 +56,5 @@ Invite using agency code: <br>
 <input type="submit" value="Recruit!"/>
 </form>
 </body>
+</html>
 </html>

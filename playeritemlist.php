@@ -5,7 +5,7 @@ print "<br>";
 mysql_connect($server, $user, $password);
 @mysql_select_db($database) or die("Unable to select database");
 
-$itemQuery = "SELECT item_id, quantity FROM users_items WHERE user_id = " . $_SESSION['userID'] . ";";
+$itemQuery = "SELECT * FROM users_items WHERE user_id = " . $_SESSION['userID'] . ";";
 $itemResult = mysql_query($itemQuery);
 $numRows = mysql_numrows($itemResult);
 
