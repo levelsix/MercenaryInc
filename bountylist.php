@@ -13,10 +13,11 @@ if ($numBounties <= 0) {
 } else {
 	//print "Mercenary\t\tBounty <br>";
 	for ($i = 0; $i < $numBounties; $i++) {
+		$userID = mysql_result($bountyResult, $i, "target_id");
 		$userName = mysql_result($bountyResult, $i, "name");
 		$bountyAmount = mysql_result($bountyResult, $i, "payment");
 		//print $userName . "\t\t" . $bountyAmount;
-		print "Mercenary: " . $userName . " Bounty: " . $bountyAmount; 
+		print "Mercenary: <a href='externalplayerprofile.php?userID=" . $userID . "'>" . $userName . "</a> Bounty: " . $bountyAmount; 
 		// Implement the attacking button and functionality
 		print "<form>";
 		print "<input type='submit' value='Attack'/>";
