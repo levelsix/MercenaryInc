@@ -20,7 +20,7 @@ $numCurrent=mysql_numrows($currentResult);
 
 
 if (strcmp($actionToDo, 'buy') == 0) {
-	if ($numCurrent == 0 || mysql_result($currentResult, 0,"quantity") == 0) {
+	if ($numCurrent == 0) {
 		$query = "INSERT INTO users_items (user_id, item_id, quantity) VALUES
 			(".$_SESSION['userID'].", ". $itemID .", 1);"; 
 
@@ -31,7 +31,7 @@ if (strcmp($actionToDo, 'buy') == 0) {
 } else if (strcmp($actionToDo, 'sell') == 0) {	
 	if ($numCurrent > 0) {	//should always be, but just in case
 		if (mysql_result($currentResult, 0,"quantity") == 1) {
-			$query = "DELETE FROM users_items WHERE id=" . $_SESSION['userID'];
+			$query = "DELETE FROM users_items WHERE user_id=" . $_SESSION['userID'];
 			$query.=" AND item_id = ".$itemID.";";
 		} else {
 			$query = "UPDATE users_items SET quantity=quantity-1 WHERE user_id=" . $_SESSION['userID'];

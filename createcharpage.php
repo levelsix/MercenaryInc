@@ -26,19 +26,6 @@ print ("<option value=" . $playertype3 . ">" . ucfirst($playertype3). "</option>
 </select>
 <br><br>
 
-<!-- 
-Choose your school:
-<br>
-<select name="school">
-  <option value="Chrono">Chrono</option>
-  <option value="Xenu">Xenu</option>
-  <option value="Zinanx">Zinan</option>
-</select>
-<br><br>
--->
-
-
-
 
 <input type="hidden" name="justmadechar" value="true"> 
 <input type="submit" value="Finish!" />
