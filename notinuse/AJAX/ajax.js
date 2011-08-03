@@ -22,7 +22,7 @@ function getXMLHttp()
       }
       catch(e)
       {
-        alert("Your browser does not support AJAX!")
+        alert("Your browser does not support AJAX!");
         return false;
       }
     }
