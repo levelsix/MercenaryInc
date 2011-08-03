@@ -120,6 +120,9 @@ if ($doMission) {
 		//TODO: mark loot gained
 		mysql_query($query) or die(mysql_error());
 	}
+	$query = "UPDATE users SET missions_completed=missions_completed+1 WHERE id=" . $_SESSION['userID'];
+	//TODO: mark session energy lost
+	mysql_query($query) or die(mysql_error());
 } else {
 	//put fail message in session
 }
