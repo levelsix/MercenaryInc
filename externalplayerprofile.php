@@ -36,8 +36,13 @@ print "Deaths: " . $userDeaths . "<br>";
 
 // Action buttons
 // Give option to attack, add to bounty list
-print "Attack \t";
-print "Add to Bounty List <br>";
+print "<form>";
+print "<input type='submit' value='Attack'/>";
+print "</form>";
+
+print "<form>";
+print "<input type='submit' value='Add to Bounty List'/>";
+print "</form>";
 
 // Implement achievements + query
 print "Achievements: <br>";
