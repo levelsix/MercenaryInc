@@ -26,7 +26,7 @@ if ($agencySize == 0) {
 		$userQuery = "SELECT * FROM users WHERE id = " . $agentId . ";";
 		$userResult = mysql_query($userQuery);
 		$userName = mysql_result($userResult, 0, "name");
-		print "<form action='externalplayerprofile.php' method='POST'>";
+		print "<form action='externalplayerprofile.php' method='GET'>";
 		print "<input type='hidden' name='userID' value='" . $agentId . "'/>";
 		print "<input type='submit' value='" . $userName . "'/>";
 		print "</form>";
