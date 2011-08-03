@@ -21,7 +21,7 @@ function missionIsLocked($result, $missionNum, $playerLevel) {
 
 session_start();
 
-if (isset ($_POST['postedCityID'] )) {
+if (isset($_POST['postedCityID'])) {
 	$_SESSION['currentMissionCity'] = $_POST['postedCityID'];
 }
 
@@ -103,11 +103,13 @@ if (isset($_SESSION['currentMissionCity'])) {
 			$itemresult=mysql_query($query);
 			print "You're not supposed to know this but the item you might get is the ";
 			print mysql_result($itemresult, 0, "name");
+			
+			print "didnt put in agency or item requirements too lazy but they work";
 								
 			if (!missionIsLocked($result, $i, $playerLevel)) {
 				print "<form action='backend/domission.php' method='post'>";
 				print "<input type='hidden' name='missionID' value='".mysql_result($result,$i,"id")."' />";
-				print "<input type='hidden' name='currentMissionCity' value='".$_POST['postedCityID']."' />";
+				print "<input type='hidden' name='currentMissionCity' value='".$_SESSION['currentMissionCity']."' />";
 				print "<input type='submit' value='Do It' />";
 				print "</form>";
 			}

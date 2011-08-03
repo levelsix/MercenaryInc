@@ -26,16 +26,15 @@ function playerHasEnoughEnergy($missionResult, $userResult) {
 function playerHasRequireditems($itemReqResult, $userID) {
 	$numReqs=mysql_numrows($itemReqResult);
 	$itemsMissing = array();
+	$playerHasAllRequiredItems = true;
+	
 	for ($i = 0; $i < $numReqs; $i++) {
 		$itemID=mysql_result($itemReqResult, $i,"item_id");
 		$itemQuantity=mysql_result($itemReqResult, $i,"item_quantity");
 		
 		$userItemsQuery="SELECT * FROM users_items WHERE user_id=" . $userID;
 		$userItemsQuery.=" AND item_id=".$itemID;
-		$userItemsResult=mysql_query($userItemsQuery);
-		
-		$playerHasAllRequiredItems = true;
-		
+		$userItemsResult=mysql_query($userItemsQuery);		
 		
 		if (mysql_numrows($userItemsResult) <= 0 || mysql_result($userItemsResult, 0,"quantity") < $itemQuantity) {
 			$playerHasAllRequiredItems = false;
