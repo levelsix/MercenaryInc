@@ -26,8 +26,27 @@ if (isset ($_POST['postedCityID'] )) {
 }
 
 if (isset($_SESSION['fail']) && $_SESSION['fail'] == true) {
-	print "<b>You have not met the requirements for the mission. </b><br><br>";
-	//explain why
+	print "<b>You have not met the requirements for the mission. </b><br>";
+	if (isset($_SESSION['needMoreAgency'])) {
+		print "You need " . $_SESSION['needMoreAgency'] . " more members in your agency. <br>";
+		unset($_SESSION['needMoreAgency']);
+	}
+	if (isset($_SESSION['needMoreEnergy'])) {
+		print "You need " . $_SESSION['needMoreEnergy'] . " more energy. <br>";
+		unset($_SESSION['needMoreEnergy']);
+	}
+	if (isset($_SESSION['itemsMissing'])) {
+		$itemsMissingArray = $_SESSION['itemsMissing'];
+		foreach($itemsMissingArray as $key=>$value) {
+			print "You are missing " . $value . " ";
+			$query="SELECT * FROM items WHERE id = ". $key . ";";
+			$itemresult=mysql_query($query);
+			print mysql_result($itemresult, 0, "name") . "s<br>";
+			unset($itemsMissingArray[$key]);
+		}
+		unset($_SESSION['itemsMissing']);
+	}
+	print "<br><br>";
 	unset($_SESSION['fail']);
 }
 
@@ -53,9 +72,14 @@ if (isset($_SESSION['currentMissionCity'])) {
 	$query.=" ORDER BY min_level;";
 	$result=mysql_query($query);
 	$num=mysql_numrows($result);
+
+	
 	
 	if ($num == 0) { 
 		echo "No missions available in this city";
+		echo "current mission city is " . $_SESSION['currentMissionCity'];
+		//TODO: address this issue
+		echo "if you dont see a number for current mission city, high chance there is a bug here";
 	} else {
 		
 		$i = 0;

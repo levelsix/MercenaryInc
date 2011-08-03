@@ -4,17 +4,28 @@ include("../properties/dbproperties.php");
 function agencyIsLargeEnough($missionResult, $userResult) {
 	$minAgencySize=mysql_result($missionResult, 0,"min_agency_size");
 	$playerAgencySize=mysql_result($userResult, 0,"agency_size");
-	return ($playerAgencySize >= $minAgencySize);
+	
+	$playerHasEnoughAgency = ($playerAgencySize >= $minAgencySize);
+	if (!$playerHasEnoughAgency) {
+		$_SESSION['needMoreAgency']=$minAgencySize-$playerAgencySize;
+	}
+	return $playerHasEnoughAgency;
 }
 
 function playerHasEnoughEnergy($missionResult, $userResult) {
 	$minEnergy=mysql_result($missionResult, 0,"energy_cost");
 	$playerEnergy=mysql_result($userResult, 0,"energy");
-	return ($playerEnergy >= $minEnergy);
+	$playerHasEnoughEnergy = $playerEnergy >= $minEnergy;
+	if (!$playerHasEnoughEnergy) {
+		$_SESSION['needMoreEnergy']=$minEnergy-$playerEnergy;
+	}
+	
+	return $playerHasEnoughEnergy;
 }
 
 function playerHasRequireditems($itemReqResult, $userID) {
 	$numReqs=mysql_numrows($itemReqResult);
+	$itemsMissing = array();
 	for ($i = 0; $i < $numReqs; $i++) {
 		$itemID=mysql_result($itemReqResult, $i,"item_id");
 		$itemQuantity=mysql_result($itemReqResult, $i,"item_quantity");
@@ -23,11 +34,23 @@ function playerHasRequireditems($itemReqResult, $userID) {
 		$userItemsQuery.=" AND item_id=".$itemID;
 		$userItemsResult=mysql_query($userItemsQuery);
 		
+		$playerHasAllRequiredItems = true;
+		
+		
 		if (mysql_numrows($userItemsResult) <= 0 || mysql_result($userItemsResult, 0,"quantity") < $itemQuantity) {
-			return false;
+			$playerHasAllRequiredItems = false;
+			if (mysql_numrows($userItemsResult) <= 0) {
+				$amountMissing = $itemQuantity;
+			} else {
+				$amountMissing = $itemQuantity - mysql_result($userItemsResult, 0,"quantity");
+			}
+			$itemsMissing[$itemID] = $amountMissing;
 		}
 	}
-	return true;
+	if (!$playerHasAllRequiredItems) {
+		$_SESSION['itemsMissing'] = $itemsMissing;
+	}
+	return $playerHasAllRequiredItems;
 }
 
 $missionID=$_POST['missionID'];
@@ -49,15 +72,12 @@ $itemReqResult=mysql_query($itemReqQuery);
 $doMission=true;
 if (!agencyIsLargeEnough($missionResult, $userResult)) {
 	$doMission=false;
-	//TODO: handle mistake (add session)
 } 
 if (!playerHasEnoughEnergy($missionResult, $userResult)) {
 	$doMission=false;
-	//TODO: handle mistake (add session)
 }
 if (!playerHasRequireditems($itemReqResult, $userID)) {
 	$doMission=false;	
-	//TODO: handle mistake (add session)
 }
 if ($doMission) {
 	$numReqs=mysql_numrows($itemReqResult);
@@ -117,9 +137,11 @@ if ($doMission) {
 			$query = "UPDATE users_items SET quantity=quantity+1 WHERE user_id=" . $_SESSION['userID'];
 			$query.=" AND item_id = ".$lootItemID.";";
 		}
+		
 		//TODO: mark loot gained
 		mysql_query($query) or die(mysql_error());
 	}
+	
 	$query = "UPDATE users SET missions_completed=missions_completed+1 WHERE id=" . $_SESSION['userID'];
 	//TODO: mark session energy lost
 	
@@ -128,7 +150,6 @@ if ($doMission) {
 	$_SESSION['fail']="true";	
 }
 $_SESSION['currentMissionCity']=$_POST['currentMissionCity'];
-
 
 mysql_close();
 
