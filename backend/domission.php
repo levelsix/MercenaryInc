@@ -56,7 +56,7 @@ if (!playerHasEnoughEnergy($missionResult, $userResult)) {
 	//TODO: handle mistake (add session)
 }
 if (!playerHasRequireditems($itemReqResult, $userID)) {
-	$doMission=false;
+	$doMission=false;	
 	//TODO: handle mistake (add session)
 }
 if ($doMission) {
@@ -103,22 +103,25 @@ if ($doMission) {
 	$random = rand(0, 100);
 	$chanceLoot=mysql_result($missionResult, 0,"chance_of_loot");
 	if ($random < $chanceLoot*100) {
+		$lootItemID=mysql_result($missionResult, 0,"loot_item_id");
 		$userItemsQuery="SELECT * FROM users_items WHERE user_id=" . $userID;
-		$userItemsQuery.=" AND item_id=".mysql_result($missionResult, 0,"loot_item_id");
+		$userItemsQuery.=" AND item_id=".$lootItemID;
 		$userItemsResult=mysql_query($userItemsQuery);
 		$num=mysql_numrows($userItemsResult);
 		
 		if ($num == 0) {
 			$query = "INSERT INTO users_items (user_id, item_id, quantity) VALUES
-					(".$_SESSION['userID'].", ". $itemID .", 1);"; 
+					(".$_SESSION['userID'].", ". $lootItemID .", 1);"; 
 		
 		} else {
 			$query = "UPDATE users_items SET quantity=quantity+1 WHERE user_id=" . $_SESSION['userID'];
-			$query.=" AND item_id = ".$itemID.";";
+			$query.=" AND item_id = ".$lootItemID.";";
 		}
 		//TODO: mark loot gained
 		mysql_query($query) or die(mysql_error());
 	}
+} else {
+	//put fail message in session
 }
 
 
