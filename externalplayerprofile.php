@@ -36,11 +36,12 @@ print "Deaths: " . $userDeaths . "<br>";
 
 // Action buttons
 // Give option to attack, add to bounty list
-print "<form>";
+print "<form action='attackplayer.php' method='GET'>";
 print "<input type='submit' value='Attack'/>";
 print "</form>";
 
-print "<form>";
+print "<form action='addplayertobounty.php' method='GET'>";
+print "<input type='hidden' name='targetID' value='" . $userID . "'/>";
 print "<input type='submit' value='Add to Bounty List'/>";
 print "</form>";
 
