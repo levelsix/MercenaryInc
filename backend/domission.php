@@ -122,10 +122,12 @@ if ($doMission) {
 	}
 	$query = "UPDATE users SET missions_completed=missions_completed+1 WHERE id=" . $_SESSION['userID'];
 	//TODO: mark session energy lost
+	
 	mysql_query($query) or die(mysql_error());
 } else {
-	//put fail message in session
+	$_SESSION['fail']="true";	
 }
+$_SESSION['currentMissionCity']=$_POST['currentMissionCity'];
 
 
 mysql_close();

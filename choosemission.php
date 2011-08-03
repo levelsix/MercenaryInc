@@ -8,6 +8,10 @@
 include("topmenu.php");
 include("properties/citynames.php");
 
+
+mysql_connect($server,$user,$password);
+@mysql_select_db($database) or die( "Unable to select database");
+
 function missionIsLocked($result, $missionNum, $playerLevel) {
 	if (mysql_result($result,$missionNum,"min_level") == ($playerLevel+1)) {
 		return true;
@@ -15,8 +19,19 @@ function missionIsLocked($result, $missionNum, $playerLevel) {
 	return false;
 }
 
-mysql_connect($server,$user,$password);
-@mysql_select_db($database) or die( "Unable to select database");
+session_start();
+
+if (isset ($_POST['postedCityID'] )) {
+	$_SESSION['currentMissionCity'] = $_POST['postedCityID'];
+}
+
+if (isset($_SESSION['fail']) && $_SESSION['fail'] == true) {
+	print "<b>You have not met the requirements for the mission. </b><br><br>";
+	//explain why
+	unset($_SESSION['fail']);
+}
+
+
 
 $query="SELECT * from users_cities WHERE rank_avail > 0;";
 $result=mysql_query($query);
@@ -32,9 +47,9 @@ while ($i < $num) {
 	$i++;
 }
 
-if (isset ($_POST['postedCityID'] )) {
+if (isset($_SESSION['currentMissionCity'])) {
 	$query="SELECT * FROM missions WHERE min_level <= ". ($playerLevel+1);
-	$query.=" AND city_id=".$_POST['postedCityID'];
+	$query.=" AND city_id=".$_SESSION['currentMissionCity'];
 	$query.=" ORDER BY min_level;";
 	$result=mysql_query($query);
 	$num=mysql_numrows($result);
@@ -68,6 +83,7 @@ if (isset ($_POST['postedCityID'] )) {
 			if (!missionIsLocked($result, $i, $playerLevel)) {
 				print "<form action='backend/domission.php' method='post'>";
 				print "<input type='hidden' name='missionID' value='".mysql_result($result,$i,"id")."' />";
+				print "<input type='hidden' name='currentMissionCity' value='".$_POST['postedCityID']."' />";
 				print "<input type='submit' value='Do It' />";
 				print "</form>";
 			}
