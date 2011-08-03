@@ -28,19 +28,16 @@ $userDeaths = mysql_result($userResult, 0, "deaths");
 print $userName . "<br>";
 print "Level " . $userLevel . " " . ucfirst($userType) . "<br>";
 print "----------------------------------------------------- <br>";
-
-
-// Action buttons
-// Give option to attack, add to bounty list
-print "Attack \t";
-print "Add to Bounty List <br>";
-
-// More user information
 print "Missions Completed: " . $userMissionsCompleted . "<br>";
 print "Fights Won: " . $userFightsWon . "<br>";
 print "Fights Lost: " . $userFightsLost . "<br>";
 print "Kills: " . $userKills . "<br>";
 print "Deaths: " . $userDeaths . "<br>";
+
+// Action buttons
+// Give option to attack, add to bounty list
+print "Attack \t";
+print "Add to Bounty List <br>";
 
 // Implement achievements + query
 print "Achievements: <br>";

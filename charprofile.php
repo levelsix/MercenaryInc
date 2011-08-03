@@ -1,4 +1,71 @@
-<?php include("topmenu.php"); ?>
-<form action="skills.php">
-<input type="submit" value="Skills" />
-</form>
+<?php 
+include("topmenu.php");
+// Skills button
+print "<form action='skills.php'>";
+print "<input type='submit' value='Skills'/>";
+print "</form>";
+
+mysql_connect($server, $user, $password);
+@mysql_select_db($database) or die("Unable to select database");
+
+session_start();
+$userID = $_SESSION['userID'];
+$userQuery = "SELECT * FROM users WHERE id = " . $userID . ";";
+$userResult = mysql_query($userQuery);
+$numRows = mysql_numrows($userResult);
+
+// Error: redirect
+if ($numRows != 1) {
+	header("Location: charhome.php");
+	exit;
+}
+
+// User information
+$userName = mysql_result($userResult, 0, "name");
+$userLevel = mysql_result($userResult, 0, "level");
+$userType = mysql_result($userResult, 0, "type");
+$userMissionsCompleted = mysql_result($userResult, 0, "missions_completed");
+$userFightsWon = mysql_result($userResult, 0, "fights_won");
+$userFightsLost = mysql_result($userResult, 0, "fights_lost");
+$userKills = mysql_result($userResult, 0, "kills");
+$userDeaths = mysql_result($userResult, 0, "deaths");
+
+print $userName . "<br>";
+print "Level " . $userLevel . " " . ucfirst($userType) . "<br>";
+print "----------------------------------------------------- <br>";
+print "Missions Completed: " . $userMissionsCompleted . "<br>";
+print "Fights Won: " . $userFightsWon . "<br>";
+print "Fights Lost: " . $userFightsLost . "<br>";
+print "Kills: " . $userKills . "<br>";
+print "Deaths: " . $userDeaths . "<br>";
+
+// Cash flow
+print "Cash flow <br>";
+print "----------------------------------------------------- <br>";
+$userIncome = mysql_result($userResult, 0, "income");
+$userUpkeep = mysql_result($userResult, 0, "upkeep");
+
+print "Income: " . $userIncome . "<br>";
+print "Upkeep: -" . $userUpkeep . "<br>";
+print "Net Income: " . ($userIncome - $userUpkeep) . "<br>";
+
+// Achievements
+print "Achievements: <br>";
+
+// Items
+print "Items: <br>";
+$itemsQuery = "SELECT * FROM users_items JOIN items ON (users_items.item_id = items.id) WHERE users_items.user_id = "
+. $userID . ";";
+$itemsResult = mysql_query($itemsQuery);
+$numItems = mysql_numrows($itemsResult);
+
+for ($i = 0; $i < $numItems; $i++) {
+	// Need to filter by type and display in different categories
+	// Temporary code - doesn't filter type
+	$quantity = mysql_result($itemsResult, $i, "quantity");
+	$itemName = mysql_result($itemsResult, $i, "name");
+	print $quantity . "x " . $itemName . "<br>";
+}
+
+mysql_close();
+?>
