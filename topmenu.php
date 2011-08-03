@@ -59,7 +59,7 @@ $playerEnergyMax=mysql_result($result, 0, "energy_max");
 
 //$playerExpToNextLevel
 
-echo "Name :" . $playerName;
+echo "Name: " . $playerName;
 print "   ";
 echo "Level: " . $playerLevel;
 print "   ";
