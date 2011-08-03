@@ -26,6 +26,10 @@
 <input type="submit" value="My Items" />
 </form>
 
+<form action="bank.php">
+<input type="submit" value="Bank"/>
+</form>
+
 <form action="levelchecker.php" method="post">
 <input type="hidden" name="pageRequestType" value="recruit" />
 <input type="submit" value="Recruit" />
