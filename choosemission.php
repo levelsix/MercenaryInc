@@ -25,7 +25,7 @@ if (isset($_POST['postedCityID'])) {
 	$_SESSION['currentMissionCity'] = $_POST['postedCityID'];
 }
 
-if (isset($_SESSION['fail']) && $_SESSION['fail'] == true) {
+if (isset($_SESSION['missionfail']) && $_SESSION['missionfail'] == true) {
 	print "<b>You have not met the requirements for the mission. </b><br>";
 	if (isset($_SESSION['needMoreAgency'])) {
 		print "You need " . $_SESSION['needMoreAgency'] . " more members in your agency. <br>";
@@ -47,9 +47,42 @@ if (isset($_SESSION['fail']) && $_SESSION['fail'] == true) {
 		unset($_SESSION['itemsMissing']);
 	}
 	print "<br><br>";
-	unset($_SESSION['fail']);
+	unset($_SESSION['missionfail']);
 }
 
+if (isset($_SESSION['missionsuccess']) && $_SESSION['missionsuccess'] == true) {
+	print "<b>Congrats, you have successfully completed the mission </b><br>";
+	print "You gained " . $_SESSION['cashGained'] . " cash <br>";
+	print "You gained " . $_SESSION['expGained'] . " exp <br>";
+	
+	if (isset($_SESSION['gainedLootItemID'])) {
+		$query="SELECT * FROM items WHERE id = ". $_SESSION['gainedLootItemID'] . ";";
+		$itemresult=mysql_query($query);
+		print "Lucky you! You received a " . mysql_result($itemresult, 0, "name") . "<br>";
+		unset($_SESSION['gainedLootItemID']);
+	}
+	
+	if (isset($_SESSION['itemsLost'])){
+		$itemsLostArray = $_SESSION['itemsLost'];
+		foreach($itemsLostArray as $key=>$value) {
+			print "You lost a ";
+			$query="SELECT * FROM items WHERE id = ". $value . ";";
+			$itemresult=mysql_query($query);
+			print mysql_result($itemresult, 0, "name") . "<br>";
+			unset($itemsLostArray[$key]);
+		}
+		unset($_SESSION['itemsLost']);
+	}
+	
+	
+	print "You used " . $_SESSION['energyLost'] . " energy <br>";
+	print "<br><br>";
+	
+	unset($_SESSION['cashGained']);
+	unset($_SESSION['expGained']);
+	unset($_SESSION['energyLost']);
+	unset($_SESSION['missionsuccess']);
+} 
 
 
 $query="SELECT * from users_cities WHERE rank_avail > 0;";
@@ -77,9 +110,6 @@ if (isset($_SESSION['currentMissionCity'])) {
 	
 	if ($num == 0) { 
 		echo "No missions available in this city";
-		echo "current mission city is " . $_SESSION['currentMissionCity'];
-		//TODO: address this issue
-		echo "if you dont see a number for current mission city, high chance there is a bug here";
 	} else {
 		
 		$i = 0;
@@ -102,7 +132,7 @@ if (isset($_SESSION['currentMissionCity'])) {
 			$query="SELECT * FROM items WHERE id = ". $item_id . ";";
 			$itemresult=mysql_query($query);
 			print "You're not supposed to know this but the item you might get is the ";
-			print mysql_result($itemresult, 0, "name");
+			print mysql_result($itemresult, 0, "name") . "<br>";
 			
 			print "didnt put in agency or item requirements too lazy but they work";
 								

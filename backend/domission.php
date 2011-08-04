@@ -48,7 +48,7 @@ function playerHasRequireditems($itemReqResult, $userID) {
 	}
 	if (!$playerHasAllRequiredItems) {
 		$_SESSION['itemsMissing'] = $itemsMissing;
-	}
+	}	
 	return $playerHasAllRequiredItems;
 }
 
@@ -80,12 +80,14 @@ if (!playerHasRequireditems($itemReqResult, $userID)) {
 }
 if ($doMission) {
 	$numReqs=mysql_numrows($itemReqResult);
+	$itemsLost=array();
+	$hasLostItems=false;
 	for ($i = 0; $i < $numReqs; $i++) {
 		$random = rand(0, 100);
 		$itemID=mysql_result($itemReqResult, $i,"item_id");
 		$chanceLossQuery="SELECT * FROM items WHERE id=" . $itemID;
 		$chanceLossResult=mysql_query($chanceLossQuery);
-		$chanceLoss=mysql_result($chanceLootResult, 0,"chance_of_loss");
+		$chanceLoss=mysql_result($chanceLossResult, 0,"chance_of_loss");
 		if ($random < $chanceLoss*100) {
 			$userItemsQuery="SELECT * FROM users_items WHERE user_id=" . $userID;
 			$userItemsQuery.=" AND item_id=".$itemID;
@@ -98,25 +100,31 @@ if ($doMission) {
 				$query.=" AND item_id = ".$itemID.";";
 			}
 			mysql_query($query) or die(mysql_error());
-			//TODO: mark session that item lost
+			$hasLostItems=true;
+			array_push($itemsLost, $itemID);
+			//TODO: mark session that item lost. array should just have itemIDs of lost items
 		}		
 	}
+	if ($hasLostItems) {
+		$_SESSION['itemsLost']=$itemsLost;
+	}
+	
 	
 	$query = "UPDATE users SET energy=energy-".	mysql_result($missionResult, 0,"energy_cost") 
 		." WHERE id=" . $_SESSION['userID'];
-	//TODO: mark session energy lost
+	$_SESSION['energyLost']=mysql_result($missionResult, 0,"energy_cost");
 	mysql_query($query) or die(mysql_error());
 
 	$minCashGained=mysql_result($missionResult, 0,"min_cash_gained");
 	$maxCashGained=mysql_result($missionResult, 0,"max_cash_gained");
 	$cashGained=rand($minCashGained, $maxCashGained);
 	$query = "UPDATE users SET cash=cash+".	$cashGained . " WHERE id=" . $_SESSION['userID'];
-	//TODO: mark session money gained
+	$_SESSION['cashGained']=$cashGained;
 	mysql_query($query) or die(mysql_error());
 	
 	$query = "UPDATE users SET experience=experience+".	mysql_result($missionResult, 0,"exp_gained")
 	." WHERE id=" . $_SESSION['userID'];
-	//TODO: mark session exp gained
+	$_SESSION['expGained']=mysql_result($missionResult, 0,"exp_gained");
 	mysql_query($query) or die(mysql_error());
 	
 	$random = rand(0, 100);
@@ -137,16 +145,33 @@ if ($doMission) {
 			$query.=" AND item_id = ".$lootItemID.";";
 		}
 		
-		//TODO: mark loot gained
+		$_SESSION['gainedLootItemID']=$lootItemID;
+		
 		mysql_query($query) or die(mysql_error());
 	}
 	
 	$query = "UPDATE users SET missions_completed=missions_completed+1 WHERE id=" . $_SESSION['userID'];
-	//TODO: mark session energy lost
-	
 	mysql_query($query) or die(mysql_error());
+	
+	
+	$userMissionsQuery="SELECT * FROM users_missions WHERE user_id=" . $userID;
+	$userMissionsQuery.=" AND mission_id=".$missionID;
+	$userMissionsResult=mysql_query($userMissionsQuery);
+	$num=mysql_numrows($userMissionsResult);
+	
+	if ($num == 0) {
+		$query = "INSERT INTO users_missions (user_id, mission_id, times_complete) VALUES
+						(".$userID.", ". $missionID .", 1);"; 
+	
+	} else {
+		$query = "UPDATE users_missions SET times_complete=times_complete+1 WHERE user_id=" . $userID;
+		$query.=" AND mission_id = ".$missionID.";";
+	}	
+	mysql_query($query) or die(mysql_error());
+	
+	$_SESSION['missionsuccess']="true";
 } else {
-	$_SESSION['fail']="true";	
+	$_SESSION['missionfail']="true";	
 }
 $_SESSION['currentMissionCity']=$_POST['currentMissionCity'];
 
