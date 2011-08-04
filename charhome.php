@@ -3,7 +3,15 @@
 </head>
 
 <body>
-<?php include("topmenu.php"); ?>
+<?php 
+include("topmenu.php"); 
+
+// Daily bonus check
+if (isset($_SESSION['dailyBonus'])) {
+	print "Congratulations! You sliced open Conrad's pinata head and found " . $_SESSION['dailyBonus'] . " cash. <br>";
+	unset($_SESSION['dailyBonus']);
+}
+?>
 <form action="levelchecker.php" method="post"> 
 <input type="hidden" name="pageRequestType" value="mission" />
 <input type="submit" value="Choose Mission" />
