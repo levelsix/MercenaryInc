@@ -91,22 +91,31 @@ function displayMissions($playerLevel) {
 	}
 }
 
-function displayMissionInfo($result, $i, $playerLevel) {
-	if (mysql_result($result,$i,"min_level") == ($playerLevel+1)) {
+function displayMissionInfo($missionInfoResult, $i, $playerLevel) {
+	if (mysql_result($missionInfoResult,$i,"min_level") == ($playerLevel+1)) {
 		print "<b>LOCKED</b> <br>";
 	}
+
+	$query="SELECT * from users_missions WHERE user_id=".$_SESSION['userID'];
+	$query.=" AND mission_id=".mysql_result($missionInfoResult,$i,"id").";";
+	$userMissionsResult=mysql_query($query);
+	if (mysql_numrows($userMissionsResult) > 0 && mysql_result($userMissionsResult,$i,"times_complete")>0) {
+		print "You have done this mission ".mysql_result($userMissionsResult,$i,"times_complete") ." times<br>";
+	} else {
+		print "You have never done this mission <br>";
+	}
+	
+	print "Title: " . mysql_result($missionInfoResult,$i,"name") . "<br>";
+	print "City: " . ucfirst(getCityNameFromCityID(mysql_result($missionInfoResult,$i,"city_id"))) . "<br>";
+	print "Description: " . mysql_result($missionInfoResult,$i,"description") . "<br>";
+	print "Minimum level: " . mysql_result($missionInfoResult,$i,"min_level") . "<br>";
+	print "Cost: " . mysql_result($missionInfoResult,$i,"energy_cost") . " energy<br>";
+	print "Will Gain: " . mysql_result($missionInfoResult,$i,"exp_gained") . " exp<br>";
+	print "Will Gain " . mysql_result($missionInfoResult,$i,"min_cash_gained") . " - ";
+	print mysql_result($missionInfoResult, $i, "max_cash_gained") . "<br>";
+	print "Chance of getting loot: " . mysql_result($missionInfoResult,$i,"chance_of_loot") . "<br>";
 		
-	print "Title: " . mysql_result($result,$i,"name") . "<br>";
-	print "City: " . ucfirst(getCityNameFromCityID(mysql_result($result,$i,"city_id"))) . "<br>";
-	print "Description: " . mysql_result($result,$i,"description") . "<br>";
-	print "Minimum level: " . mysql_result($result,$i,"min_level") . "<br>";
-	print "Cost: " . mysql_result($result,$i,"energy_cost") . " energy<br>";
-	print "Will Gain: " . mysql_result($result,$i,"exp_gained") . " exp<br>";
-	print "Will Gain " . mysql_result($result,$i,"min_cash_gained") . " - ";
-	print mysql_result($result, $i, "max_cash_gained") . "<br>";
-	print "Chance of getting loot: " . mysql_result($result,$i,"chance_of_loot") . "<br>";
-		
-	$item_id = mysql_result($result,$i,"loot_item_id");
+	$item_id = mysql_result($missionInfoResult,$i,"loot_item_id");
 	$query="SELECT * FROM items WHERE id = ". $item_id . ";";
 	$itemresult=mysql_query($query);
 	print "You're not supposed to know this but the item you might get is the ";
@@ -114,9 +123,9 @@ function displayMissionInfo($result, $i, $playerLevel) {
 		
 	print "didnt put in agency or item requirements too lazy but they work";
 	
-	if (!missionIsLocked($result, $i, $playerLevel)) {
+	if (!missionIsLocked($missionInfoResult, $i, $playerLevel)) {
 		print "<form action='backend/domission.php' method='post'>";
-		print "<input type='hidden' name='missionID' value='".mysql_result($result,$i,"id")."' />";
+		print "<input type='hidden' name='missionID' value='".mysql_result($missionInfoResult,$i,"id")."' />";
 		print "<input type='hidden' name='currentMissionCity' value='".$_SESSION['currentMissionCity']."' />";
 		print "<input type='submit' value='Do It' />";
 		print "</form>";
@@ -125,8 +134,8 @@ function displayMissionInfo($result, $i, $playerLevel) {
 	print "<br><br>";
 }
 
-function missionIsLocked($result, $missionNum, $playerLevel) {
-	if (mysql_result($result,$missionNum,"min_level") == ($playerLevel+1)) {
+function missionIsLocked($missionInfoResult, $missionNum, $playerLevel) {
+	if (mysql_result($result,$missionInfoResult,"min_level") == ($playerLevel+1)) {
 		return true;
 	}
 	return false;
