@@ -81,8 +81,12 @@ function displayMissions($playerLevel) {
 		if ($num == 0) {
 			echo "No missions available in this city";
 		} else {
+			$userCitiesQuery="SELECT * from users_cities WHERE user_id=".$_SESSION['userID'];
+			$userCitiesQuery.=" AND city_id=".$_SESSION['currentMissionCity'].";";
+			$userCitiesResult=mysql_query($userCitiesQuery);
+			$cityRank=mysql_result($userCitiesResult,$i,"rank_avail");
 			for ($i = 0; $i < $num; $i++) {
-				displayMissionInfo($result, $i, $playerLevel);
+				displayMissionInfo($result, $i, $playerLevel, $cityRank);
 			}
 		}
 		mysql_close();
@@ -91,23 +95,75 @@ function displayMissions($playerLevel) {
 	}
 }
 
-function displayMissionInfo($missionInfoResult, $i, $playerLevel) {
+function displayMissionInfo($missionInfoResult, $i, $playerLevel, $cityRank) {
 	if (mysql_result($missionInfoResult,$i,"min_level") == ($playerLevel+1)) {
 		print "<b>LOCKED</b> <br>";
 	}
 
-	$query="SELECT * from users_missions WHERE user_id=".$_SESSION['userID'];
-	$query.=" AND mission_id=".mysql_result($missionInfoResult,$i,"id").";";
-	$userMissionsResult=mysql_query($query);
+	print "Title: " . mysql_result($missionInfoResult,$i,"name") . "<br>";
+	print "City: " . ucfirst(getCityNameFromCityID(mysql_result($missionInfoResult,$i,"city_id"))) . "<br>";
+
 	
-	if (mysql_numrows($userMissionsResult) > 0 && mysql_result($userMissionsResult,0,"times_complete")>0) {
+	
+	
+	
+	
+	
+	
+	$userMissionsQuery="SELECT * from users_missions WHERE user_id=".$_SESSION['userID'];
+	$userMissionsQuery.=" AND mission_id=".mysql_result($missionInfoResult,$i,"id").";";
+	$userMissionsResult=mysql_query($userMissionsQuery);
+	
+	$completionPercent;
+	if ($cityRank == 4) {
+		$completionPercent=100;
+		$cityRank=3;
+	} else {
+		$userTimesMissionDoneInThisRank;
+		$missionTimesToMasterRank;
+		if ($cityRank==1){
+			$missionTimesToMasterRank=mysql_result($missionInfoResult,$i,"rank_one_times");
+			$userTimesMissionDoneInThisRank=mysql_result($userMissionsResult,0,"rank_one_times");
+		}
+		if ($cityRank==2){
+			$missionTimesToMasterRank=mysql_result($missionInfoResult,$i,"rank_two_times");
+			$userTimesMissionDoneInThisRank=mysql_result($userMissionsResult,0,"rank_two_times");
+		}
+		if ($cityRank==3){
+			$missionTimesToMasterRank=mysql_result($missionInfoResult,$i,"rank_three_times");
+			$userTimesMissionDoneInThisRank=mysql_result($userMissionsResult,0,"rank_three_times");
+		}
+		
+		if ($userTimesMissionDoneInThisRank >= $missionTimesToMasterRank) {
+			$completionPercent = 100; 
+		} else {
+			$completionPercent = number_format($userTimesMissionDoneInThisRank/$missionTimesToMasterRank, 2)*100;
+		}
+	}
+	print $completionPercent."%"." R".$cityRank."<br>";
+	
+	/*if (mysql_numrows($userMissionsResult) > 0 && mysql_result($userMissionsResult,0,"times_complete")>0) {
 		print "You have done this mission ".mysql_result($userMissionsResult,0,"times_complete") ." times<br>";
 	} else {
 		print "You have never done this mission <br>";
-	}
+	}*/
 	
-	print "Title: " . mysql_result($missionInfoResult,$i,"name") . "<br>";
-	print "City: " . ucfirst(getCityNameFromCityID(mysql_result($missionInfoResult,$i,"city_id"))) . "<br>";
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	print "Description: " . mysql_result($missionInfoResult,$i,"description") . "<br>";
 	print "Minimum level: " . mysql_result($missionInfoResult,$i,"min_level") . "<br>";
 	print "Cost: " . mysql_result($missionInfoResult,$i,"energy_cost") . " energy<br>";
@@ -159,7 +215,7 @@ function listCities($userID) {
 function showJustUnlockedMissionRank() {
 	$justUnlockedMissionRank = $_SESSION['justUnlockedThisMissionRank'];
 	print "Not just that, you...";
-	print "just unlocked the rank " . $justUnlockedMissionRank . " for that mission<br>"; 
+	print "just mastered rank " . ($justUnlockedMissionRank-1) . " for that mission<br>"; 
 	print "just gained " . $_SESSION['extraCashGained'] . " extra cash bonus<br>";
 	print "just gained " . $_SESSION['extraExpGained'] . " extra exp<br>";
 	print "<br><br>";
@@ -172,7 +228,7 @@ function showJustUnlockedMissionRank() {
 function showJustUnlockedCityRank() {
 	print "Not just that, you...";
 	$justUnlockedCityRank = $_SESSION['justUnlockedThisCityRank'];
-	print "just unlocked the rank " . $justUnlockedCityRank . " for city<br>";
+	print "just mastered rank " . ($justUnlockedCityRank-1) . " for city<br>";
 	print "<br><br>";
 	unset($_SESSION['justUnlockedThisCityRank']);
 }

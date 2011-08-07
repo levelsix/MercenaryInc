@@ -75,6 +75,7 @@ function allMissionsInCityReadyForNextLevel($nextLevel, $cityID, $userID) {
 }
 
 //under this model, cityrank doesnt increase until every missions currRank is ready at new number
+//currRank should really be rankMissionIsReadyFor
 function handleRanks($userID, $missionID) {
 	$userMissionsQuery="SELECT * FROM users_missions WHERE user_id=" . $userID;
 	$userMissionsQuery.=" AND mission_id=".$missionID;
@@ -127,17 +128,18 @@ function handleRanks($userID, $missionID) {
 	if ($currRank==3) {
 		$missionRequirementToFinishRank=mysql_result($missionResult, 0,"rank_three_times");
 		$userTimesFinishedRankForMission=mysql_result($newUserMissionsResult, 0,"rank_three_times");
-	}
+	} 
 	
 	if ($userTimesFinishedRankForMission >= $missionRequirementToFinishRank) {
 		if ($userTimesFinishedRankForMission == $missionRequirementToFinishRank) {
-			$_SESSION['justUnlockedThisMissionRank'] = $currRank+1;
-			$upMissionRankQuery = "UPDATE users_missions SET curr_rank=".($currRank+1);
-			$upMissionRankQuery.="  WHERE user_id=" . $userID ." AND mission_id = ".$missionID.";";
-			mysql_query($upMissionRankQuery) or die(mysql_error());
-				
-			
-			//other session work
+			if ($currRank <= 3) {
+				$_SESSION['justUnlockedThisMissionRank'] = $currRank+1;
+				$upMissionRankQuery = "UPDATE users_missions SET curr_rank=".($currRank+1);
+				$upMissionRankQuery.="  WHERE user_id=" . $userID ." AND mission_id = ".$missionID.";";
+				mysql_query($upMissionRankQuery) or die(mysql_error());
+			} else {
+				return;
+			}
 		}
 		
 		$cityID=mysql_result($missionResult, 0,"city_id");
@@ -150,6 +152,7 @@ function handleRanks($userID, $missionID) {
 			
 			mysql_query($upCityRankQuery) or die(mysql_error());
 			$_SESSION['justUnlockedThisCityRank'] = $currRank+1;
+			//session work for rewards
 		}
 	}
 }
@@ -205,7 +208,6 @@ if ($doMission) {
 			mysql_query($query) or die(mysql_error());
 			$hasLostItems=true;
 			array_push($itemsLost, $itemID);
-			//TODO: mark session that item lost. array should just have itemIDs of lost items
 		}		
 	}
 	if ($hasLostItems) {
