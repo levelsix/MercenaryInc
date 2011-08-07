@@ -52,6 +52,107 @@ function playerHasRequireditems($itemReqResult, $userID) {
 	return $playerHasAllRequiredItems;
 }
 
+function allMissionsInCityReadyForNextLevel($nextLevel, $cityID, $userID) {
+	$missionsInCityQuery="SELECT * from missions WHERE city_id=".$cityID;
+	$missionsInCityResult=mysql_query($missionsInCityQuery);
+	$numMissionsInCity=mysql_numrows($missionsInCityResult);
+	
+	$allMissionsInCityReadyForUser=true;
+	
+	for ($i = 0; $i < $numMissionsInCity; $i++) {
+		$missionID = mysql_result($missionsInCityResult, $i,"id");
+		$userCheckQuery = "SELECT * from users_missions WHERE user_id=".$userID;
+		$userCheckQuery.= " AND mission_id=".$missionID." AND curr_rank=".$nextLevel.";";
+		$userCheckResult=mysql_query($userCheckQuery);
+		
+		if (mysql_numrows($userCheckResult) < 1) {
+			$allMissionsInCityReadyForUser=false;
+			break;
+		}
+		
+	}
+	return $allMissionsInCityReadyForUser;	
+}
+
+//under this model, cityrank doesnt increase until every missions currRank is ready at new number
+function handleRanks($userID, $missionID) {
+	$userMissionsQuery="SELECT * FROM users_missions WHERE user_id=" . $userID;
+	$userMissionsQuery.=" AND mission_id=".$missionID;
+	$userMissionsResult=mysql_query($userMissionsQuery);
+		
+	$num=mysql_numrows($userMissionsResult);
+	$currRank = -1;
+	if ($num == 0) {
+		$currRank = 1;
+		$query = "INSERT INTO users_missions (user_id, mission_id, times_complete, rank_one_times, curr_rank) VALUES
+							(".$userID.", ". $missionID .", 1, 1, 1);"; 
+	} else {
+		$currRank = mysql_result($userMissionsResult, 0,"curr_rank");
+		$query = "UPDATE users_missions SET times_complete=times_complete+1";
+		
+		$cityRankQuery = "SELECT * from users_cities WHERE user_id=".$userID." AND mission_id=".$missionID.";";
+		$cityRankResult = mysql_query($cityRankQuery);
+		$cityRank = mysql_result($cityRankResult, 0,"rank_avail");
+		if ($cityRank==1) {
+			$query.=", rank_one_times=rank_one_times+1";
+		}
+		if ($cityRank==2) {
+			$query.=", rank_two_times=rank_two_times+1";
+		}
+		if ($cityRank==3) {
+			$query.=", rank_three_times=rank_three_times+1";
+		}
+		$query.="  WHERE user_id=" . $userID ." AND mission_id = ".$missionID.";";
+	}
+	mysql_query($query) or die(mysql_error());
+	
+	$missionQuery="SELECT * from missions WHERE id=".$missionID.";";
+	$missionResult=mysql_query($missionQuery);	
+	
+	$newUserMissionsResult=mysql_query($userMissionsQuery);	
+	
+	
+	$userTimesFinishedRankForMission=-1;
+	$missionRequirementToFinishRank=-1;
+	
+	if ($currRank==1) {
+		$missionRequirementToFinishRank=mysql_result($missionResult, 0,"rank_one_times");
+		$userTimesFinishedRankForMission=mysql_result($newUserMissionsResult, 0,"rank_one_times");
+	}
+	if ($currRank==2) {
+		$missionRequirementToFinishRank=mysql_result($missionResult, 0,"rank_two_times");
+		$userTimesFinishedRankForMission=mysql_result($newUserMissionsResult, 0,"rank_two_times");
+	}
+	if ($currRank==3) {
+		$missionRequirementToFinishRank=mysql_result($missionResult, 0,"rank_three_times");
+		$userTimesFinishedRankForMission=mysql_result($newUserMissionsResult, 0,"rank_three_times");
+	}
+	
+	if ($userTimesFinishedRankForMission >= $missionRequirementToFinishRank) {
+		if ($userTimesFinishedRankForMission == $missionRequirementToFinishRank) {
+			$_SESSION['justUnlockedThisMissionRank'] = $currRank+1;
+			$upMissionRankQuery = "UPDATE users_missions SET curr_rank=".($currRank+1);
+			$upMissionRankQuery.="  WHERE user_id=" . $userID ." AND mission_id = ".$missionID.";";
+			mysql_query($upMissionRankQuery) or die(mysql_error());
+				
+			//other session work
+		}
+		
+		$cityID=mysql_result($missionResult, 0,"city_id");
+
+		
+		
+		if (allMissionsInCityReadyForNextLevel($currRank+1, $cityID, $userID)) {
+			$upCityRankQuery = "UPDATE users_cities SET rank_avail=".($currRank+1);
+			$upCityRankQuery.= " WHERE user_id=" . $userID . " AND city_id=" . $cityID . ";";
+			
+			mysql_query($upCityRankQuery) or die(mysql_error());
+			$_SESSION['justUnlockedThisCityRank'] = $currRank+1;
+		}
+	}
+}
+
+
 $missionID=$_POST['missionID'];
 session_start();
 $userID=$_SESSION['userID'];
@@ -152,24 +253,9 @@ if ($doMission) {
 	
 	$query = "UPDATE users SET missions_completed=missions_completed+1 WHERE id=" . $_SESSION['userID'];
 	mysql_query($query) or die(mysql_error());
-	
-	
-	$userMissionsQuery="SELECT * FROM users_missions WHERE user_id=" . $userID;
-	$userMissionsQuery.=" AND mission_id=".$missionID;
-	$userMissionsResult=mysql_query($userMissionsQuery);
-	$num=mysql_numrows($userMissionsResult);
-	
-	if ($num == 0) {
-		$query = "INSERT INTO users_missions (user_id, mission_id, times_complete) VALUES
-						(".$userID.", ". $missionID .", 1);"; 
-	
-	} else {
-		$query = "UPDATE users_missions SET times_complete=times_complete+1 WHERE user_id=" . $userID;
-		$query.=" AND mission_id = ".$missionID.";";
-	}	
-	mysql_query($query) or die(mysql_error());
-	
+		
 	$_SESSION['missionsuccess']="true";
+	handleRanks($userID, $missionID);
 } else {
 	$_SESSION['missionfail']="true";	
 }

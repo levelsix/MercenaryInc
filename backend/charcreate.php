@@ -27,6 +27,12 @@ $query = "INSERT INTO users (name, level, type, attack, defense) VALUES
 
 mysql_query($query) or die(mysql_error()); 
 $justAddedID = mysql_insert_id();
+
+$query="INSERT INTO users_cities(user_id, city_id, rank_avail) VALUES 
+	(".$justAddedID.", 1, 1);";
+mysql_query($query) or die(mysql_error());
+
+
 mysql_close();  
 
 session_start();

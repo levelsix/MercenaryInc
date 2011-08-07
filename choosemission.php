@@ -99,8 +99,9 @@ function displayMissionInfo($missionInfoResult, $i, $playerLevel) {
 	$query="SELECT * from users_missions WHERE user_id=".$_SESSION['userID'];
 	$query.=" AND mission_id=".mysql_result($missionInfoResult,$i,"id").";";
 	$userMissionsResult=mysql_query($query);
-	if (mysql_numrows($userMissionsResult) > 0 && mysql_result($userMissionsResult,$i,"times_complete")>0) {
-		print "You have done this mission ".mysql_result($userMissionsResult,$i,"times_complete") ." times<br>";
+	
+	if (mysql_numrows($userMissionsResult) > 0 && mysql_result($userMissionsResult,0,"times_complete")>0) {
+		print "You have done this mission ".mysql_result($userMissionsResult,0,"times_complete") ." times<br>";
 	} else {
 		print "You have never done this mission <br>";
 	}
@@ -141,8 +142,8 @@ function missionIsLocked($missionInfoResult, $missionNum, $playerLevel) {
 	return false;
 }
 
-function listCities() {
-	$query="SELECT * from users_cities WHERE rank_avail > 0;";
+function listCities($userID) {
+	$query="SELECT * from users_cities WHERE rank_avail > 0 AND user_id=".$_SESSION['userID'].";";
 	$result=mysql_query($query);
 	$num=mysql_numrows($result);
 	for ($i=0; $i<$num; $i++) {
@@ -155,11 +156,32 @@ function listCities() {
 	}
 }
 
+function showJustUnlockedMissionRank() {
+	$justUnlockedMissionRank = $_SESSION['justUnlockedThisMissionRank'];
+	echo "just unlocked the rank " . $justUnlockedMissionRank . " for mission"; 
+	unset($_SESSION['justUnlockedThisMissionRank']);
+}
+
+function showJustUnlockedCityRank() {
+	$justUnlockedCityRank = $_SESSION['justUnlockedThisCityRank'];
+	echo "just unlocked the rank " . $justUnlockedCityRank . " for city";
+	unset($_SESSION['justUnlockedThisCityRank']);
+}
+
 
 session_start();
 
+
 if (isset($_POST['postedCityID'])) {
 	$_SESSION['currentMissionCity'] = $_POST['postedCityID'];
+}
+
+if (isset($_SESSION['justUnlockedThisMissionRank'])) {
+	showJustUnlockedMissionRank();
+}
+
+if (isset($_SESSION['justUnlockedThisCityRank'])) {
+	showJustUnlockedCityRank();
 }
 
 if (isset($_SESSION['missionfail']) && $_SESSION['missionfail'] == true) {
