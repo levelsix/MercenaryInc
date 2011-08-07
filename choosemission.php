@@ -38,8 +38,8 @@ function showFailureNotifications() {
 
 function showSuccessNotifications() {
 	print "<b>Congrats, you have successfully completed the mission </b><br>";
-	print "You gained " . $_SESSION['cashGained'] . " cash <br>";
-	print "You gained " . $_SESSION['expGained'] . " exp <br>";
+	print "You gained " . $_SESSION['baseCashGained'] . " cash <br>";
+	print "You gained " . $_SESSION['baseExpGained'] . " exp <br>";
 	
 	if (isset($_SESSION['gainedLootItemID'])) {
 		$query="SELECT * FROM items WHERE id = ". $_SESSION['gainedLootItemID'] . ";";
@@ -64,8 +64,8 @@ function showSuccessNotifications() {
 	print "You used " . $_SESSION['energyLost'] . " energy <br>";
 	print "<br><br>";
 	
-	unset($_SESSION['cashGained']);
-	unset($_SESSION['expGained']);
+	unset($_SESSION['baseCashGained']);
+	unset($_SESSION['baseExpGained']);
 	unset($_SESSION['energyLost']);
 	unset($_SESSION['missionsuccess']);
 }
@@ -158,13 +158,22 @@ function listCities($userID) {
 
 function showJustUnlockedMissionRank() {
 	$justUnlockedMissionRank = $_SESSION['justUnlockedThisMissionRank'];
-	echo "just unlocked the rank " . $justUnlockedMissionRank . " for mission"; 
+	print "Not just that, you...";
+	print "just unlocked the rank " . $justUnlockedMissionRank . " for that mission<br>"; 
+	print "just gained " . $_SESSION['extraCashGained'] . " extra cash bonus<br>";
+	print "just gained " . $_SESSION['extraExpGained'] . " extra exp<br>";
+	print "<br><br>";
+	
+	unset($_SESSION['extraCashGained']);
+	unset($_SESSION['extraExpGained']);
 	unset($_SESSION['justUnlockedThisMissionRank']);
 }
 
 function showJustUnlockedCityRank() {
+	print "Not just that, you...";
 	$justUnlockedCityRank = $_SESSION['justUnlockedThisCityRank'];
-	echo "just unlocked the rank " . $justUnlockedCityRank . " for city";
+	print "just unlocked the rank " . $justUnlockedCityRank . " for city<br>";
+	print "<br><br>";
 	unset($_SESSION['justUnlockedThisCityRank']);
 }
 
@@ -176,14 +185,6 @@ if (isset($_POST['postedCityID'])) {
 	$_SESSION['currentMissionCity'] = $_POST['postedCityID'];
 }
 
-if (isset($_SESSION['justUnlockedThisMissionRank'])) {
-	showJustUnlockedMissionRank();
-}
-
-if (isset($_SESSION['justUnlockedThisCityRank'])) {
-	showJustUnlockedCityRank();
-}
-
 if (isset($_SESSION['missionfail']) && $_SESSION['missionfail'] == true) {
 	showFailureNotifications();
 }
@@ -191,6 +192,14 @@ if (isset($_SESSION['missionfail']) && $_SESSION['missionfail'] == true) {
 if (isset($_SESSION['missionsuccess']) && $_SESSION['missionsuccess'] == true) {
 	showSuccessNotifications();
 } 
+
+if (isset($_SESSION['justUnlockedThisMissionRank'])) {
+	showJustUnlockedMissionRank();
+}
+
+if (isset($_SESSION['justUnlockedThisCityRank'])) {
+	showJustUnlockedCityRank();
+}
 
 listCities();
 displayMissions($playerLevel);

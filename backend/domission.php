@@ -136,6 +136,7 @@ function handleRanks($userID, $missionID) {
 			$upMissionRankQuery.="  WHERE user_id=" . $userID ." AND mission_id = ".$missionID.";";
 			mysql_query($upMissionRankQuery) or die(mysql_error());
 				
+			
 			//other session work
 		}
 		
@@ -211,22 +212,9 @@ if ($doMission) {
 		$_SESSION['itemsLost']=$itemsLost;
 	}
 	
-	
 	$query = "UPDATE users SET energy=energy-".	mysql_result($missionResult, 0,"energy_cost") 
 		." WHERE id=" . $_SESSION['userID'];
 	$_SESSION['energyLost']=mysql_result($missionResult, 0,"energy_cost");
-	mysql_query($query) or die(mysql_error());
-
-	$minCashGained=mysql_result($missionResult, 0,"min_cash_gained");
-	$maxCashGained=mysql_result($missionResult, 0,"max_cash_gained");
-	$cashGained=rand($minCashGained, $maxCashGained);
-	$query = "UPDATE users SET cash=cash+".	$cashGained . " WHERE id=" . $_SESSION['userID'];
-	$_SESSION['cashGained']=$cashGained;
-	mysql_query($query) or die(mysql_error());
-	
-	$query = "UPDATE users SET experience=experience+".	mysql_result($missionResult, 0,"exp_gained")
-	." WHERE id=" . $_SESSION['userID'];
-	$_SESSION['expGained']=mysql_result($missionResult, 0,"exp_gained");
 	mysql_query($query) or die(mysql_error());
 	
 	$random = rand(0, 100);
@@ -256,7 +244,33 @@ if ($doMission) {
 	mysql_query($query) or die(mysql_error());
 		
 	$_SESSION['missionsuccess']="true";
+	
 	handleRanks($userID, $missionID);
+	
+	$multiplier=1;
+	if (isset($_SESSION['justUnlockedThisMissionRank'])) {
+		$multiplier=$_SESSION['justUnlockedThisMissionRank'];
+	}
+	
+	$minCashGained=mysql_result($missionResult, 0,"min_cash_gained");
+	$maxCashGained=mysql_result($missionResult, 0,"max_cash_gained");
+	$cashGained=rand($minCashGained, $maxCashGained);
+	$query = "UPDATE users SET cash=cash+".	($cashGained*$multiplier) . " WHERE id=" . $_SESSION['userID'];
+	$_SESSION['baseCashGained']=$cashGained;
+	if (isset($_SESSION['justUnlockedThisMissionRank'])) {
+		$_SESSION['extraCashGained']=$cashGained*($multiplier-1);
+	}
+	mysql_query($query) or die(mysql_error());
+	
+	$expGained = mysql_result($missionResult, 0,"exp_gained");
+	$query = "UPDATE users SET experience=experience+".	($expGained*$multiplier)
+	." WHERE id=" . $_SESSION['userID'];
+	$_SESSION['baseExpGained']=$expGained;
+	if (isset($_SESSION['justUnlockedThisMissionRank'])) {
+		$_SESSION['extraExpGained']=$expGained*($multiplier-1);
+	}
+	mysql_query($query) or die(mysql_error());
+	
 } else {
 	$_SESSION['missionfail']="true";	
 }
