@@ -80,6 +80,9 @@ function handleRanks($userID, $missionID) {
 	$userMissionsQuery.=" AND mission_id=".$missionID;
 	$userMissionsResult=mysql_query($userMissionsQuery);
 		
+	$missionQuery="SELECT * from missions WHERE id=".$missionID.";";
+	$missionResult=mysql_query($missionQuery);
+	
 	$num=mysql_numrows($userMissionsResult);
 	$currRank = -1;
 	if ($num == 0) {
@@ -90,7 +93,8 @@ function handleRanks($userID, $missionID) {
 		$currRank = mysql_result($userMissionsResult, 0,"curr_rank");
 		$query = "UPDATE users_missions SET times_complete=times_complete+1";
 		
-		$cityRankQuery = "SELECT * from users_cities WHERE user_id=".$userID." AND mission_id=".$missionID.";";
+		$cityRankQuery = "SELECT * from users_cities WHERE user_id=".$userID.
+		$cityRankQuery.=" AND city_id=".mysql_result($missionResult, 0,"city_id").";";
 		$cityRankResult = mysql_query($cityRankQuery);
 		$cityRank = mysql_result($cityRankResult, 0,"rank_avail");
 		if ($cityRank==1) {
@@ -105,9 +109,6 @@ function handleRanks($userID, $missionID) {
 		$query.="  WHERE user_id=" . $userID ." AND mission_id = ".$missionID.";";
 	}
 	mysql_query($query) or die(mysql_error());
-	
-	$missionQuery="SELECT * from missions WHERE id=".$missionID.";";
-	$missionResult=mysql_query($missionQuery);	
 	
 	$newUserMissionsResult=mysql_query($userMissionsQuery);	
 	
