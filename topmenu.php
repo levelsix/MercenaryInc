@@ -1,7 +1,10 @@
 <b>This is the top menu</b>
-<form action="charhome.php"> 
+
+<form action="levelchecker.php" method="post"> 
+<input type="hidden" name="pageRequestType" value="home" />
 <input type="submit" value="Home" />
 </form>
+
 
 <form action="levelchecker.php" method="post"> 
 <input type="hidden" name="pageRequestType" value="mission" />

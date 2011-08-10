@@ -37,6 +37,6 @@ mysql_close();
 
 session_start();
 $_SESSION['userID']=$justAddedID;
-header("Location: ../charhome.php");
+header("Location: ../choosemission.php");
 exit;
 ?>

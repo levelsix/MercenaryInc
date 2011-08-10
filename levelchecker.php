@@ -3,9 +3,12 @@ include("topmenu.php");
 include("properties/dbproperties.php");
 
 $missionsMinLevel = 1;
+$homeMinLevel = 2;
 $battleMinLevel = 3;
 $shopMinLevel = 4;
+$profileMinLevel = 5;
 $recruitMinLevel = 6;
+
 
 mysql_connect($server,$user,$password);
 @mysql_select_db($database) or die( "Unable to select database");
@@ -46,6 +49,22 @@ if (strcmp($_POST['pageRequestType'], "mission") == 0){
 		echo "<script>location.href='recruit.php'</script>";
 	} else {
 		echo $tooLowLevelString . $recruitMinLevel . " to recruit";
+		print "<br>";
+		echo "<insert links to allowable paths here>";
+	}
+} else if (strcmp($_POST['pageRequestType'], "home") == 0){
+	if ($level >=  $homeMinLevel) {
+		echo "<script>location.href='charhome.php'</script>";
+	} else {
+		echo $tooLowLevelString . $homeMinLevel . " to get to home";
+		print "<br>";
+		echo "<insert links to allowable paths here>";
+	}
+} else if (strcmp($_POST['pageRequestType'], "profile") == 0){
+	if ($level >=  $profileMinLevel) {
+		echo "<script>location.href='charprofile.php'</script>";
+	} else {
+		echo $tooLowLevelString . $profileMinLevel . " to get to profile";
 		print "<br>";
 		echo "<insert links to allowable paths here>";
 	}

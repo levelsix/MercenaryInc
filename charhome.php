@@ -8,7 +8,7 @@ include("topmenu.php");
 
 // Daily bonus check
 if (isset($_SESSION['dailyBonus'])) {
-	print "Congratulations! You sliced open Conrad's pinata head and found " . $_SESSION['dailyBonus'] . " cash. <br>";
+	print "Congratulations! You sliced open Calvin's nutsack and found " . $_SESSION['dailyBonus'] . " cash. <br>";
 	unset($_SESSION['dailyBonus']);
 }
 ?>
@@ -44,11 +44,10 @@ if (isset($_SESSION['dailyBonus'])) {
 <input type="submit" value="Recruit" />
 </form>
 
-<br>
-<form action="charprofile.php">
+<form action="levelchecker.php" method="post">
+<input type="hidden" name="pageRequestType" value="profile" />
 <input type="submit" value="My Profile" />
 </form>
-
 </body>
 
 </html>
