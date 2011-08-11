@@ -4,6 +4,8 @@ include("../properties/dbproperties.php");
 // Set the ID in the session
 $id = $_POST['id'];
 session_start();
+session_destroy();
+session_start();
 $_SESSION['userID'] = $id;
 
 mysql_connect($server, $user, $password);
