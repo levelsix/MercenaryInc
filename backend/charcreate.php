@@ -21,9 +21,8 @@ else if (strcmp($playertype, $playertype3) == 0) {
 	$defense = $playertype3def;
 }
 	
-$query = "INSERT INTO users (name, level, type, attack, defense) VALUES
-('". $charname ."', ". $initlevel ." , '" . $playertype . 
-"', ". $attack .", " . $defense . ");"; 
+$query = "INSERT INTO users (name) VALUES
+('". $charname ."');"; 
 
 mysql_query($query) or die(mysql_error()); 
 $justAddedID = mysql_insert_id();

@@ -45,6 +45,12 @@ print "</form>";
 mysql_connect($server, $user, $password);
 @mysql_select_db($database) or die("Unable to select database");
 
+/*
+ * TODO: if first time here, have them choose their class/type
+	dont make this db call tho..
+ */
+
+
 if (isset($_POST['battleTab'])) {
 	if ($_POST['battleTab']=='normal') {
 		displayNormalAttack();
