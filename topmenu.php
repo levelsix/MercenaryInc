@@ -70,8 +70,12 @@ echo "Name: " . $playerName;
 print "   ";
 echo "Level: " . $playerLevel;
 print "   ";
+
+/*
 echo "Type: " . $playerType;    
 print "   ";
+*/
+
 echo "Cash: " . $playerCash;
 print "   ";
 echo "Stamina: " . $playerStamina . "/" . $playerStaminaMax;

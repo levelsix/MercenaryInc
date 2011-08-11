@@ -15,17 +15,20 @@ Greetings, young warrior. What will you choose as your mercenary alias?
 <input type="text" name="charname" id="charname"/>
 <br><br>
 
+<!--
 Choose your specialty:
 <br>
 <select name="playertype">
 <?php
+/*
 print ("<option value=" . $playertype1 . ">" . ucfirst($playertype1) . "</option>");
 print ("<option value=" . $playertype2 . ">" . ucfirst($playertype2). "</option>");
 print ("<option value=" . $playertype3 . ">" . ucfirst($playertype3). "</option>");
+*/
 ?>
 </select>
 <br><br>
-
+-->
 
 <input type="hidden" name="justmadechar" value="true"> 
 <input type="submit" value="Finish!" />

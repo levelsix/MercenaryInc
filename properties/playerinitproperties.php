@@ -7,6 +7,4 @@ $playertype1def=10;
 $playertype2def=9;
 $playertype3def=8;
 
-$initlevel = 1;
-$initgold = 500;
 ?>
