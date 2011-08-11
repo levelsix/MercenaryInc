@@ -24,34 +24,45 @@ $userFightsWon = mysql_result($userResult, 0, "fights_won");
 $userFightsLost = mysql_result($userResult, 0, "fights_lost");
 $userKills = mysql_result($userResult, 0, "kills");
 $userDeaths = mysql_result($userResult, 0, "deaths");
+?>
 
-print $userName . "<br>";
-print "Level " . $userLevel . " " . ucfirst($userType) . "<br>";
-print "----------------------------------------------------- <br>";
-print "Missions Completed: " . $userMissionsCompleted . "<br>";
-print "Fights Won: " . $userFightsWon . "<br>";
-print "Fights Lost: " . $userFightsLost . "<br>";
-print "Kills: " . $userKills . "<br>";
-print "Deaths: " . $userDeaths . "<br>";
+<?php echo $userName;?><br>
+Level <?php echo $userLevel;?> <?php echo ucfirst($userType);?><br>
+----------------------------------------------------- <br>
+Missions Completed: <?php echo $userMissionsCompleted;?><br>
+Fights Won: <?php echo $userFightsWon;?><br>
+Fights Lost: <?php echo $userFightsLost;?><br>
+Kills: <?php echo $userKills;?><br>
+Deaths: <?php echo $userDeaths;?><br>
 
-// Action buttons
-// Give option to attack, add to bounty list
-print "<form action='attackplayer.php' method='GET'>";
-print "<input type='submit' value='Attack'/>";
-print "</form>";
 
-print "<form action='addplayertobounty.php' method='GET'>";
-print "<input type='hidden' name='targetID' value='" . $userID . "'/>";
-print "<input type='submit' value='Add to Bounty List'/>";
-print "</form>";
+<!--  Action buttons
+Give option to attack, add to bounty list -->
+<form action='attackplayer.php' method='POST'>
+<input type='hidden' name='userID' value='<?php $userID?>'/>
+<input type='submit' value='Attack'/>
+</form>
 
-// Implement achievements + query
-print "Achievements: <br>";
+<form action='addplayertobounty.php' method='POST'>
+<input type='hidden' name='targetID' value='<?php $userID?>'/>
+<input type='submit' value='Add to Bounty List'/>
+</form>
 
-// Items
-print "Items: <br>";
+
+
+
+
+<!-- Achievements (implement + query)-->
+<br><br>Achievements: <br>
+----------------------------------------------------- <br>
+
+
+<!-- Items -->
+<br><br>Items: <br>
+----------------------------------------------------- <br>
+<?php
 $itemsQuery = "SELECT * FROM users_items JOIN items ON (users_items.item_id = items.id) WHERE users_items.user_id = "
-	. $userID . ";";
+. $userID . ";";
 $itemsResult = mysql_query($itemsQuery);
 $numItems = mysql_numrows($itemsResult);
 
@@ -62,6 +73,5 @@ for ($i = 0; $i < $numItems; $i++) {
 	$itemName = mysql_result($itemsResult, $i, "name");
 	print $quantity . "x " . $itemName . "<br>";
 }
-
 mysql_close();
 ?>

@@ -33,9 +33,6 @@ if ($num == 0) {
 			$itemType = $itemtype3;
 		}		
 		$itemPrice = mysql_result($result,$i,"price");
-		print "Type: " . $itemType . "<br>";
-		print "Minimum level: " . mysql_result($result,$i,"min_level") . "<br>";
-		print "Price: " . $itemPrice . "<br>";
 		
 		$item_id = mysql_result($result,$i, "id");
 		
@@ -47,27 +44,34 @@ if ($num == 0) {
 			$quantity = mysql_result($quantityResult, 0, "quantity");
 		else
 			$quantity = 0;
-		
-		print "Quantity Owned: " . $quantity . "<br>";
-		
+?>		
+
+		Type: <?php echo $itemType;?><br>
+		Minimum level: <?php echo mysql_result($result,$i,"min_level");?><br>
+		Price: <?php echo $itemPrice?><br>
+		Quantity Owned: <?php echo $quantity?><br>
+<?php 	
 		if (($playerCash >= $itemPrice) && (!itemIsLocked($result, $i, $playerLevel))){
-			print "<form action='backend/shopaction.php' method='post'>";
-			print "<input type='hidden' name='actionToDo' value='buy' />";
-			print "<input type='hidden' name='storePrice' value='".$itemPrice."' />";
-			print "<input type='hidden' name='itemID' value='".$item_id."' />";
-			print "<input type='submit' value='Buy' />";
-			print "</form>";
+?>
+			<form action='backend/shopaction.php' method='post'>
+			<input type='hidden' name='actionToDo' value='buy' />
+			<input type='hidden' name='storePrice' value='<?php echo $itemPrice;?>' />
+			<input type='hidden' name='itemID' value='<?php echo $item_id;?>' />
+			<input type='submit' value='Buy' />
+			</form>
+<?php 
 		} else {
 			echo "you can't buy this item (you don't have enough cash or it's locked)<br>";
 		}
 		if ($quantity >= 1 && !itemIsLocked($result, $i, $playerLevel)) {
-			
-			print "<form action='backend/shopaction.php' method='post'>";
-			print "<input type='hidden' name='actionToDo' value='sell' />";
-			print "<input type='hidden' name='storePrice' value='".$itemPrice."' />";
-			print "<input type='hidden' name='itemID' value='".$item_id."' />";
-			print "<input type='submit' value='Sell' />";
-			print "</form>";
+?>
+			<form action='backend/shopaction.php' method='post'>
+			<input type='hidden' name='actionToDo' value='sell' />
+			<input type='hidden' name='storePrice' value='<?php echo $itemPrice;?>' />
+			<input type='hidden' name='itemID' value='<?php echo $item_id;?>' />
+			<input type='submit' value='Sell' />
+			</form>
+<?php 
 		} else {
 			print "you can't sell this item (don't have any or it's locked)<br>";
 		}

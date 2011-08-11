@@ -99,17 +99,12 @@ function displayMissionInfo($missionInfoResult, $i, $playerLevel, $cityRank) {
 	if (mysql_result($missionInfoResult,$i,"min_level") == ($playerLevel+1)) {
 		print "<b>LOCKED</b> <br>";
 	}
+	?>
 
-	print "Title: " . mysql_result($missionInfoResult,$i,"name") . "<br>";
-	print "City: " . ucfirst(getCityNameFromCityID(mysql_result($missionInfoResult,$i,"city_id"))) . "<br>";
-
+	Title: <?php echo mysql_result($missionInfoResult,$i,"name");?><br>
+	City: <?php echo ucfirst(getCityNameFromCityID(mysql_result($missionInfoResult,$i,"city_id")));?><br>
 	
-	
-	
-	
-	
-	
-	
+	<?php 
 	$userMissionsQuery="SELECT * from users_missions WHERE user_id=".$_SESSION['userID'];
 	$userMissionsQuery.=" AND mission_id=".mysql_result($missionInfoResult,$i,"id").";";
 	$userMissionsResult=mysql_query($userMissionsQuery);
@@ -140,52 +135,35 @@ function displayMissionInfo($missionInfoResult, $i, $playerLevel, $cityRank) {
 			$completionPercent = number_format($userTimesMissionDoneInThisRank/$missionTimesToMasterRank, 2)*100;
 		}
 	}
-	print $completionPercent."%"." R".$cityRank."<br>";
+?>
 	
-	/*if (mysql_numrows($userMissionsResult) > 0 && mysql_result($userMissionsResult,0,"times_complete")>0) {
-		print "You have done this mission ".mysql_result($userMissionsResult,0,"times_complete") ." times<br>";
-	} else {
-		print "You have never done this mission <br>";
-	}*/
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	print "Description: " . mysql_result($missionInfoResult,$i,"description") . "<br>";
-	print "Minimum level: " . mysql_result($missionInfoResult,$i,"min_level") . "<br>";
-	print "Cost: " . mysql_result($missionInfoResult,$i,"energy_cost") . " energy<br>";
-	print "Will Gain: " . mysql_result($missionInfoResult,$i,"exp_gained") . " exp<br>";
-	print "Will Gain " . mysql_result($missionInfoResult,$i,"min_cash_gained") . " - ";
-	print mysql_result($missionInfoResult, $i, "max_cash_gained") . "<br>";
-	print "Chance of getting loot: " . mysql_result($missionInfoResult,$i,"chance_of_loot") . "<br>";
-		
+<?php echo $completionPercent;?>% R<?php echo $cityRank; ?><br>
+Description: <?php echo mysql_result($missionInfoResult,$i,"description");?><br>
+Minimum level: <?php echo mysql_result($missionInfoResult,$i,"min_level");?><br>
+Cost: <?php echo mysql_result($missionInfoResult,$i,"energy_cost");?> energy<br>
+Will Gain: <?php echo mysql_result($missionInfoResult,$i,"exp_gained"); ?> exp<br>
+Will Gain <?php echo mysql_result($missionInfoResult,$i,"min_cash_gained");?> - 
+<?php echo mysql_result($missionInfoResult, $i, "max_cash_gained");?><br>
+Chance of getting loot: <?php echo mysql_result($missionInfoResult,$i,"chance_of_loot");?><br>
+
+<?php 		
 	$item_id = mysql_result($missionInfoResult,$i,"loot_item_id");
 	$query="SELECT * FROM items WHERE id = ". $item_id . ";";
 	$itemresult=mysql_query($query);
-	print "You're not supposed to know this but the item you might get is the ";
-	print mysql_result($itemresult, 0, "name") . "<br>";
-		
-	print "didnt put in agency or item requirements too lazy but they work";
+?>	
+
+	You're not supposed to know this but the item you might get is the <?php echo mysql_result($itemresult, 0, "name");?><br>
+	didnt put in agency or item requirements too lazy but they work
 	
+<?php 	
 	if (!missionIsLocked($missionInfoResult, $i, $playerLevel)) {
-		print "<form action='backend/domission.php' method='post'>";
-		print "<input type='hidden' name='missionID' value='".mysql_result($missionInfoResult,$i,"id")."' />";
-		print "<input type='hidden' name='currentMissionCity' value='".$_SESSION['currentMissionCity']."' />";
-		print "<input type='submit' value='Do It' />";
-		print "</form>";
+		?>
+		<form action='backend/domission.php' method='post'>
+		<input type='hidden' name='missionID' value='<?php echo mysql_result($missionInfoResult,$i,"id")?>' />
+		<input type='hidden' name='currentMissionCity' value='<?php echo $_SESSION['currentMissionCity'];?>' />
+		<input type='submit' value='Do It' />
+		</form>
+		<?php 
 	}
 	
 	print "<br><br>";
@@ -205,31 +183,36 @@ function listCities($userID) {
 	for ($i=0; $i<$num; $i++) {
 		$cityID=mysql_result($result,$i,"city_id");
 		$cityName = getCityNameFromCityID($cityID);
-		print "<form action='choosemission.php' method='post'>";
-		print "<input type='hidden' name='postedCityID' value='".$cityID."' />";
-		print "<input type='submit' value='Missions in ".ucfirst($cityName)."' />";
-		print "</form>";
+?>
+		<form action='choosemission.php' method='post'>
+		<input type='hidden' name='postedCityID' value='<?php echo $cityID;?>' />
+		<input type='submit' value='Missions in <?php echo ucfirst($cityName);?>' />
+		</form>
+<?php
 	}
 }
 
 function showJustUnlockedMissionRank() {
 	$justUnlockedMissionRank = $_SESSION['justUnlockedThisMissionRank'];
-	print "Not just that, you...";
-	print "just mastered rank " . ($justUnlockedMissionRank-1) . " for that mission<br>"; 
-	print "just gained " . $_SESSION['extraCashGained'] . " extra cash bonus<br>";
-	print "just gained " . $_SESSION['extraExpGained'] . " extra exp<br>";
-	print "<br><br>";
-	
+?>
+	Not just that, you just...<br>
+	mastered rank <?php echo ($justUnlockedMissionRank-1);?> for that mission<br>
+	just gained <?php echo $_SESSION['extraCashGained'];?> extra cash bonus<br>
+	just gained <?php echo $_SESSION['extraExpGained'];?> extra exp<br>
+	<br><br>
+<?php	
 	unset($_SESSION['extraCashGained']);
 	unset($_SESSION['extraExpGained']);
 	unset($_SESSION['justUnlockedThisMissionRank']);
 }
 
 function showJustUnlockedCityRank() {
-	print "Not just that, you...";
-	$justUnlockedCityRank = $_SESSION['justUnlockedThisCityRank'];
-	print "just mastered rank " . ($justUnlockedCityRank-1) . " for city<br>";
-	print "<br><br>";
+	$justUnlockedCityRank = $_SESSION['justUnlockedThisCityRank'];	
+?>
+	Not just that, you just...<br>
+	mastered rank <?php echo ($justUnlockedCityRank-1);?> for city<br>
+	<br><br>
+<?php 
 	unset($_SESSION['justUnlockedThisCityRank']);
 }
 

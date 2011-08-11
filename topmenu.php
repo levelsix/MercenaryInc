@@ -63,29 +63,15 @@ $playerEnergy=mysql_result($result, 0, "energy");
 $playerStaminaMax=mysql_result($result, 0, "stamina_max");
 $playerHealthMax=mysql_result($result, 0, "health_max");
 $playerEnergyMax=mysql_result($result, 0, "energy_max");
-
 //$playerExpToNextLevel
-
-echo "Name: " . $playerName;
-print "   ";
-echo "Level: " . $playerLevel;
-print "   ";
-
-/*
-echo "Type: " . $playerType;    
-print "   ";
-*/
-
-echo "Cash: " . $playerCash;
-print "   ";
-echo "Stamina: " . $playerStamina . "/" . $playerStaminaMax;
-print "   ";
-echo "Health: " . $playerHealth . "/" . $playerHealthMax;
-print "   ";
-echo "Energy: " . $playerEnergy . "/" . $playerEnergyMax;
-print "   ";
-
-
+?>
+Name: <?php echo $playerName;?>  
+Level: <?php echo $playerLevel;?> 
+Cash: <?php echo $playerCash;?> 
+Stamina: <?php echo $playerStamina;?>/<?php echo $playerStaminaMax;?> 
+Health: <?php echo $playerHealth;?>/<?php echo $playerHealthMax;?> 
+Energy: <?php echo $playerEnergy;?>/<?php echo $playerEnergyMax;?> 
+<?php 
 mysql_close();  
 ?>
 <br><br>

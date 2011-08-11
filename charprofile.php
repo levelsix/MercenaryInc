@@ -1,10 +1,12 @@
 <?php 
 include("topmenu.php");
 // Skills button
-print "<form action='skills.php'>";
-print "<input type='submit' value='Skills'/>";
-print "</form>";
+?>
+<form action='skills.php'>
+<input type='submit' value='Skills'/>
+</form>
 
+<?php
 mysql_connect($server, $user, $password);
 @mysql_select_db($database) or die("Unable to select database");
 
@@ -29,31 +31,39 @@ $userFightsWon = mysql_result($userResult, 0, "fights_won");
 $userFightsLost = mysql_result($userResult, 0, "fights_lost");
 $userKills = mysql_result($userResult, 0, "kills");
 $userDeaths = mysql_result($userResult, 0, "deaths");
+?>
 
-print $userName . "<br>";
-print "Level " . $userLevel . " " . ucfirst($userType) . "<br>";
-print "----------------------------------------------------- <br>";
-print "Missions Completed: " . $userMissionsCompleted . "<br>";
-print "Fights Won: " . $userFightsWon . "<br>";
-print "Fights Lost: " . $userFightsLost . "<br>";
-print "Kills: " . $userKills . "<br>";
-print "Deaths: " . $userDeaths . "<br>";
+<?php echo $userName;?><br>
+Level <?php echo $userLevel;?> <?php echo ucfirst($userType);?><br>
+----------------------------------------------------- <br>
+Missions Completed: <?php echo $userMissionsCompleted;?><br>
+Fights Won: <?php echo $userFightsWon;?><br>
+Fights Lost: <?php echo $userFightsLost;?><br>
+Kills: <?php echo $userKills;?><br>
+Deaths: <?php echo $userDeaths;?><br>
 
-// Cash flow
-print "Cash flow <br>";
-print "----------------------------------------------------- <br>";
+
+<!--  Cash flow-->
+<br><br>Cash flow <br>
+----------------------------------------------------- <br>
+<?php 
 $userIncome = mysql_result($userResult, 0, "income");
 $userUpkeep = mysql_result($userResult, 0, "upkeep");
+?>
+Income: <?php echo $userIncome;?><br>
+Upkeep: -<?php echo $userUpkeep;?><br>
+Net Income: <?php echo $userIncome - $userUpkeep;?><br>
 
-print "Income: " . $userIncome . "<br>";
-print "Upkeep: -" . $userUpkeep . "<br>";
-print "Net Income: " . ($userIncome - $userUpkeep) . "<br>";
 
-// Achievements
-print "Achievements: <br>";
+<!-- Achievements -->
+<br><br>Achievements: <br>
+----------------------------------------------------- <br>
 
-// Items
-print "Items: <br>";
+
+<!-- Items -->
+<br><br>Items: <br>
+----------------------------------------------------- <br>
+<?php 
 $itemsQuery = "SELECT * FROM users_items JOIN items ON (users_items.item_id = items.id) WHERE users_items.user_id = "
 . $userID . ";";
 $itemsResult = mysql_query($itemsQuery);
@@ -66,6 +76,5 @@ for ($i = 0; $i < $numItems; $i++) {
 	$itemName = mysql_result($itemsResult, $i, "name");
 	print $quantity . "x " . $itemName . "<br>";
 }
-
 mysql_close();
 ?>

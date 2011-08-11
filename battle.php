@@ -22,26 +22,31 @@ function displayBountyAttack() {
 			$userID = mysql_result($bountyResult, $i, "target_id");
 			$userName = mysql_result($bountyResult, $i, "name");
 			$bountyAmount = mysql_result($bountyResult, $i, "payment");
-			//print $userName . "\t\t" . $bountyAmount;
-			print "Mercenary: <a href='externalplayerprofile.php?userID=" . $userID . "'>" . $userName . "</a> Bounty: " . $bountyAmount;
-			// Implement the attacking button and functionality
-			print "<form>";
-			print "<input type='submit' value='Attack'/>";
-			print "</form>";
+?>
+			
+			Mercenary: <a href='externalplayerprofile.php?userID=<?php echo $userID;?>'><?php echo $userName?></a> Bounty: <?php echo $bountyAmount;?>
+			<!-- Implement the attacking button and functionality -->
+			<form action="attackplayer.php" method="POST">
+			<input type='hidden' name='userID' value='<?php echo $userID?>' />
+			<input type='submit' value='Attack'/>
+			</form>
+			<?php 
 		}
 	}
 }
+?>
 
-print "<form action='battle.php' method='post'>";
-print "<input type='hidden' name='battleTab' value='normal' />";
-print "<input type='submit' value='Attack an Enemy Agency'/>";
-print "</form>";
+<form action='battle.php' method='post'>
+<input type='hidden' name='battleTab' value='normal' />
+<input type='submit' value='Attack an Enemy Agency'/>
+</form>
 
-print "<form action='battle.php' method='post'>";
-print "<input type='hidden' name='battleTab' value='bounty' />";
-print "<input type='submit' value='Check the Bounty List'/>";
-print "</form>";
+<form action='battle.php' method='post'>
+<input type='hidden' name='battleTab' value='bounty' />
+<input type='submit' value='Check the Bounty List'/>
+</form>
 
+<?php 
 mysql_connect($server, $user, $password);
 @mysql_select_db($database) or die("Unable to select database");
 

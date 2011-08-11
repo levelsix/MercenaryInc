@@ -1,10 +1,12 @@
 <?php
 include("topmenu.php");
+?>
 
-print "<form action='../recruit.php' method='GET'>";
-print "<input type='submit' value='Back'/>";
-print "</form>";
+<form action='../recruit.php' method='GET'>
+<input type='submit' value='Back'/>
+</form>
 
+<?php 
 mysql_connect($server, $user, $password);
 @mysql_select_db($database) or die("Unable to select database");
 session_start();
@@ -26,10 +28,12 @@ if ($agencySize == 0) {
 		$userQuery = "SELECT * FROM users WHERE id = " . $agentId . ";";
 		$userResult = mysql_query($userQuery);
 		$userName = mysql_result($userResult, 0, "name");
-		print "<form action='externalplayerprofile.php' method='GET'>";
-		print "<input type='hidden' name='userID' value='" . $agentId . "'/>";
-		print "<input type='submit' value='" . $userName . "'/>";
-		print "</form>";
+		?>
+		<form action='externalplayerprofile.php' method='GET'>
+		<input type='hidden' name='userID' value='<?php echo $agentId;?>'/>
+		<input type='submit' value='<?php echo $userName;?>'/>
+		</form>
+		<?php
 	}
 }
 
