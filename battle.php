@@ -5,13 +5,11 @@
 
 <?php include("topmenu.php"); 
 
-function displayNormalAttack() {
+function displayNormalAttack($db) {
 	
 }
 
-function displayBountyAttack() {
-	$db = ConnectionFactory::getFactory()->getConnection();
-	
+function displayBountyAttack($db) {
 	$bountyStmt = $db->prepare("SELECT * FROM bounties JOIN users ON (bounties.target_id = users.id) WHERE bounties.is_complete = 0");
 	$bountyStmt->execute();
 		
@@ -57,13 +55,13 @@ function displayBountyAttack() {
 
 if (isset($_POST['battleTab'])) {
 	if ($_POST['battleTab'] == 'normal') {
-		displayNormalAttack();
+		displayNormalAttack($db);
 	}
 	if ($_POST['battleTab'] == 'bounty') {
-		displayBountyAttack();
+		displayBountyAttack($db);
 	}
 } else {
-	displayNormalAttack();
+	displayNormalAttack($db);
 }
 ?>
 

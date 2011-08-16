@@ -8,7 +8,7 @@ include("topmenu.php");
 
 // Daily bonus check
 if (isset($_SESSION['dailyBonus'])) {
-	print "Congratulations! You sliced open Calvin's nutsack and found " . $_SESSION['dailyBonus'] . " cash. <br>";
+	print "Congratulations! You found " . $_SESSION['dailyBonus'] . " cash. <br>";
 	unset($_SESSION['dailyBonus']);
 }
 ?>
