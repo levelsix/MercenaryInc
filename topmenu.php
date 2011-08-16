@@ -53,7 +53,11 @@ $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute(array($_SESSION['userID']));
 
 $num = $stmt->rowCount();
-$result = $stmt->fetch(PDO::FETCH_ASSOC);
+if (!($result = $stmt->fetch(PDO::FETCH_ASSOC))) {
+	// Redirect to error page
+	header("Location: index.html");
+	exit;
+}
 
 $playerName = $result['name'];
 $playerLevel = $result['level'];

@@ -26,8 +26,9 @@ if ($agencySize == 0) {
 		
 		$userStmt = $db->prepare("SELECT name FROM users WHERE id = ?");
 		$userStmt->execute(array($agentId));
-		$userResult = $userStmt->fetch(PDO::FETCH_ASSOC);
-		$userName = $userResult['name'];
+		$userName = "";
+		if ($userResult = $userStmt->fetch(PDO::FETCH_ASSOC))
+			$userName = $userResult['name'];
 		?>
 		<form action='externalplayerprofile.php' method='GET'>
 		<input type='hidden' name='userID' value='<?php echo $agentId;?>'/>
