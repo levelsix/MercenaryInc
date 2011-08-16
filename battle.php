@@ -9,12 +9,13 @@ function displayNormalAttack() {
 	
 }
 
-function displayBountyAttack() {	
-	$bountyStmt = $db->prepare("SELECT * FROM bounties JOIN users ON (bounties.target_id = user.id) WHERE bounties.is_complete = 0");
-	$bountyStmt->execute();
+function displayBountyAttack() {
+	$db = ConnectionFactory::getFactory()->getConnection();
 	
+	$bountyStmt = $db->prepare("SELECT * FROM bounties JOIN users ON (bounties.target_id = users.id) WHERE bounties.is_complete = 0");
+	$bountyStmt->execute();
+		
 	$numBounties = $bountyStmt->rowCount();
-	$bountyResult = mysql_query($bountyQuery);
 	
 	if ($numBounties <= 0) {
 		print "There are currently no bounties. Sorry!";
