@@ -55,7 +55,7 @@ $stmt->execute(array($_SESSION['userID']));
 $num = $stmt->rowCount();
 if (!($result = $stmt->fetch(PDO::FETCH_ASSOC))) {
 	// Redirect to error page
-	header("Location: index.html");
+	header("Location: errorpage.html");
 	exit;
 }
 
