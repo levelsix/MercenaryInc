@@ -47,13 +47,13 @@ print "<br>";
 
 session_start();
 
-$dbh = ConnectionFactory::getFactory()->getConnection();
+$db = ConnectionFactory::getFactory()->getConnection();
 
-$smh = $dbh->prepare("SELECT * FROM users WHERE id = ?");
-$smh->execute(array($_SESSION['userID']));
+$stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+$stmt->execute(array($_SESSION['userID']));
 
-$num = $smh->rowCount();
-$result = $smh->fetch(PDO::FETCH_ASSOC);
+$num = $stmt->rowCount();
+$result = $stmt->fetch(PDO::FETCH_ASSOC);
 
 $playerName = $result['name'];
 $playerLevel = $result['level'];

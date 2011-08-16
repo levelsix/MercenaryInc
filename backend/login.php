@@ -12,12 +12,12 @@ $_SESSION['userID'] = $id;
 // Daily bonus will be given starting at 00:00:00 (midnight) PST -> 08:00:00 GMT
 // For now we operate in PST since we're developing locally
 //TODO: we change everything back to GMT when pushing to production
-$dbh = ConnectionFactory::getFactory()->getConnection();
+$db = ConnectionFactory::getFactory()->getConnection();
 
 // Get last login time
-$smh = $dbh->prepare("SELECT last_login FROM users WHERE id = ?");
-$smh->execute(array($id));
-$result = $smh->fetch(PDO::FETCH_ASSOC);
+$stmt = $db->prepare("SELECT last_login FROM users WHERE id = ?");
+$stmt->execute(array($id));
+$result = $stmt->fetch(PDO::FETCH_ASSOC);
 $lastLogin = $result['last_login'];
 
 $currentDate = date('Y-m-d H:i:s');
@@ -30,25 +30,25 @@ if (strcmp($currentDate, $dailyBonusDate) >= 0) {
 		// Give daily bonus and update last_login
 		$dailyBonusAmount = 1000;
 		/*
-		$smh = $dbh->prepare("UPDATE users SET cash = cash + ?, last_login = CURRENT_TIMESTAMP WHERE id = ?");
-		$smh->execute(array($dailyBonusAmount, $id));
+		$stmt = $db->prepare("UPDATE users SET cash = cash + ?, last_login = CURRENT_TIMESTAMP WHERE id = ?");
+		$stmt->execute(array($dailyBonusAmount, $id));
 		*/
-		$smh = $dbh->prepare("UPDATE users SET cash = cash + ?, last_login = ? WHERE id = ?");
-		$smh->execute(array($dailyBonusAmount, $currentDate, $id));
+		$stmt = $db->prepare("UPDATE users SET cash = cash + ?, last_login = ? WHERE id = ?");
+		$stmt->execute(array($dailyBonusAmount, $currentDate, $id));
 		$_SESSION['dailyBonus'] = $dailyBonusAmount;
 	} else {
 		// Update last_login in database
-		//$smh = $dbh->prepare("UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?");
-		//$smh->execute(array($id));
-		$smh = $dbh->prepare("UPDATE users SET last_login = ? WHERE id = ?");
-		$smh->execute($currentDate, $id);
+		//$stmt = $db->prepare("UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?");
+		//$stmt->execute(array($id));
+		$stmt = $db->prepare("UPDATE users SET last_login = ? WHERE id = ?");
+		$stmt->execute($currentDate, $id);
 	}
 } else {
 	// Update last_login in database
-	//$smh = $dbh->prepare("UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?");
-	//$smh->execute(array($id));
-	$smh = $dbh->prepare("UPDATE users SET last_login = ? WHERE id = ?");
-	$smh->execute($currentDate, $id);
+	//$stmt = $db->prepare("UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?");
+	//$stmt->execute(array($id));
+	$stmt = $db->prepare("UPDATE users SET last_login = ? WHERE id = ?");
+	$stmt->execute($currentDate, $id);
 }
 
 header("Location: ../charhome.php");
