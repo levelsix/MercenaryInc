@@ -1,57 +1,61 @@
 <?php 
 include("topmenu.php");
 include("properties/itemtypeproperties.php");
-mysql_connect($server,$user,$password);
-@mysql_select_db($database) or die( "Unable to select database");
-$query="SELECT * FROM items WHERE min_level <= ". ($playerLevel+1) . " ORDER BY min_level;";
-$result=mysql_query($query);
-$num=mysql_numrows($result);
 
-function itemIsLocked($result, $itemNum, $playerLevel) {
-	if (mysql_result($result,$itemNum,"min_level") == ($playerLevel+1)) {
+$stmt = $db->prepare("SELECT * FROM items WHERE min_level <= ? ORDER BY min_level");
+$stmt->execute(array($playerLevel + 1));
+
+$num = $stmt->rowCount();
+
+function itemIsLocked($row, $playerLevel) {
+	if ($row["min_level"] == ($playerLevel + 1)) {
 		return true;
 	}
 	return false;
 }
 
 if ($num == 0) { 
-	echo "No items available";
+	echo "No items available.";
 } else {
 	
-	$i = 0;
-	while ($i < $num) {
-		if (itemIsLocked($result, $i, $playerLevel)) {
+	while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+		if (itemIsLocked($row, $playerLevel)) {
 			print "<b>LOCKED</b> <br>";
 		}
 		
-		print "Item: " . mysql_result($result,$i,"name") . "<br>";
-		if (mysql_result($result,$i, "type") == 1) {
+		print "Item: " . $row['name'] . "<br>";
+		
+		$type = $row['type'];
+		$itemType = "";
+		if ($type == 1) {
 			$itemType = $itemtype1;
-		} else if (mysql_result($result,$i, "type") == 2) {
+		} else if ($type == 2) {
 			$itemType = $itemtype2;
-		} else if (mysql_result($result,$i, "type") == 3) {
+		} else if ($type == 3) {
 			$itemType = $itemtype3;
-		}		
-		$itemPrice = mysql_result($result,$i,"price");
+		}
 		
-		$item_id = mysql_result($result,$i, "id");
+		$itemPrice = $row['price'];
 		
-		$quantityOwnedQuery = "SELECT quantity FROM users_items WHERE user_id = " . $_SESSION['userID'] . " AND ";
-		$quantityOwnedQuery .= "item_id = " . $item_id . ";";
-		$quantityResult = mysql_query($quantityOwnedQuery);
+		$item_id = $row['id'];
 		
-		if (mysql_numrows($quantityResult) > 0) 
-			$quantity = mysql_result($quantityResult, 0, "quantity");
-		else
-			$quantity = 0;
+		$quantityOwnedStmt = $db->prepare("SELECT quantity FROM users_items WHERE user_id = ? AND item_id = ?");
+		$quantityOwnedStmt->execute(array($_SESSION['userID'], $item_id));
+		
+		$quantityOwnedResult = $quantityOwnedStmt->fetch(PDO::FETCH_ASSOC);
+		
+		$quantity = 0;
+		if ($quantityOwnedStmt->rowCount() > 0 && $quantityOwnedResult) {
+			$quantity = $quantityOwnedResult['quantity'];
+		}
 ?>		
 
 		Type: <?php echo $itemType;?><br>
-		Minimum level: <?php echo mysql_result($result,$i,"min_level");?><br>
+		Minimum level: <?php echo $row["min_level"];?><br>
 		Price: <?php echo $itemPrice?><br>
 		Quantity Owned: <?php echo $quantity?><br>
 <?php 	
-		if (($playerCash >= $itemPrice) && (!itemIsLocked($result, $i, $playerLevel))){
+		if (($playerCash >= $itemPrice) && (!itemIsLocked($row, $playerLevel))){
 ?>
 			<form action='backend/shopaction.php' method='post'>
 			<input type='hidden' name='actionToDo' value='buy' />
@@ -63,7 +67,7 @@ if ($num == 0) {
 		} else {
 			echo "you can't buy this item (you don't have enough cash or it's locked)<br>";
 		}
-		if ($quantity >= 1 && !itemIsLocked($result, $i, $playerLevel)) {
+		if ($quantity >= 1 && !itemIsLocked($row, $playerLevel)) {
 ?>
 			<form action='backend/shopaction.php' method='post'>
 			<input type='hidden' name='actionToDo' value='sell' />
@@ -78,13 +82,7 @@ if ($num == 0) {
 
 		
 		print "<br><br>";
-		
-		$i++;
 	}
 	
 }
-
-
-mysql_close(); 
-
 ?>

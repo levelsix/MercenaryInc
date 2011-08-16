@@ -5,23 +5,24 @@
 
 <?php include("topmenu.php"); 
 
-function displayNormalAttack() {
+function displayNormalAttack($db) {
 	
 }
 
-function displayBountyAttack() {	
-	$bountyQuery = "SELECT * FROM bounties JOIN users ON (bounties.target_id = users.id) WHERE bounties.is_complete = 0;";
-	$bountyResult = mysql_query($bountyQuery);
-	$numBounties = mysql_numrows($bountyResult);
+function displayBountyAttack($db) {
+	$bountyStmt = $db->prepare("SELECT * FROM bounties JOIN users ON (bounties.target_id = users.id) WHERE bounties.is_complete = 0");
+	$bountyStmt->execute();
+		
+	$numBounties = $bountyStmt->rowCount();
 	
 	if ($numBounties <= 0) {
 		print "There are currently no bounties. Sorry!";
 	} else {
 		//print "Mercenary\t\tBounty <br>";
-		for ($i = 0; $i < $numBounties; $i++) {
-			$userID = mysql_result($bountyResult, $i, "target_id");
-			$userName = mysql_result($bountyResult, $i, "name");
-			$bountyAmount = mysql_result($bountyResult, $i, "payment");
+		while ($row = $bountyStmt->fetch(PDO::FETCH_ASSOC)) {
+			$userID = $row["target_id"];
+			$userName = $row["name"];
+			$bountyAmount = $row["payment"];
 ?>
 			
 			Mercenary: <a href='externalplayerprofile.php?userID=<?php echo $userID;?>'><?php echo $userName?></a> Bounty: <?php echo $bountyAmount;?>
@@ -47,27 +48,21 @@ function displayBountyAttack() {
 </form>
 
 <?php 
-mysql_connect($server, $user, $password);
-@mysql_select_db($database) or die("Unable to select database");
-
 /*
  * TODO: if first time here, have them choose their class/type
 	dont make this db call tho..
  */
 
-
 if (isset($_POST['battleTab'])) {
-	if ($_POST['battleTab']=='normal') {
-		displayNormalAttack();
+	if ($_POST['battleTab'] == 'normal') {
+		displayNormalAttack($db);
 	}
-	if ($_POST['battleTab']=='bounty') {
-		displayBountyAttack();
+	if ($_POST['battleTab'] == 'bounty') {
+		displayBountyAttack($db);
 	}
 } else {
-	displayNormalAttack();
+	displayNormalAttack($db);
 }
-
-
 ?>
 
 

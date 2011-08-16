@@ -40,29 +40,35 @@
 
 
 <?php
-include("properties/dbproperties.php");
-
-mysql_connect($server,$user,$password);
-@mysql_select_db($database) or die( "Unable to select database");
+include("classes/ConnectionFactory.php");
   
 echo "Your stats are: ";
 print "<br>";
 
 session_start();
 
-$query="SELECT * FROM users WHERE id = ". $_SESSION['userID'] . ";";
-$result=mysql_query($query);
-$num=mysql_numrows($result);
-$playerName=mysql_result($result, 0, "name");
-$playerLevel=mysql_result($result, 0, "level");
-$playerType=mysql_result($result, 0, "type");
-$playerCash=mysql_result($result, 0, "cash");
-$playerStamina=mysql_result($result, 0, "stamina");
-$playerHealth=mysql_result($result, 0, "health");
-$playerEnergy=mysql_result($result, 0, "energy");
-$playerStaminaMax=mysql_result($result, 0, "stamina_max");
-$playerHealthMax=mysql_result($result, 0, "health_max");
-$playerEnergyMax=mysql_result($result, 0, "energy_max");
+$db = ConnectionFactory::getFactory()->getConnection();
+
+$stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+$stmt->execute(array($_SESSION['userID']));
+
+$num = $stmt->rowCount();
+if (!($result = $stmt->fetch(PDO::FETCH_ASSOC))) {
+	// Redirect to error page
+	header("Location: errorpage.html");
+	exit;
+}
+
+$playerName = $result['name'];
+$playerLevel = $result['level'];
+$playerType = $result['type'];
+$playerCash = $result['cash'];
+$playerStamina = $result['stamina'];
+$playerHealth = $result['health'];
+$playerEnergy = $result['energy'];
+$playerStaminaMax = $result['stamina_max'];
+$playerHealthMax = $result['health_max'];
+$playerEnergyMax = $result['energy_max'];
 //$playerExpToNextLevel
 ?>
 Name: <?php echo $playerName;?>  
@@ -71,9 +77,6 @@ Cash: <?php echo $playerCash;?>
 Stamina: <?php echo $playerStamina;?>/<?php echo $playerStaminaMax;?> 
 Health: <?php echo $playerHealth;?>/<?php echo $playerHealthMax;?> 
 Energy: <?php echo $playerEnergy;?>/<?php echo $playerEnergyMax;?> 
-<?php 
-mysql_close();  
-?>
 <br><br>
 -----------------------------------------------------
 <br>

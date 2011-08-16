@@ -7,30 +7,36 @@ include("topmenu.php");
 </form>
 
 <?php
-mysql_connect($server, $user, $password);
-@mysql_select_db($database) or die("Unable to select database");
-
 session_start();
 $userID = $_SESSION['userID'];
-$userQuery = "SELECT * FROM users WHERE id = " . $userID . ";";
-$userResult = mysql_query($userQuery);
-$numRows = mysql_numrows($userResult);
+
+$userStmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+$userStmt->execute(array($userID));
+
+$numRows = $userStmt->rowCount();
+
+$userResult = $userStmt->fetch(PDO::FETCH_ASSOC);
+if (!$userResult) {
+	// Redirect to error page
+	header("Location: errorpage.html");
+	exit;
+}
 
 // Error: redirect
 if ($numRows != 1) {
-	header("Location: charhome.php");
+	header("Location: errorpage.html");
 	exit;
 }
 
 // User information
-$userName = mysql_result($userResult, 0, "name");
-$userLevel = mysql_result($userResult, 0, "level");
-$userType = mysql_result($userResult, 0, "type");
-$userMissionsCompleted = mysql_result($userResult, 0, "missions_completed");
-$userFightsWon = mysql_result($userResult, 0, "fights_won");
-$userFightsLost = mysql_result($userResult, 0, "fights_lost");
-$userKills = mysql_result($userResult, 0, "kills");
-$userDeaths = mysql_result($userResult, 0, "deaths");
+$userName = $userResult["name"];
+$userLevel = $userResult["level"];
+$userType = $userResult["type"];
+$userMissionsCompleted = $userResult["missions_completed"];
+$userFightsWon = $userResult["fights_won"];
+$userFightsLost = $userResult["fights_lost"];
+$userKills = $userResult["kills"];
+$userDeaths = $userResult["deaths"];
 ?>
 
 <?php echo $userName;?><br>
@@ -47,8 +53,8 @@ Deaths: <?php echo $userDeaths;?><br>
 <br><br>Cash flow <br>
 ----------------------------------------------------- <br>
 <?php 
-$userIncome = mysql_result($userResult, 0, "income");
-$userUpkeep = mysql_result($userResult, 0, "upkeep");
+$userIncome = $userResult["income"];
+$userUpkeep = $userResult["upkeep"];
 ?>
 Income: <?php echo $userIncome;?><br>
 Upkeep: -<?php echo $userUpkeep;?><br>
@@ -64,17 +70,16 @@ Net Income: <?php echo $userIncome - $userUpkeep;?><br>
 <br><br>Items: <br>
 ----------------------------------------------------- <br>
 <?php 
-$itemsQuery = "SELECT * FROM users_items JOIN items ON (users_items.item_id = items.id) WHERE users_items.user_id = "
-. $userID . ";";
-$itemsResult = mysql_query($itemsQuery);
-$numItems = mysql_numrows($itemsResult);
+$itemsStmt = $db->prepare("SELECT * FROM users_items JOIN items ON (users_items.item_id = items.id) WHERE users_items.user_id = ?");
+$itemsStmt->execute(array($userID));
 
-for ($i = 0; $i < $numItems; $i++) {
+$numItems = $itemsStmt->rowCount();
+
+while ($row = $itemsStmt->fetch(PDO::FETCH_ASSOC)) {
 	// Need to filter by type and display in different categories
 	// Temporary code - doesn't filter type
-	$quantity = mysql_result($itemsResult, $i, "quantity");
-	$itemName = mysql_result($itemsResult, $i, "name");
+	$quantity = $row["quantity"];
+	$itemName = $row["name"];
 	print $quantity . "x " . $itemName . "<br>";
 }
-mysql_close();
 ?>
