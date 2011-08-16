@@ -1,6 +1,5 @@
 <?php
 include("topmenu.php");
-include("properties/dbproperties.php");
 
 $missionsMinLevel = 1;
 $homeMinLevel = 2;
@@ -9,14 +8,14 @@ $shopMinLevel = 4;
 $profileMinLevel = 5;
 $recruitMinLevel = 6;
 
-
-mysql_connect($server,$user,$password);
-@mysql_select_db($database) or die( "Unable to select database");
 session_start();
-$query="SELECT * FROM users WHERE id = ". $_SESSION['userID'] . ";";
-$result=mysql_query($query);
-$level=mysql_result($result,0,"level");
-mysql_close();  
+
+$stmt = $db->prepare("SELECT level FROM users WHERE id = ?");
+$stmt->execute(array($_SESSION['userID']));
+
+$level = 0;
+if ($result = $stmt->fetch(PDO::FETCH_ASSOC))
+	$level = $result['level'];
 
 
 $tooLowLevelString = "You need to be at least level ";
