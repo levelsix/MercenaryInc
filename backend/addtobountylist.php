@@ -20,6 +20,7 @@ $cashUpdate = "UPDATE users SET cash = cash - " . $payment . " WHERE id = " . $u
 mysql_query($cashUpdate) or die(mysql_error());
 
 mysql_close();
-header("Location: $serverRoot/bountylist.php");
+$_SESSION['battleTab'] = 'bounty';
+header("Location: $serverRoot/battle.php");
 exit;
 ?>
