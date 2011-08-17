@@ -1,7 +1,8 @@
 <?php 
-include("../properties/dbproperties.php");
-include("../properties/playertypeproperties.php");
-include("../properties/playerinitproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/properties/dbproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/properties/playertypeproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/properties/playerinitproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
 
 mysql_connect($server,$user,$password);
 @mysql_select_db($database) or die( "Unable to select database");
@@ -36,6 +37,6 @@ mysql_close();
 
 session_start();
 $_SESSION['userID']=$justAddedID;
-header("Location: ../choosemission.php");
+header("Location: $serverRoot/choosemission.php");
 exit;
 ?>

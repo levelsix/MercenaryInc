@@ -2,10 +2,10 @@
 <head></head>
 <body>
 
-<?php include("topmenu.php");?>
+<?php include($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");?>
 
 <!-- Create link to agency list page -->
-<form action='agencylist.php' method='GET'>
+<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/agencylist.php' method='GET'>
 <input type='submit' value='My Agency'/>
 </form>
 
@@ -27,12 +27,12 @@ for ($i = 0; $i < $numPending; $i++) {
 ?>
 
 <?php echo $inviterName;?>
-<form action='backend/respondtoinvitation.php' method='POST'>
+<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/backend/respondtoinvitation.php' method='POST'>
 	<input type='hidden' name='accepted' value='true'/>
 	<input type='hidden' name='inviterID' value='<?php echo $inviterID;?>'/>
 	<input type='submit' value='Accept'/>
 </form>
-<form action='backend/respondtoinvitation.php' method='POST'>
+<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/backend/respondtoinvitation.php' method='POST'>
 	<input type='hidden' name='accepted' value='false'/>
 	<input type='hidden' name='inviterID' value='<?php echo $inviterID;?>'/>
 	<input type='submit' value='Decline'/>
@@ -54,7 +54,7 @@ mysql_close();
 ?>
 
 Invite using agency code: <br>
-<form action="backend/inviteplayer.php" method="GET">
+<form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/backend/inviteplayer.php" method="GET">
 <input type="text" name="agencyCode"/>
 <input type="submit" value="Recruit!"/>
 </form>

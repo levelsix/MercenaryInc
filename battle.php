@@ -3,7 +3,7 @@
 </head>
 <body>
 
-<?php include("topmenu.php"); 
+<?php include($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php"); 
 
 function displayNormalAttack($db) {
 	
@@ -24,7 +24,7 @@ function displayBountyAttack($db) {
 			$bountyAmount = $row["payment"];
 ?>
 			
-			Mercenary: <a href='externalplayerprofile.php?userID=<?php echo $userID;?>'><?php echo $userName?></a> Bounty: <?php echo $bountyAmount;?>
+			Mercenary: <a href='<?php $_SERVER['DOCUMENT_ROOT'] ?>/externalplayerprofile.php?userID=<?php echo $userID;?>'><?php echo $userName?></a> Bounty: <?php echo $bountyAmount;?>
 			<!-- Implement the attacking button and functionality -->
 			<form action="attackplayer.php" method="POST">
 			<input type='hidden' name='userID' value='<?php echo $userID?>' />
@@ -36,12 +36,12 @@ function displayBountyAttack($db) {
 }
 ?>
 
-<form action='battle.php' method='post'>
+<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/battle.php' method='post'>
 <input type='hidden' name='battleTab' value='normal' />
 <input type='submit' value='Attack an Enemy Agency'/>
 </form>
 
-<form action='battle.php' method='post'>
+<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/battle.php' method='post'>
 <input type='hidden' name='battleTab' value='bounty' />
 <input type='submit' value='Check the Bounty List'/>
 </form>

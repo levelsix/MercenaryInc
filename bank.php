@@ -1,5 +1,5 @@
 <?php
-include("topmenu.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
 
 session_start();
 
@@ -38,14 +38,14 @@ if ($bankResult = $bankStmt->fetch(PDO::FETCH_ASSOC))
 Your current bank balance is <?php echo $bankBalance; ?>.
 
 <!--  Deposit-->
-<form action='backend/bankdeposit.php' method='GET'>
+<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/backend/bankdeposit.php' method='GET'>
 <input type='text' name='amount'/>
 <input type='submit' value='Deposit'/>
 </form>
 Note that there is a 10% fee on every deposit.
 
 <!--  Withdrawal-->
-<form action='backend/bankwithdrawal.php' method='GET'>
+<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/backend/bankwithdrawal.php' method='GET'>
 <input type='text' name='amount'/>
 <input type='submit' value='Withdraw'/>
 </form>

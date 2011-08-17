@@ -4,12 +4,9 @@
 </head>
 
 <body>
-<?php include("properties/playertypeproperties.php"); ?>
-<?php include("properties/dbproperties.php"); ?>
+<?php include($_SERVER['DOCUMENT_ROOT'] . "/properties/playertypeproperties.php"); ?>
 
-
-
-<form action="backend/charcreate.php" onsubmit="return validateChar();" method="post"> 
+<form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/backend/charcreate.php" onsubmit="return validateChar();" method="post"> 
 Greetings, young warrior. What will you choose as your mercenary alias?
 <br>
 <input type="text" name="charname" id="charname"/>

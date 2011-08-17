@@ -1,6 +1,7 @@
 <?php
-include("../properties/dbproperties.php");
-include("../properties/dbcolumnnames.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/properties/dbproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/properties/dbcolumnnames.php");
 
 $SELL_RATIO = .6;
 
@@ -50,5 +51,5 @@ mysql_query($query) or die(mysql_error());
 
 mysql_close();
 
-header("Location: ../shoplist.php");
+header("Location: $serverRoot/shoplist.php");
 ?>

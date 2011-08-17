@@ -1,46 +1,47 @@
 <b>This is the top menu</b>
 
-<form action="levelchecker.php" method="post"> 
+<form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/levelchecker.php" method="post"> 
 <input type="hidden" name="pageRequestType" value="home" />
 <input type="submit" value="Home" />
 </form>
 
 
-<form action="levelchecker.php" method="post"> 
+<form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/levelchecker.php" method="post"> 
 <input type="hidden" name="pageRequestType" value="mission" />
 <input type="submit" value="Choose Mission" />
 </form>
 
-<form action="levelchecker.php" method="post"> 
+<form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/levelchecker.php" method="post"> 
 <input type="hidden" name="pageRequestType" value="battle" />
 <input type="submit" value="Battle" />
 </form>
 
-<form action="preferences.php"> 
+<form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/preferences.php"> 
 <input type="submit" value="Preferences" />
 </form>
 
-<form action="levelchecker.php" method="post"> 
+<form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/levelchecker.php" method="post"> 
 <input type="hidden" name="pageRequestType" value="shop" />
 <input type="submit" value="Shop" />
 </form>
 
-<form action="playeritemlist.php"> 
+<form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/playeritemlist.php"> 
 <input type="submit" value="My Items" />
 </form>
 
-<form action="bank.php">
+<form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/bank.php">
 <input type="submit" value="Bank"/>
 </form>
 
-<form action="levelchecker.php" method="post">
+<form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/levelchecker.php" method="post">
 <input type="hidden" name="pageRequestType" value="recruit" />
 <input type="submit" value="Recruit" />
 </form>
 
 
 <?php
-include("classes/ConnectionFactory.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
   
 echo "Your stats are: ";
 print "<br>";
@@ -55,7 +56,7 @@ $stmt->execute(array($_SESSION['userID']));
 $num = $stmt->rowCount();
 if (!($result = $stmt->fetch(PDO::FETCH_ASSOC))) {
 	// Redirect to error page
-	header("Location: errorpage.html");
+	header("Location: $serverRoot/errorpage.html");
 	exit;
 }
 

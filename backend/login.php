@@ -1,5 +1,6 @@
 <?php
-include("../classes/ConnectionFactory.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
 
 // Set the ID in the session
 $id = $_POST['id'];
@@ -51,6 +52,6 @@ if (strcmp($currentDate, $dailyBonusDate) >= 0) {
 	$stmt->execute($currentDate, $id);
 }
 
-header("Location: ../charhome.php");
+header("Location: $serverRoot/charhome.php");
 exit;
 ?>

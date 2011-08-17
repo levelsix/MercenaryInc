@@ -4,15 +4,15 @@
 
 
 <body>
-<?php include("topmenu.php"); ?>
+<?php include($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php"); ?>
 
 These buttons don't work yet
 
-<form action="changealias.php"> 
+<form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/changealias.php"> 
 <input type="submit" value="Change Alias" />
 </form>
 
-<form action="changetype.php"> 
+<form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/changetype.php"> 
 <input type="submit" value="Change Type" />
 </form>			
 

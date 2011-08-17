@@ -1,6 +1,6 @@
 <?php 
-include("topmenu.php");
-include("properties/itemtypeproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/properties/itemtypeproperties.php");
 
 $stmt = $db->prepare("SELECT * FROM items WHERE min_level <= ? ORDER BY min_level");
 $stmt->execute(array($playerLevel + 1));
@@ -57,7 +57,7 @@ if ($num == 0) {
 <?php 	
 		if (($playerCash >= $itemPrice) && (!itemIsLocked($row, $playerLevel))){
 ?>
-			<form action='backend/shopaction.php' method='post'>
+			<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/backend/shopaction.php' method='post'>
 			<input type='hidden' name='actionToDo' value='buy' />
 			<input type='hidden' name='storePrice' value='<?php echo $itemPrice;?>' />
 			<input type='hidden' name='itemID' value='<?php echo $item_id;?>' />
@@ -69,7 +69,7 @@ if ($num == 0) {
 		}
 		if ($quantity >= 1 && !itemIsLocked($row, $playerLevel)) {
 ?>
-			<form action='backend/shopaction.php' method='post'>
+			<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/backend/shopaction.php' method='post'>
 			<input type='hidden' name='actionToDo' value='sell' />
 			<input type='hidden' name='storePrice' value='<?php echo $itemPrice;?>' />
 			<input type='hidden' name='itemID' value='<?php echo $item_id;?>' />

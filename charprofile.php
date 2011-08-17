@@ -1,8 +1,8 @@
 <?php 
-include("topmenu.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
 // Skills button
 ?>
-<form action='skills.php'>
+<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/skills.php'>
 <input type='submit' value='Skills'/>
 </form>
 
@@ -18,13 +18,13 @@ $numRows = $userStmt->rowCount();
 $userResult = $userStmt->fetch(PDO::FETCH_ASSOC);
 if (!$userResult) {
 	// Redirect to error page
-	header("Location: errorpage.html");
+	header("Location: $serverRoot/errorpage.html");
 	exit;
 }
 
 // Error: redirect
 if ($numRows != 1) {
-	header("Location: errorpage.html");
+	header("Location: $serverRoot/errorpage.html");
 	exit;
 }
 
