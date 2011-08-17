@@ -1,9 +1,7 @@
 <?php
-include($_SERVER['DOCUMENT_ROOT'] . "/properties/dbproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
 include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
 
-mysql_connect($server, $user, $password);
-@mysql_select_db($database) or die("Unable to select database.");
 session_start();
 
 $userID = $_SESSION['userID'];
@@ -15,10 +13,18 @@ if (!is_numeric($amount) || strrchr($amount, '.')) {
 	exit;
 }
 
-$userQuery = "SELECT * FROM users WHERE id = " . $userID . ";";
-$userResult = mysql_query($userQuery);
+$db = ConnectionFactory::getFactory()->getConnection();
 
-$userCash = mysql_result($userResult, 0, "cash");
+$userStmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+$userStmt->execute(array($userID));
+
+$userResult = $userStmt->fetch(PDO::FETCH_ASSOC);
+if (!$userResult) {
+	header("Location: $serverRoot/errorpage.html");
+	exit;
+}
+
+$userCash = $userResult["cash"];
 if ($amount > $userCash) {
 	$_SESSION['notEnoughCash'] = 'true';
 	header("Location: $serverRoot/bank.php");
@@ -26,11 +32,13 @@ if ($amount > $userCash) {
 }
 
 $toBeDeposited = round(0.9 * $amount);
-$cashUpdate = "UPDATE users SET cash = cash - " . $amount . ", bank_balance = bank_balance + " 
-	. $toBeDeposited . " WHERE id = " . $userID . ";";
-mysql_query($cashUpdate) or die(mysql_error);
 
-mysql_close();
+$cashUpdateStmt = $db->prepare("UPDATE users SET cash = cash - ?, bank_balance = bank_balance + ? WHERE id = ?");
+if (!($cashUpdateStmt->execute(array($amount, $toBeDeposited, $userID)))) {
+	header("Location: $serverRoot/errorpage.html");
+	exit;
+}
+
 $_SESSION['deposited'] = $toBeDeposited;
 header("Location: $serverRoot/bank.php");
 exit;

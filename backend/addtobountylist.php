@@ -1,5 +1,5 @@
 <?php
-include($_SERVER['DOCUMENT_ROOT'] . "/properties/dbproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
 include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
 
 session_start();
@@ -9,17 +9,20 @@ $targetID = $_GET['targetID'];
 // need to do a check on whether or not the user even has that much money
 $payment = $_GET['bountyAmount'];
 
-mysql_connect($server, $user, $password);
-@mysql_select_db($database) or die("Unable to select database");
+$db = ConnectionFactory::getFactory()->getConnection();
 
-$bountyInsert = "INSERT INTO bounties (requester_id, target_id, payment) VALUES ("
-	. $userID . ", " . $targetID . ", " . $payment . ");";
-mysql_query($bountyInsert) or die(mysql_error());
+$bountyInsertStmt = $db->prepare("INSERT INTO bounties (requester_id, target_id, payment) VALUES (?, ?, ?)");
+if (!($bountyInsertStmt->execute(array($userID, $targetID, $payment)))) {
+	header("Location: $serverRoot/errorpage.html");
+	exit;
+}
 
-$cashUpdate = "UPDATE users SET cash = cash - " . $payment . " WHERE id = " . $userID . ";";
-mysql_query($cashUpdate) or die(mysql_error());
+$cashUpdateStmt = $db->prepare("UPDATE users SET cash = cash - ? WHERE id = ?");
+if (!($cashUpdateStmt->execute(array($payment, $userID)))) {
+	header("Location: $serverRoot/errorpage.html");
+	exit;
+}
 
-mysql_close();
 $_SESSION['battleTab'] = 'bounty';
 header("Location: $serverRoot/battle.php");
 exit;

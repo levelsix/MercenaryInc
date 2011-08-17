@@ -1,23 +1,30 @@
 <?php
-include($_SERVER['DOCUMENT_ROOT'] . "/properties/dbproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
 include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
 
-mysql_connect($server, $user, $password);
-@mysql_select_db($database) or die("Unable to select database");
 session_start();
 
 $agencyCode = $_GET['agencyCode'];
 $userId = $_SESSION['userID'];
 
-$userQuery = "SELECT * FROM users WHERE agency_code = " . $agencyCode . ";";
-$userResult = mysql_query($userQuery);
-$inviteeId = mysql_result($userResult, 0, "id");
+$db = ConnectionFactory::getFactory()->getConnection();
 
-$insertInvitation = "INSERT IGNORE INTO agencies (user_one_id, user_two_id, accepted) VALUES "
-. "(" . $userId . ", " . $inviteeId . ", 0);";
+$userStmt = $db->prepare("SELECT id FROM users WHERE agency_code = ?");
+$userStmt->execute(array($agencyCode));
 
-mysql_query($insertInvitation) or die(mysql_error());
-mysql_close();
+$userResult = $userStmt->fetch(PDO::FETCH_ASSOC);
+if (!$userResult) {
+	header("Location: $serverRoot/errorpage.html");
+	exit;
+}
+
+$inviteeId = $userResult["id"];
+
+$insertInvitationStmt = $db->prepare("INSERT IGNORE INTO agencies (user_one_id, user_two_id, accepted) VALUES (?, ?, 0)");
+if (!($insertInvitationStmt->execute(array($userId, $inviteeId)))) {
+	header("Location: $serverRoot/errorpage.html");
+	exit;
+}
 
 header("Location: $serverRoot/recruit.php");
 exit;
