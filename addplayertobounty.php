@@ -1,6 +1,6 @@
 <?php
 include($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
-$targetID = $_GET['targetID'];
+$targetID = $_POST['targetID'];
 ?>
 Enter your bounty amount:
 
