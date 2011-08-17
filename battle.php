@@ -36,12 +36,12 @@ function displayBountyAttack($db) {
 }
 ?>
 
-<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/battle.php' method='post'>
+<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/battle.php' method='POST'>
 <input type='hidden' name='battleTab' value='normal' />
 <input type='submit' value='Attack an Enemy Agency'/>
 </form>
 
-<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/battle.php' method='post'>
+<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/battle.php' method='POST'>
 <input type='hidden' name='battleTab' value='bounty' />
 <input type='submit' value='Check the Bounty List'/>
 </form>
@@ -60,7 +60,14 @@ if (isset($_POST['battleTab'])) {
 		displayBountyAttack($db);
 	}
 } else {
-	displayNormalAttack($db);
+	if (isset($_SESSION['battleTab'])) {
+		if ($_SESSION['battleTab'] == 'bounty') {
+			displayBountyAttack($db);
+		}
+		unset($_SESSION['battleTab']);
+	} else {
+		displayNormalAttack($db);
+	}
 }
 ?>
 
