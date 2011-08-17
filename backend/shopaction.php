@@ -18,11 +18,8 @@ $currentStmt->execute(array($_SESSION['userID'], $itemID));
 
 $numCurrent = $currentStmt->rowCount();
 
+//$currentResult will be null if the user doesn't have that item
 $currentResult = $currentStmt->fetch(PDO::FETCH_ASSOC);
-if (!$currentResult) {
-	header("Location: $serverRoot/errorpage.html");
-	exit;
-}
 
 if ($actionToDo == 'buy') {
 	if ($numCurrent == 0) {
