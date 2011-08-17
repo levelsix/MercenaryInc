@@ -12,18 +12,21 @@
 <!--  Show pending agency invitations-->
 Pending agency invitations: <br>
 <?php 
-mysql_connect($server, $user, $password);
-@mysql_select_db($database) or die("Unable to select database");
+$agenciesStmt = $db->prepare("SELECT * FROM agencies WHERE user_two_id = ? AND accepted = 0");
+$agenciesStmt->execute(array($_SESSION['userID']));
+$numPending = $agenciesStmt->rowCount();
 
-$agenciesQuery = "SELECT * FROM agencies WHERE user_two_id = " . $_SESSION['userID'] . " AND accepted = 0;";
-$agenciesResult = mysql_query($agenciesQuery);
-$numPending = mysql_numrows($agenciesResult);
-
-for ($i = 0; $i < $numPending; $i++) {
-	$inviterID = mysql_result($agenciesResult, $i, "user_one_id");
-	$usersQuery = "SELECT * FROM users WHERE id = " . $inviterID . ";";
-	$usersResult = mysql_query($usersQuery);
-	$inviterName = mysql_result($usersResult, 0, "name");
+while ($row = $agenciesStmt->fetch(PDO::FETCH_ASSOC)) {
+	$inviterID = $row["user_one_id"];
+	$usersStmt = $db->prepare("SELECT name FROM users WHERE id = ?");
+	$usersStmt->execute(array($inviterID));
+	$usersResult = $usersStmt->fetch(PDO::FETCH_ASSOC);
+	$inviterName = "";
+	if (!$usersResult) {
+		continue;
+	} else {
+		$inviterName = $usersResult["name"];
+	}
 ?>
 
 <?php echo $inviterName;?>
@@ -43,14 +46,15 @@ for ($i = 0; $i < $numPending; $i++) {
 // Show agency code
 print "Your agency code: <br>";
 
-$userQuery = "SELECT * FROM users WHERE id = ". $_SESSION['userID'] . ";";
-$userResult = mysql_query($userQuery);
-$agencyCode = mysql_result($userResult, 0, "agency_code");
+$userStmt = $db->prepare("SELECT agency_code FROM users WHERE id = ?");
+$userStmt->execute(array($_SESSION['userID']));
+
+$userResult = $userStmt->fetch(PDO::FETCH_ASSOC);
+$agencyCode = "";
+if ($userResult) $agencyCode = $userResult['agency_code'];
 
 print $agencyCode;
 print "<br>";
-
-mysql_close();
 ?>
 
 Invite using agency code: <br>
