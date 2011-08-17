@@ -1,16 +1,19 @@
 <?php
 include($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
 
-mysql_connect($server, $user, $password);
-@mysql_select_db($database) or die("Unable to select database");
+$playerStmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+$playerStmt->execute(array($_SESSION['userID']));
 
-$playerQuery = "SELECT * FROM users WHERE id = " . $_SESSION['userID'] . ";";
-$playerResult = mysql_query($playerQuery);
+$playerResult = $playerStmt->fetch(PDO::FETCH_ASSOC);
+if (!$playerResult) {
+	header("Location: $serverRoot/errorpage.html");
+	exit;
+}
 
-$playerSkill = mysql_result($playerResult, 0, "skill_points");
-$playerAttack = mysql_result($playerResult, 0, "attack");
-$playerDefense = mysql_result($playerResult, 0, "defense");
-mysql_close();
+$playerSkill = $playerResult["skill_points"];
+$playerAttack = $playerResult["attack"];
+$playerDefense = $playerResult["defense"];
 ?>
 
 
