@@ -12,7 +12,6 @@ function displayNormalAttack($db) {
 function displayBountyAttack($db) {
 	$bountyStmt = $db->prepare("SELECT * FROM bounties JOIN users ON (bounties.target_id = users.id) WHERE bounties.is_complete = 0");
 	$bountyStmt->execute();
-		
 	$numBounties = $bountyStmt->rowCount();
 	
 	if ($numBounties <= 0) {
