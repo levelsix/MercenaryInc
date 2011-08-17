@@ -1,5 +1,6 @@
 <?php
-include("../properties/dbproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/properties/dbproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
 
 mysql_connect($server, $user, $password);
 @mysql_select_db($database) or die("Unable to select database");
@@ -18,6 +19,6 @@ $insertInvitation = "INSERT IGNORE INTO agencies (user_one_id, user_two_id, acce
 mysql_query($insertInvitation) or die(mysql_error());
 mysql_close();
 
-header("Location: ../recruit.php");
+header("Location: $serverRoot/recruit.php");
 exit;
 ?>

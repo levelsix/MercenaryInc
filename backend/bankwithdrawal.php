@@ -1,5 +1,6 @@
 <?php
-include("../properties/dbproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/properties/dbproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
 
 mysql_connect($server, $user, $password);
 @mysql_select_db($database) or die("Unable to select database.");
@@ -10,7 +11,7 @@ $amount = $_GET['amount'];
 
 if (!is_numeric($amount) || strrchr($amount, '.')) {
 	$_SESSION['notValid'] = 'true';
-	header("Location: ../bank.php");
+	header("Location: $serverRoot/bank.php");
 	exit;
 }
 
@@ -20,7 +21,7 @@ $userResult = mysql_query($userQuery);
 $userBalance = mysql_result($userResult, 0, "bank_balance");
 if ($amount > $userBalance) {
 	$_SESSION['notEnoughBalance'] = 'true';
-	header("Location: ../bank.php");
+	header("Location: $serverRoot/bank.php");
 	exit;
 }
 
@@ -30,6 +31,6 @@ mysql_query($cashUpdate) or die(mysql_error);
 
 mysql_close();
 $_SESSION['withdrew'] = $amount;
-header("Location: ../bank.php");
+header("Location: $serverRoot/bank.php");
 exit;
 ?>

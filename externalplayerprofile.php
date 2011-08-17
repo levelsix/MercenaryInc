@@ -1,5 +1,5 @@
 <?php
-include("topmenu.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
 
 $userID = $_GET['userID'];
 
@@ -11,13 +11,13 @@ $numRows = $userStmt->rowCount();
 $userResult = $userStmt->fetch(PDO::FETCH_ASSOC);
 if (!$userResult) {
 	// Redirect to error page
-	header("Location: errorpage.html");
+	header("Location: $serverRoot/errorpage.html");
 	exit;
 }
 
 // Error: redirect
 if ($numRows != 1) {
-	header("Location: errorpage.html");
+	header("Location: $serverRoot/errorpage.html");
 	exit;
 }
 
@@ -44,12 +44,12 @@ Deaths: <?php echo $userDeaths;?><br>
 
 <!--  Action buttons
 Give option to attack, add to bounty list -->
-<form action='attackplayer.php' method='POST'>
+<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/attackplayer.php' method='POST'>
 <input type='hidden' name='userID' value='<?php $userID?>'/>
 <input type='submit' value='Attack'/>
 </form>
 
-<form action='addplayertobounty.php' method='POST'>
+<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/addplayertobounty.php' method='POST'>
 <input type='hidden' name='targetID' value='<?php $userID?>'/>
 <input type='submit' value='Add to Bounty List'/>
 </form>

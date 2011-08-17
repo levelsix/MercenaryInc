@@ -1,6 +1,7 @@
 <?php
-include("../properties/dbproperties.php");
-include("../properties/dbcolumnnames.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/properties/dbproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/properties/dbcolumnnames.php");
 
 mysql_connect($server, $user, $password);
 @mysql_select_db($database) or die("Unable to select database");
@@ -40,5 +41,5 @@ mysql_query($query) or die(mysql_error());
 
 mysql_close();
 
-header("Location: ../skills.php");
+header("Location: $serverRoot/skills.php");
 ?>

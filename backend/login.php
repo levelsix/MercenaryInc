@@ -52,6 +52,6 @@ if (strcmp($currentDate, $dailyBonusDate) >= 0) {
 	$stmt->execute($currentDate, $id);
 }
 
-header("Location: " . $serverRoot . "/charhome.php");
+header("Location: $serverRoot/charhome.php");
 exit;
 ?>

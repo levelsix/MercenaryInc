@@ -1,5 +1,6 @@
 <?php
-include("../properties/dbproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/properties/dbproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
 
 function agencyIsLargeEnough($missionResult, $userResult) {
 	$minAgencySize=mysql_result($missionResult, 0,"min_agency_size");

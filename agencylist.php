@@ -1,8 +1,8 @@
 <?php
-include("topmenu.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
 ?>
 
-<form action='../recruit.php' method='GET'>
+<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/recruit.php' method='GET'>
 <input type='submit' value='Back'/>
 </form>
 
@@ -30,7 +30,7 @@ if ($agencySize == 0) {
 		if ($userResult = $userStmt->fetch(PDO::FETCH_ASSOC))
 			$userName = $userResult['name'];
 		?>
-		<form action='externalplayerprofile.php' method='GET'>
+		<form action='<?php  $_SERVER['DOCUMENT_ROOT'] ?>/externalplayerprofile.php' method='GET'>
 		<input type='hidden' name='userID' value='<?php echo $agentId;?>'/>
 		<input type='submit' value='<?php echo $userName;?>'/>
 		</form>

@@ -4,7 +4,7 @@
 
 <body>
 <?php 
-include("topmenu.php"); 
+include($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php"); 
 
 // Daily bonus check
 if (isset($_SESSION['dailyBonus'])) {
@@ -12,39 +12,39 @@ if (isset($_SESSION['dailyBonus'])) {
 	unset($_SESSION['dailyBonus']);
 }
 ?>
-<form action="levelchecker.php" method="post"> 
+<form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/levelchecker.php" method="post"> 
 <input type="hidden" name="pageRequestType" value="mission" />
 <input type="submit" value="Choose Mission" />
 </form>
 
-<form action="levelchecker.php" method="post"> 
+<form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/levelchecker.php" method="post"> 
 <input type="hidden" name="pageRequestType" value="battle" />
 <input type="submit" value="Battle" />
 </form>
 
-<form action="preferences.php"> 
+<form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/preferences.php"> 
 <input type="submit" value="Preferences" />
 </form>
 
-<form action="levelchecker.php" method="post"> 
+<form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/levelchecker.php" method="post"> 
 <input type="hidden" name="pageRequestType" value="shop" />
 <input type="submit" value="Shop" />
 </form>
 
-<form action="playeritemlist.php"> 
+<form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/playeritemlist.php"> 
 <input type="submit" value="My Items" />
 </form>
 
-<form action="bank.php">
+<form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/bank.php">
 <input type="submit" value="Bank"/>
 </form>
 
-<form action="levelchecker.php" method="post">
+<form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/levelchecker.php" method="post">
 <input type="hidden" name="pageRequestType" value="recruit" />
 <input type="submit" value="Recruit" />
 </form>
 
-<form action="levelchecker.php" method="post">
+<form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/levelchecker.php" method="post">
 <input type="hidden" name="pageRequestType" value="profile" />
 <input type="submit" value="My Profile" />
 </form>

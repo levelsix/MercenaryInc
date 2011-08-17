@@ -1,5 +1,6 @@
 <?php
-include("../properties/dbproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/properties/dbproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
 
 session_start();
 
@@ -19,6 +20,6 @@ $cashUpdate = "UPDATE users SET cash = cash - " . $payment . " WHERE id = " . $u
 mysql_query($cashUpdate) or die(mysql_error());
 
 mysql_close();
-header("Location: ../bountylist.php");
+header("Location: $serverRoot/bountylist.php");
 exit;
 ?>
