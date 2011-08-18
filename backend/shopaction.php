@@ -1,12 +1,9 @@
 <?php
-include($_SERVER['DOCUMENT_ROOT'] . "/properties/dbproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
 include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
 include($_SERVER['DOCUMENT_ROOT'] . "/properties/dbcolumnnames.php");
 
 $SELL_RATIO = .6;
-
-mysql_connect($server, $user, $password);
-@mysql_select_db($database) or die("Unable to select database");
 
 $actionToDo = $_POST['actionToDo'];
 $itemID = $_POST['itemID'];
@@ -14,42 +11,52 @@ $storePrice = $_POST['storePrice'];
 
 session_start();
 
-$currentQuery="SELECT * FROM users_items WHERE user_id = ". $_SESSION['userID'];
-$currentQuery.=" AND item_id = ".$itemID.";";
-$currentResult=mysql_query($currentQuery);
-$numCurrent=mysql_numrows($currentResult);
+$db = ConnectionFactory::getFactory()->getConnection();
 
+$currentStmt = $db->prepare("SELECT * FROM users_items WHERE user_id = ? AND item_id = ?");
+$currentStmt->execute(array($_SESSION['userID'], $itemID));
 
-if (strcmp($actionToDo, 'buy') == 0) {
+$numCurrent = $currentStmt->rowCount();
+
+//$currentResult will be null if the user doesn't have that item
+$currentResult = $currentStmt->fetch(PDO::FETCH_ASSOC);
+
+if ($actionToDo == 'buy') {
 	if ($numCurrent == 0) {
-		$query = "INSERT INTO users_items (user_id, item_id, quantity) VALUES
-			(".$_SESSION['userID'].", ". $itemID .", 1);"; 
-
+		$stmt = $db->prepare("INSERT INTO users_items (user_id, item_id, quantity) VALUES (?, ?, 1)");
+		$params = array($_SESSION['userID'], $itemID);
 	} else {
-		$query = "UPDATE users_items SET quantity=quantity+1 WHERE user_id=" . $_SESSION['userID'];
-		$query.=" AND item_id = ".$itemID.";";
+		$stmt = $db->prepare("UPDATE users_items SET quantity = quantity + 1 WHERE user_id = ? AND item_id = ?");
+		$params = array($_SESSION['userID'], $itemID);
 	}
-} else if (strcmp($actionToDo, 'sell') == 0) {	
+} else if ($actionToDo = 'sell') {	
 	if ($numCurrent > 0) {	//should always be, but just in case
-		if (mysql_result($currentResult, 0,"quantity") == 1) {
-			$query = "DELETE FROM users_items WHERE user_id=" . $_SESSION['userID'];
-			$query.=" AND item_id = ".$itemID.";";
+		if ($currentResult['quantity'] == 1) {
+			$stmt = $db->prepare("DELETE FROM users_items WHERE user_id = ? AND item_id = ?");
+			$params = array($_SESSION['userID'], $itemID);
 		} else {
-			$query = "UPDATE users_items SET quantity=quantity-1 WHERE user_id=" . $_SESSION['userID'];
-			$query.=" AND item_id = ".$itemID.";";
+			$stmt = $db->prepare("UPDATE users_items SET quantity = quantity - 1 WHERE user_id = ? AND item_id = ?");
+			$params = array($_SESSION['userID'], $itemID);
 		}
 	}	
 }
-mysql_query($query) or die(mysql_error());
-
-if (strcmp($actionToDo, 'buy') == 0) {
-	$query = "UPDATE users SET cash=cash-".$storePrice." WHERE id=" . $_SESSION['userID'] .";";
-} else if (strcmp($actionToDo, 'sell') == 0) {	
-	$query = "UPDATE users SET cash=cash+".($storePrice*$SELL_RATIO)." WHERE id=" . $_SESSION['userID'] .";";
+if (!($stmt->execute($params))) {
+	header("Location: $serverRoot/errorpage.html");
+	exit;
 }
-mysql_query($query) or die(mysql_error());
 
-mysql_close();
+// Update cash
+if ($actionToDo == 'buy') {
+	$stmt = $db->prepare("UPDATE users SET cash = cash - ? WHERE id = ?");
+	$params = array($storePrice, $_SESSION['userID']);
+} else if ($actionToDo = 'sell') {	
+	$stmt = $db->prepare("UPDATE users SET cash = cash + ? WHERE id = ?");
+	$params = array($storePrice * $SELL_RATIO, $_SESSION['userID']);
+}
+if (!($stmt->execute($params))) {
+	header("Location: $serverRoot/errorpage.html");
+	exit;
+}
 
 header("Location: $serverRoot/shoplist.php");
 ?>

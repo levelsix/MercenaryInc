@@ -1,9 +1,7 @@
 <?php
-include($_SERVER['DOCUMENT_ROOT'] . "/properties/dbproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
 include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
 
-mysql_connect($server, $user, $password);
-@mysql_select_db($database) or die("Unable to select database.");
 session_start();
 
 $userID = $_SESSION['userID'];
@@ -15,21 +13,30 @@ if (!is_numeric($amount) || strrchr($amount, '.')) {
 	exit;
 }
 
-$userQuery = "SELECT * FROM users WHERE id = " . $userID . ";";
-$userResult = mysql_query($userQuery);
+$db = ConnectionFactory::getFactory()->getConnection();
 
-$userBalance = mysql_result($userResult, 0, "bank_balance");
+$userStmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+$userStmt->execute(array($userID));
+
+$userResult = $userStmt->fetch(PDO::FETCH_ASSOC);
+if (!$userResult) {
+	header("Location: $serverRoot/errorpage.html");
+	exit;
+}
+
+$userBalance = $userResult["bank_balance"];
 if ($amount > $userBalance) {
 	$_SESSION['notEnoughBalance'] = 'true';
 	header("Location: $serverRoot/bank.php");
 	exit;
 }
 
-$cashUpdate = "UPDATE users SET cash = cash + " . $amount . ", bank_balance = bank_balance - "
-. $amount . " WHERE id = " . $userID . ";";
-mysql_query($cashUpdate) or die(mysql_error);
+$cashUpdateStmt = $db->prepare("UPDATE users SET cash = cash + ?, bank_balance = bank_balance - ? WHERE id = ?");
+if (!($cashUpdateStmt->execute(array($amount, $amount, $userID)))) {
+	header("Location: $serverRoot/errorpage.html");
+	exit;
+}
 
-mysql_close();
 $_SESSION['withdrew'] = $amount;
 header("Location: $serverRoot/bank.php");
 exit;
