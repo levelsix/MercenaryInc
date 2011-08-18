@@ -1,13 +1,15 @@
 <?php 
-include($_SERVER['DOCUMENT_ROOT'] . "/properties/dbproperties.php");
 include($_SERVER['DOCUMENT_ROOT'] . "/properties/playertypeproperties.php");
 include($_SERVER['DOCUMENT_ROOT'] . "/properties/playerinitproperties.php");
 include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
 
-mysql_connect($server,$user,$password);
-@mysql_select_db($database) or die( "Unable to select database");
+session_start();
+$db = ConnectionFactory::getFactory()->getConnection();
 
 $charname = $_POST['charname'];
+
+/*
 $playertype = $_POST['playertype'];
 if (strcmp($playertype, $playertype1) == 0) {
 	$attack = $playertype1atk;
@@ -21,21 +23,15 @@ else if (strcmp($playertype, $playertype3) == 0) {
 	$attack = $playertype3atk;
 	$defense = $playertype3def;
 }
-	
-$query = "INSERT INTO users (name) VALUES
-('". $charname ."');"; 
+*/
 
-mysql_query($query) or die(mysql_error()); 
-$justAddedID = mysql_insert_id();
+$userStmt = $db->prepare("INSERT INTO users (name) VALUES (?)");
+$userStmt->execute(array($charname));
+$justAddedID = $db->lastInsertId();  
 
-$query="INSERT INTO users_cities(user_id, city_id, rank_avail) VALUES 
-	(".$justAddedID.", 1, 1);";
-mysql_query($query) or die(mysql_error());
+$userCitiesStmt = $db->prepare("INSERT INTO users_cities(user_id, city_id, rank_avail) VALUES (?, 1, 1)");
+$userCitiesStmt->execute(array($justAddedID));
 
-
-mysql_close();  
-
-session_start();
 $_SESSION['userID']=$justAddedID;
 header("Location: $serverRoot/choosemission.php");
 exit;
