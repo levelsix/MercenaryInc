@@ -1,48 +1,60 @@
 <?php
 include($_SERVER['DOCUMENT_ROOT'] . "/properties/dbproperties.php");
 include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
+
+function redirect($location) {
+	header("Location: $location");
+	exit;
+}
 
 function agencyIsLargeEnough($missionResult, $userResult) {
-	$minAgencySize=mysql_result($missionResult, 0,"min_agency_size");
-	$playerAgencySize=mysql_result($userResult, 0,"agency_size");
+	$minAgencySize = $missionResult["min_agency_size"];
+	$playerAgencySize = $userResult["agency_size"];
 	
 	$playerHasEnoughAgency = ($playerAgencySize >= $minAgencySize);
 	if (!$playerHasEnoughAgency) {
-		$_SESSION['needMoreAgency']=$minAgencySize-$playerAgencySize;
+		$_SESSION['needMoreAgency'] = $minAgencySize - $playerAgencySize;
 	}
 	return $playerHasEnoughAgency;
 }
 
 function playerHasEnoughEnergy($missionResult, $userResult) {
-	$minEnergy=mysql_result($missionResult, 0,"energy_cost");
-	$playerEnergy=mysql_result($userResult, 0,"energy");
+	$minEnergy = $missionResult["energy_cost"];
+	$playerEnergy = $userResult["energy"];
 	$playerHasEnoughEnergy = $playerEnergy >= $minEnergy;
 	if (!$playerHasEnoughEnergy) {
-		$_SESSION['needMoreEnergy']=$minEnergy-$playerEnergy;
+		$_SESSION['needMoreEnergy'] = $minEnergy - $playerEnergy;
 	}
 	
 	return $playerHasEnoughEnergy;
 }
 
-function playerHasRequireditems($itemReqResult, $userID) {
-	$numReqs=mysql_numrows($itemReqResult);
+function playerHasRequireditems($db, $itemReqStmt, $userID) {
 	$itemsMissing = array();
 	$playerHasAllRequiredItems = true;
 	
-	for ($i = 0; $i < $numReqs; $i++) {
-		$itemID=mysql_result($itemReqResult, $i,"item_id");
-		$itemQuantity=mysql_result($itemReqResult, $i,"item_quantity");
+	while ($row = $itemReqStmt->fetch(PDO::FETCH_ASSOC)) {
+		$itemID = $row["item_id"];
+		$itemQuantity = $row["item_quantity"];
 		
-		$userItemsQuery="SELECT * FROM users_items WHERE user_id=" . $userID;
-		$userItemsQuery.=" AND item_id=".$itemID;
-		$userItemsResult=mysql_query($userItemsQuery);		
+		$userItemsStmt = $db->prepare("SELECT * FROM users_items WHERE user_id = ? AND item_id = ?");
+		$userItemsStmt->execute(array($userID, $itemID));
 		
-		if (mysql_numrows($userItemsResult) <= 0 || mysql_result($userItemsResult, 0,"quantity") < $itemQuantity) {
+		$userItemsResult = $userItemsStmt->fetch(PDO::FETCH_ASSOC);
+		if (!$userItemsResult) {
+			echo "hi1";
+			redirect($GLOBALS['serverRoot'] . "/errorpage.html");
+		}
+		
+		$numRows = $userItemsStmt->rowCount();
+		$quantity = $userItemsResult["quantity"];
+		if ($numRows <= 0 || $userItemsResult["quantity"] < $itemQuantity) {
 			$playerHasAllRequiredItems = false;
-			if (mysql_numrows($userItemsResult) <= 0) {
+			if ($numRows <= 0) {
 				$amountMissing = $itemQuantity;
 			} else {
-				$amountMissing = $itemQuantity - mysql_result($userItemsResult, 0,"quantity");
+				$amountMissing = $itemQuantity - $quantity;
 			}
 			$itemsMissing[$itemID] = $amountMissing;
 		}
@@ -53,233 +65,290 @@ function playerHasRequireditems($itemReqResult, $userID) {
 	return $playerHasAllRequiredItems;
 }
 
-function allMissionsInCityReadyForNextLevel($nextLevel, $cityID, $userID) {
-	$missionsInCityQuery="SELECT * from missions WHERE city_id=".$cityID;
-	$missionsInCityResult=mysql_query($missionsInCityQuery);
-	$numMissionsInCity=mysql_numrows($missionsInCityResult);
+function allMissionsInCityReadyForNextLevel($db, $nextLevel, $cityID, $userID) {
+	$missionsInCityStmt = $db->prepare("SELECT * FROM missions WHERE city_id = ?");
+	$missionsInCityStmt->execute(array($cityID));
+	$numMissionsInCity = $missionsInCityStmt->rowCount();
 	
 	$allMissionsInCityReadyForUser=true;
 	
-	for ($i = 0; $i < $numMissionsInCity; $i++) {
-		$missionID = mysql_result($missionsInCityResult, $i,"id");
-		$userCheckQuery = "SELECT * from users_missions WHERE user_id=".$userID;
-		$userCheckQuery.= " AND mission_id=".$missionID." AND curr_rank=".$nextLevel.";";
-		$userCheckResult=mysql_query($userCheckQuery);
+	while ($row = $missionsInCityStmt->fetch(PDO::FETCH_ASSOC)) {
+		$missionID = $row['id'];
 		
-		if (mysql_numrows($userCheckResult) < 1) {
+		$userCheckStmt = $db->prepare("SELECT * FROM users_missions WHERE user_id = ? AND mission_id = ? AND curr_rank = ?");
+		$userCheckStmt->execute(array($userID, $missionID, $nextLevel));
+		
+		if ($userCheckStmt->rowCount() < 1) {
 			$allMissionsInCityReadyForUser=false;
 			break;
 		}
-		
 	}
+	
 	return $allMissionsInCityReadyForUser;	
 }
 
 //under this model, cityrank doesnt increase until every missions currRank is ready at new number
 //currRank should really be rankMissionIsReadyFor
-function handleRanks($userID, $missionID) {
-	$userMissionsQuery="SELECT * FROM users_missions WHERE user_id=" . $userID;
-	$userMissionsQuery.=" AND mission_id=".$missionID;
-	$userMissionsResult=mysql_query($userMissionsQuery);
-		
-	$missionQuery="SELECT * from missions WHERE id=".$missionID.";";
-	$missionResult=mysql_query($missionQuery);
+function handleRanks($db, $userID, $missionID) {
+	$userMissionsQueryString = "SELECT * FROM users_missions WHERE user_id = ? AND mission_id = ?";
+	$userMissionsStmt = $db->prepare($userMissionsQueryString);
+	$userMissionsStmt->execute(array($userID, $missionID));
 	
-	$num=mysql_numrows($userMissionsResult);
+	$userMissionsResult = $userMissionsStmt->fetch(PDO::FETCH_ASSOC);
+	
+	$missionStmt = $db->prepare("SELECT * FROM missions WHERE id = ?");
+	$missionStmt->execute(array($missionID));
+	
+	$missionResult = $missionStmt->fetch(PDO::FETCH_ASSOC);
+	if (!$missionResult) {
+		echo "hi2";
+		redirect($GLOBALS['serverRoot'] . "/errorpage.html");
+	}
+	
+	$num = $userMissionsStmt->rowCount();
 	$currRank = -1;
+	
 	if ($num == 0) {
 		$currRank = 1;
-		$query = "INSERT INTO users_missions (user_id, mission_id, times_complete, rank_one_times, curr_rank) VALUES
-							(".$userID.", ". $missionID .", 1, 1, 1);"; 
-	} else {
-		$currRank = mysql_result($userMissionsResult, 0,"curr_rank");
-		$query = "UPDATE users_missions SET times_complete=times_complete+1";
 		
-		$cityRankQuery = "SELECT * from users_cities WHERE user_id=".$userID.
-		$cityRankQuery.=" AND city_id=".mysql_result($missionResult, 0,"city_id").";";
-		$cityRankResult = mysql_query($cityRankQuery);
-		$cityRank = mysql_result($cityRankResult, 0,"rank_avail");
-		if ($cityRank==1) {
-			$query.=", rank_one_times=rank_one_times+1";
+		$query = $db->prepare("INSERT INTO users_missions (user_id, mission_id, times_complete, rank_one_times, curr_rank) VALUES (?, ?, 1, 1, 1)");
+		$params = array($userID, $missionID);
+	} else {
+		$currRank = $userMissionsResult["curr_rank"];
+		$queryString = "UPDATE users_missions SET times_complete = times_complete + 1";
+
+		$cityRankStmt = $db->prepare("SELECT * FROM users_cities WHERE user_id = ? AND city_id = ?");
+		$cityRankStmt->execute(array($userID, $missionResult['city_id']));
+		
+		$cityRankResult = $cityRankStmt->fetch(PDO::FETCH_ASSOC);
+		if (!$cityRankResult) redirect($GLOBALS['serverRoot'] . "/errorpage.html");
+		$cityRank = $cityRankResult['rank_avail'];
+		
+		if ($cityRank == 1) {
+			$queryString .= ", rank_one_times = rank_one_times + 1";
 		}
-		if ($cityRank==2) {
-			$query.=", rank_two_times=rank_two_times+1";
+		if ($cityRank == 2) {
+			$queryString .= ", rank_two_times = rank_two_times + 1";
 		}
-		if ($cityRank==3) {
-			$query.=", rank_three_times=rank_three_times+1";
+		if ($cityRank == 3) {
+			$queryString .= ", rank_three_times = rank_three_times + 1";
 		}
-		$query.="  WHERE user_id=" . $userID ." AND mission_id = ".$missionID.";";
+		$queryString .= " WHERE user_id = ? AND mission_id = ?";
+		$query = $db->prepare($queryString);
+		$params = array($userID, $missionID);
 	}
-	mysql_query($query) or die(mysql_error());
+	$query->execute($params);	
 	
-	$newUserMissionsResult=mysql_query($userMissionsQuery);	
+	$newUserMissionsStmt = $db->prepare($userMissionsQueryString);
+	$newUserMissionsStmt->execute(array($userID, $missionID));
 	
-	
-	$userTimesFinishedRankForMission=-1;
-	$missionRequirementToFinishRank=-1;
-	
-	if ($currRank==1) {
-		$missionRequirementToFinishRank=mysql_result($missionResult, 0,"rank_one_times");
-		$userTimesFinishedRankForMission=mysql_result($newUserMissionsResult, 0,"rank_one_times");
+	$newUserMissionsResult = $newUserMissionsStmt->fetch(PDO::FETCH_ASSOC);
+	if (!$newUserMissionsResult) {
+		echo "hi3";
+		redirect($GLOBALS['serverRoot'] . "/errorpage.html");
 	}
-	if ($currRank==2) {
-		$missionRequirementToFinishRank=mysql_result($missionResult, 0,"rank_two_times");
-		$userTimesFinishedRankForMission=mysql_result($newUserMissionsResult, 0,"rank_two_times");
+	
+	
+	$userTimesFinishedRankForMission = -1;
+	$missionRequirementToFinishRank = -1;
+	
+	if ($currRank == 1) {
+		$indexName = "rank_one_times";
+		
+		$missionRequirementToFinishRank = mysql_result($missionResult, 0,"rank_one_times");
+		$userTimesFinishedRankForMission = mysql_result($newUserMissionsResult, 0,"rank_one_times");
 	}
-	if ($currRank==3) {
-		$missionRequirementToFinishRank=mysql_result($missionResult, 0,"rank_three_times");
-		$userTimesFinishedRankForMission=mysql_result($newUserMissionsResult, 0,"rank_three_times");
+	if ($currRank == 2) {
+		$indexName = "rank_two_times";
+		
+		$missionRequirementToFinishRank = mysql_result($missionResult, 0,"rank_two_times");
+		$userTimesFinishedRankForMission = mysql_result($newUserMissionsResult, 0,"rank_two_times");
+	}
+	if ($currRank == 3) {
+		$indexName = "rank_three_times";
+		
+		$missionRequirementToFinishRank = mysql_result($missionResult, 0,"rank_three_times");
+		$userTimesFinishedRankForMission = mysql_result($newUserMissionsResult, 0,"rank_three_times");
 	} 
+	$missionRequirementToFinishRank = $missionResult[$indexName];
+	$userTimesFinishedRankForMission = $newUserMissionsResult[$indexName];
 	
 	if ($userTimesFinishedRankForMission >= $missionRequirementToFinishRank) {
 		if ($userTimesFinishedRankForMission == $missionRequirementToFinishRank) {
 			if ($currRank <= 3) {
-				$_SESSION['justUnlockedThisMissionRank'] = $currRank+1;
-				$upMissionRankQuery = "UPDATE users_missions SET curr_rank=".($currRank+1);
-				$upMissionRankQuery.="  WHERE user_id=" . $userID ." AND mission_id = ".$missionID.";";
-				mysql_query($upMissionRankQuery) or die(mysql_error());
+				$_SESSION['justUnlockedThisMissionRank'] = $currRank + 1;
+				
+				$updateMissionRankStmt = $db->prepare("UPDATE users_missions SET curr_rank = ? WHERE user_id = ? AND mission_id = ?");
+				if (!($updateMissionRankStmt->execute(array($currRank + 1, $userID, $missionID)))) {
+					echo "hi4";
+					redirect($GLOBALS['serverRoot'] . "/errorpage.html");
+				}
 			} else {
 				return;
 			}
 		}
 		
-		$cityID=mysql_result($missionResult, 0,"city_id");
+		$cityID = $missionResult['city_id'];
+		
+		if (allMissionsInCityReadyForNextLevel($db, $currRank+1, $cityID, $userID)) {
+			$updateCityRankStmt = $db->prepare("UPDATE users_cities SET rank_avail = ? WHERE user_id = ? AND city_id = ?");
+			if (!($updateCityRankStmt->execute(array($currRank + 1, $userID, $cityID)))) {
+				echo "hi5";
+				redirect($GLOBALS['serverRoot'] . "/errorpage.html");
+			}
 
-		
-		
-		if (allMissionsInCityReadyForNextLevel($currRank+1, $cityID, $userID)) {
-			$upCityRankQuery = "UPDATE users_cities SET rank_avail=".($currRank+1);
-			$upCityRankQuery.= " WHERE user_id=" . $userID . " AND city_id=" . $cityID . ";";
-			
-			mysql_query($upCityRankQuery) or die(mysql_error());
 			$_SESSION['justUnlockedThisCityRank'] = $currRank+1;
 			//session work for rewards
 		}
 	}
 }
 
-
 $missionID=$_POST['missionID'];
 session_start();
 $userID=$_SESSION['userID'];
 
-mysql_connect($server, $user, $password);
-@mysql_select_db($database) or die("Unable to select database");
+$db = ConnectionFactory::getFactory()->getConnection();
 
-$missionQuery="SELECT * FROM missions WHERE id=" . $missionID;
-$missionResult=mysql_query($missionQuery);
+$missionStmt = $db->prepare("SELECT * FROM missions WHERE id = ?");
+$missionStmt->execute(array($missionID));
 
-$userQuery="SELECT * FROM users WHERE id=" . $userID;
-$userResult=mysql_query($userQuery);
+$missionResult = $missionStmt->fetch(PDO::FETCH_ASSOC);
+if (!$missionResult) redirect("$serverRoot/errorpage.html");
 
-$itemReqQuery="SELECT * FROM missions_itemreqs WHERE mission_id=" . $missionID;
-$itemReqResult=mysql_query($itemReqQuery);
+$userStmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+$userStmt->execute(array($userID));
 
-$doMission=true;
+$userResult = $userStmt->fetch(PDO::FETCH_ASSOC);
+if (!$userResult) redirect("$serverRoot/errorpage.html");
+
+$itemReqStmt = $db->prepare("SELECT * FROM missions_itemreqs WHERE mission_id = ?");
+$itemReqStmt->execute(array($missionID));
+
+$doMission = true;
 if (!agencyIsLargeEnough($missionResult, $userResult)) {
-	$doMission=false;
+	$doMission = false;
 } 
+
 if (!playerHasEnoughEnergy($missionResult, $userResult)) {
-	$doMission=false;
+	$doMission = false;
 }
-if (!playerHasRequireditems($itemReqResult, $userID)) {
-	$doMission=false;	
+
+if (!playerHasRequireditems($db, $itemReqStmt, $userID)) {
+	$doMission = false;	
 }
+
 if ($doMission) {
-	$numReqs=mysql_numrows($itemReqResult);
-	$itemsLost=array();
-	$hasLostItems=false;
-	for ($i = 0; $i < $numReqs; $i++) {
+	$itemsLost = array();
+	$hasLostItems = false;
+	
+	// Loop over every item requirement to see whether or not the user loses it
+	while ($row = $itemReqStmt->fetch(PDO::FETCH_ASSOC)) {
 		$random = rand(0, 100);
-		$itemID=mysql_result($itemReqResult, $i,"item_id");
-		$chanceLossQuery="SELECT * FROM items WHERE id=" . $itemID;
-		$chanceLossResult=mysql_query($chanceLossQuery);
-		$chanceLoss=mysql_result($chanceLossResult, 0,"chance_of_loss");
-		if ($random < $chanceLoss*100) {
-			$userItemsQuery="SELECT * FROM users_items WHERE user_id=" . $userID;
-			$userItemsQuery.=" AND item_id=".$itemID;
-			$userItemsResult=mysql_query($userItemsQuery);
-			if (mysql_result($userItemsResult, 0,"quantity") == 1) {
-				$query = "DELETE FROM users_items WHERE user_id=" . $_SESSION['userID'];
-				$query.=" AND item_id = ".$itemID.";";
+						
+		$itemID = $row["item_id"];
+		
+		$chanceLossStmt = $db->prepare("SELECT chance_of_loss FROM items WHERE id = ?");
+		$chanceLossStmt->execute(array($itemID));
+
+		$chanceLossResult = $chanceLossStmt->fetch(PDO::FETCH_ASSOC);
+		if (!$chanceLossResult) redirect("$serverRoot/errorpage.html");
+		
+		$chanceLoss = $chanceLossResult["chance_of_loss"];
+				
+		if ($random < $chanceLoss * 100) {
+			$userItemsStmt = $db->prepare("SELECT * FROM users_items WHERE user_id = ? AND item_id = ?");
+			$userItemsStmt->execute(array($userID, $itemID));
+			
+			$userItemsResult = $userItemsStmt->fetch(PDO::FETCH_ASSOC);
+			if (!$userItemsResult) redirect("$serverRoot/errorpage.html");
+
+			if ($userItemsResult["quantity"] == 1) {
+				$query = $db->prepare("DELETE FROM users_items WHERE user_id = ? AND item_id = ?");
+				$params = array($_SESSION['userID'], $itemID);
 			} else {
-				$query = "UPDATE users_items SET quantity=quantity-1 WHERE user_id=" . $_SESSION['userID'];
-				$query.=" AND item_id = ".$itemID.";";
+				$query = $db->prepare("UPDATE users_items SET quantity = quantity - 1 WHERE user_id = ? AND item_id = ?");
+				$params = array($_SESSION['userID'], $itemID);
 			}
-			mysql_query($query) or die(mysql_error());
-			$hasLostItems=true;
+			
+			if (!($query->execute($params))) {
+				echo "hi6";
+				redirect("$serverRoot/errorpage.html");
+			}
+			
+			$hasLostItems = true;
 			array_push($itemsLost, $itemID);
 		}		
 	}
+		
 	if ($hasLostItems) {
-		$_SESSION['itemsLost']=$itemsLost;
+		$_SESSION['itemsLost'] = $itemsLost;
 	}
 	
-	$query = "UPDATE users SET energy=energy-".	mysql_result($missionResult, 0,"energy_cost") 
-		." WHERE id=" . $_SESSION['userID'];
-	$_SESSION['energyLost']=mysql_result($missionResult, 0,"energy_cost");
-	mysql_query($query) or die(mysql_error());
-	
+	// Loot
 	$random = rand(0, 100);
-	$chanceLoot=mysql_result($missionResult, 0,"chance_of_loot");
-	if ($random < $chanceLoot*100) {
-		$lootItemID=mysql_result($missionResult, 0,"loot_item_id");
-		$userItemsQuery="SELECT * FROM users_items WHERE user_id=" . $userID;
-		$userItemsQuery.=" AND item_id=".$lootItemID;
-		$userItemsResult=mysql_query($userItemsQuery);
-		$num=mysql_numrows($userItemsResult);
-		
+			
+	$chanceLoot = $missionResult['chance_of_loot'];
+	
+	if ($random < $chanceLoot * 100) {
+		$lootItemID = $missionResult['loot_item_id'];
+				
+		$userItemsStmt = $db->prepare("SELECT * FROM users_items WHERE user_id = ? AND item_id = ?");		
+		$userItemsStmt->execute(array($userID, $lootItemID));
+				
+		$num = $userItemsStmt->rowCount();
+				
 		if ($num == 0) {
-			$query = "INSERT INTO users_items (user_id, item_id, quantity) VALUES
-					(".$_SESSION['userID'].", ". $lootItemID .", 1);"; 
-		
+			$query = $db->prepare("INSERT INTO users_items (user_id, item_id, quantity) VALUES (?, ?, 1)");
+			$params = array($_SESSION['userID'], $lootItemID);		
 		} else {
-			$query = "UPDATE users_items SET quantity=quantity+1 WHERE user_id=" . $_SESSION['userID'];
-			$query.=" AND item_id = ".$lootItemID.";";
+			$query = $db->prepare("UPDATE users_items SET quantity = quantity + 1 WHERE user_id = ? AND item_id = ?");
+			$params = array($_SESSION['userID'], $lootItemID);
+		}
+		if (!($query->execute($params))) {
+			echo "hi7";
+			redirect("$serverRoot/errorpage.html");
 		}
 		
-		$_SESSION['gainedLootItemID']=$lootItemID;
+		$_SESSION['gainedLootItemID'] = $lootItemID;
+	}
+			
+	$_SESSION['missionsuccess'] = "true";
+	
+	handleRanks($db, $userID, $missionID);
+	
+	// Get multiplier based on whether or not the player completed a mission rank
+	$multiplier = 1;
+	if (isset($_SESSION['justUnlockedThisMissionRank'])) {
+		$multiplier = $_SESSION['justUnlockedThisMissionRank'];
+	}
+	
+	// Compute the cash gained
+	$minCashGained = $missionResult["min_cash_gained"];
+	$maxCashGained = $missionResult["max_cash_gained"];
+	$cashGained = rand($minCashGained, $maxCashGained);
+	
+	$_SESSION['baseCashGained'] = $cashGained;
 		
-		mysql_query($query) or die(mysql_error());
+	if (isset($_SESSION['justUnlockedThisMissionRank'])) {
+		$_SESSION['extraCashGained'] = $cashGained * ($multiplier - 1);
 	}
 	
-	$query = "UPDATE users SET missions_completed=missions_completed+1 WHERE id=" . $_SESSION['userID'];
-	mysql_query($query) or die(mysql_error());
+	// Compute experience gained
+	$expGained = $missionResult["exp_gained"];
+
+	$_SESSION['baseExpGained'] = $expGained;
+	if (isset($_SESSION['justUnlockedThisMissionRank'])) {
+		$_SESSION['extraExpGained'] = $expGained * ($multiplier - 1);
+	}
 		
-	$_SESSION['missionsuccess']="true";
-	
-	handleRanks($userID, $missionID);
-	
-	$multiplier=1;
-	if (isset($_SESSION['justUnlockedThisMissionRank'])) {
-		$multiplier=$_SESSION['justUnlockedThisMissionRank'];
-	}
-	
-	$minCashGained=mysql_result($missionResult, 0,"min_cash_gained");
-	$maxCashGained=mysql_result($missionResult, 0,"max_cash_gained");
-	$cashGained=rand($minCashGained, $maxCashGained);
-	$query = "UPDATE users SET cash=cash+".	($cashGained*$multiplier) . " WHERE id=" . $_SESSION['userID'];
-	$_SESSION['baseCashGained']=$cashGained;
-	if (isset($_SESSION['justUnlockedThisMissionRank'])) {
-		$_SESSION['extraCashGained']=$cashGained*($multiplier-1);
-	}
-	mysql_query($query) or die(mysql_error());
-	
-	$expGained = mysql_result($missionResult, 0,"exp_gained");
-	$query = "UPDATE users SET experience=experience+".	($expGained*$multiplier)
-	." WHERE id=" . $_SESSION['userID'];
-	$_SESSION['baseExpGained']=$expGained;
-	if (isset($_SESSION['justUnlockedThisMissionRank'])) {
-		$_SESSION['extraExpGained']=$expGained*($multiplier-1);
-	}
-	mysql_query($query) or die(mysql_error());
-	
+	// Update energy, missions completed, cash, experience
+	$updateStmt = $db->prepare("UPDATE users SET energy = energy - ?, missions_completed = missions_completed + 1, cash = cash + ?, experience = experience + ? WHERE id = ?");
+	if (!($updateStmt->execute(array($missionResult['energy_cost'], $cashGained * $multiplier, $expGained * $multiplier, $_SESSION['userID']))))
+		redirect("$serverRoot/errorpage.html");
 } else {
-	$_SESSION['missionfail']="true";	
+	$_SESSION['missionfail'] = "true";	
 }
-$_SESSION['currentMissionCity']=$_POST['currentMissionCity'];
+$_SESSION['currentMissionCity'] = $_POST['currentMissionCity'];
 
-mysql_close();
-
-header("Location: ../choosemission.php");
+header("Location: $serverRoot/choosemission.php");
 ?>
