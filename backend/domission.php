@@ -43,7 +43,6 @@ function playerHasRequireditems($db, $itemReqStmt, $userID) {
 		
 		$userItemsResult = $userItemsStmt->fetch(PDO::FETCH_ASSOC);
 		if (!$userItemsResult) {
-			echo "hi1";
 			redirect($GLOBALS['serverRoot'] . "/errorpage.html");
 		}
 		
@@ -101,7 +100,6 @@ function handleRanks($db, $userID, $missionID) {
 	
 	$missionResult = $missionStmt->fetch(PDO::FETCH_ASSOC);
 	if (!$missionResult) {
-		echo "hi2";
 		redirect($GLOBALS['serverRoot'] . "/errorpage.html");
 	}
 	
@@ -144,7 +142,6 @@ function handleRanks($db, $userID, $missionID) {
 	
 	$newUserMissionsResult = $newUserMissionsStmt->fetch(PDO::FETCH_ASSOC);
 	if (!$newUserMissionsResult) {
-		echo "hi3";
 		redirect($GLOBALS['serverRoot'] . "/errorpage.html");
 	}
 	
@@ -180,7 +177,6 @@ function handleRanks($db, $userID, $missionID) {
 				
 				$updateMissionRankStmt = $db->prepare("UPDATE users_missions SET curr_rank = ? WHERE user_id = ? AND mission_id = ?");
 				if (!($updateMissionRankStmt->execute(array($currRank + 1, $userID, $missionID)))) {
-					echo "hi4";
 					redirect($GLOBALS['serverRoot'] . "/errorpage.html");
 				}
 			} else {
@@ -193,7 +189,6 @@ function handleRanks($db, $userID, $missionID) {
 		if (allMissionsInCityReadyForNextLevel($db, $currRank+1, $cityID, $userID)) {
 			$updateCityRankStmt = $db->prepare("UPDATE users_cities SET rank_avail = ? WHERE user_id = ? AND city_id = ?");
 			if (!($updateCityRankStmt->execute(array($currRank + 1, $userID, $cityID)))) {
-				echo "hi5";
 				redirect($GLOBALS['serverRoot'] . "/errorpage.html");
 			}
 
@@ -271,7 +266,6 @@ if ($doMission) {
 			}
 			
 			if (!($query->execute($params))) {
-				echo "hi6";
 				redirect("$serverRoot/errorpage.html");
 			}
 			
@@ -305,7 +299,6 @@ if ($doMission) {
 			$params = array($_SESSION['userID'], $lootItemID);
 		}
 		if (!($query->execute($params))) {
-			echo "hi7";
 			redirect("$serverRoot/errorpage.html");
 		}
 		

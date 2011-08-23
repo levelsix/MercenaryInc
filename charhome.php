@@ -6,10 +6,38 @@
 <?php 
 include($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php"); 
 
-// Daily bonus check
+function getItemWithID($db, $itemID) {
+	$stmt = $db->prepare("SELECT name FROM items WHERE id = ?");
+	$stmt->execute(array($itemID));
+	
+	if ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+		return $result['name'];
+	} else {
+		// Doesn't work because of the topmenu include
+		header("Location: " . $GLOBALS['serverRoot'] . "/errorpage.html");
+		exit;
+	}
+}
+
+// Daily and weekly bonus check
+if (isset($_SESSION['allPastBonuses'])) {
+	$i = 1;
+	foreach($_SESSION['allPastBonuses'] as $value) {
+		if ($value == 0) break;
+		print "Day $i Bonus: $value cash <br>";
+		$i++;
+	}
+	unset($_SESSION['allPastBonuses']);
+}
+
 if (isset($_SESSION['dailyBonus'])) {
 	print "Congratulations! You found " . $_SESSION['dailyBonus'] . " cash. <br>";
 	unset($_SESSION['dailyBonus']);
+} else if (isset($_SESSION['weeklyBonus'])) {
+	$item = getItemWithID($db, $_SESSION['weeklyBonus']);
+	
+	print "Congratulations! For playing the last 7 days, you received one $item! <br>";
+	unset($_SESSION['weeklyBonus']);
 }
 ?>
 <form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/levelchecker.php" method="post"> 
