@@ -11,14 +11,14 @@ $payment = $_GET['bountyAmount'];
 
 $db = ConnectionFactory::getFactory()->getConnection();
 
-$bountyInsertStmt = $db->prepare("INSERT INTO bounties (requester_id, target_id, payment) VALUES (?, ?, ?)");
-if (!($bountyInsertStmt->execute(array($userID, $targetID, $payment)))) {
+$bountyStmt = ConnectionFactory::insertIntoBounties($userID, $targetID, $payment);
+if ($bountyStmt == NULL) {
 	header("Location: $serverRoot/errorpage.html");
 	exit;
 }
 
-$cashUpdateStmt = $db->prepare("UPDATE users SET cash = cash - ? WHERE id = ?");
-if (!($cashUpdateStmt->execute(array($payment, $userID)))) {
+$cashUpdateStmt = ConnectionFactory::updateUserCash($payment*-1, $userID);
+if ($cashUpdateStmt == NULL) {
 	header("Location: $serverRoot/errorpage.html");
 	exit;
 }
