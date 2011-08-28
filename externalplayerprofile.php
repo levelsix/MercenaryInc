@@ -44,7 +44,7 @@ Deaths: <?php echo $userDeaths;?><br>
 
 <!--  Action buttons
 Give option to attack, add to bounty list -->
-<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/attackplayer.php' method='POST'>
+<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/backend/attackplayer.php' method='POST'>
 <input type='hidden' name='userID' value='<?php echo $userID;?>'/>
 <input type='submit' value='Attack'/>
 </form>
