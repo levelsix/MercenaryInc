@@ -67,8 +67,30 @@ class User {
 		return $success;
 	}
 	
+	public function withdrawBankGainCash($cashGain) {
+		$bankparams = array();
+		$bankparams['bank_balance'] = $cashGain*-1;
+		$bankparams['cash'] = $cashGain;
+		
+		$conditions = array();
+		$conditions['id'] = $this->id;
+		
+		$success = ConnectionFactory::updateTableRowRelativeBasic("users", $bankparams, $conditions);
+		
+		if ($success) {
+			$this->cash += $cashGain;
+			$this->bank_balance -= $cashGain;
+		}
+		return $success;
+	}
+	
+	
 	public function getCash() {
 		return $this->cash;
+	}
+	
+	public function getBankBalance() {
+		return $this->bank_balance;
 	}
 	
 }

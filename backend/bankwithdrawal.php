@@ -1,6 +1,7 @@
 <?php
 include($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
 include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
 
 session_start();
 
@@ -15,17 +16,9 @@ if (!is_numeric($amount) || strrchr($amount, '.')) {
 
 $db = ConnectionFactory::getFactory()->getConnection();
 
-$userStmt = $db->prepare("SELECT * FROM users WHERE id = ?");
-$userStmt->execute(array($userID));
+$user = User::getUser($userID);
 
-$userResult = $userStmt->fetch(PDO::FETCH_ASSOC);
-if (!$userResult) {
-	header("Location: $serverRoot/errorpage.html");
-	exit;
-}
-
-$userBalance = $userResult["bank_balance"];
-if ($amount > $userBalance) {
+if ($amount > $user->getBankBalance()) {
 	$_SESSION['notEnoughBalance'] = 'true';
 	header("Location: $serverRoot/bank.php");
 	exit;
