@@ -1,7 +1,6 @@
 <?php
 class ConnectionFactory {
 	
-	
 	/*
 	 * http://www.karlrixon.co.uk/articles/sql/update-multiple-rows-with-different-values-and-a-single-sql-query/
 	* http://dev.mysql.com/doc/refman/5.0/en/insert-on-duplicate.html
@@ -38,30 +37,25 @@ class ConnectionFactory {
 		return $this->db;
 	}
 	
-	public static function insertIntoBounties($userID, $targetID, $payment) {
-		$bountyparams = array();
-		$bountyparams['requester_id'] = $userID;
-		$bountyparams['target_id'] = $targetID;
-		$bountyparams['payment'] = $payment;
-		return self::insertIntoTable("bounties", $bountyparams);
+	public static function SelectRowAsClass($query, $values, $className) {
+		$mydb = self::getFactory()->getConnection();
+		$sth = $mydb->prepare($query);
+		$sth->execute($values);
+		
+		$sth->setFetchMode(PDO::FETCH_CLASS, $className);
+		$obj = $sth->fetch();
+		return $obj;
 	}
-	
-	public static function updateUserCash($cashChange, $userID) {
-		$cashparams = array();
-		$cashparams['cash'] = $cashChange;
-
-		$conditions = array();
-		$conditions['id'] = $userID;
-				
-		return self::updateTableRowRelative("users", $cashparams, $conditions);
+			
+	private static function selectFromTable($tablename, $columns, $conditions) {
+		
 	}
-	
 	
 	/*
 	* $params should be an associative array from columns to values
 	* $conditions same
 	*/
-	private static function updateTableRowRelative($tablename, $params, $conditions) {
+	public static function updateTableRowRelativeBasic($tablename, $params, $conditions) {
 		$mydb = self::getFactory()->getConnection();
 		//TODO: after refactor, just eliminate getFactory, change getConnection to static, and call that?
 		
@@ -85,19 +79,14 @@ class ConnectionFactory {
 		
 		$stmt = $mydb->prepare($stmtString);
 
-		$success = $stmt->execute($values);
-		
-		if (!$success) {
-			return NULL;
-		}
-		
-		return $stmt;
+		return $stmt->execute($values);
 	}
 	
 	/* 
 	 * $params should be an associative array from columns to values
+	 * used for basic inserts
 	 */
-	private static function insertIntoTable($tablename, $params) {
+	public static function InsertIntoTableBasic($tablename, $params) {
 		$mydb = self::getFactory()->getConnection();
 		//TODO: after refactor, just eliminate getFactory, change getConnection to static, and call that?		 
 		
@@ -109,7 +98,7 @@ class ConnectionFactory {
 			$values[] = $value;
 			$questions[] = '?';
 		}
-		
+				
 		$stmtString = "INSERT INTO ". $tablename . "(";
 		$stmtString .= self::getArrayInString($keys, ',') . ") VALUES (";
 		$stmtString .= self::getArrayInString($questions, ',') . ")";
@@ -117,11 +106,7 @@ class ConnectionFactory {
 		
 		$stmt = $mydb->prepare($stmtString);
 				
-		$success = $stmt->execute($values);
-		if (!$success) {
-			return NULL;
-		} 
-		return $stmt;
+		return $stmt->execute($values);
 	}
 	
 	private static function getArrayInString($array, $delim) {
