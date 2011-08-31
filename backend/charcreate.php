@@ -3,6 +3,8 @@ include($_SERVER['DOCUMENT_ROOT'] . "/properties/playertypeproperties.php");
 include($_SERVER['DOCUMENT_ROOT'] . "/properties/playerinitproperties.php");
 include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
 include($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
+
 
 session_start();
 $db = ConnectionFactory::getFactory()->getConnection();
@@ -25,14 +27,8 @@ else if (strcmp($playertype, $playertype3) == 0) {
 }
 */
 
-$userStmt = $db->prepare("INSERT INTO users (name) VALUES (?)");
-$userStmt->execute(array($charname));
-$justAddedID = $db->lastInsertId();  
-
-$userCitiesStmt = $db->prepare("INSERT INTO users_cities(user_id, city_id, rank_avail) VALUES (?, 1, 1)");
-$userCitiesStmt->execute(array($justAddedID));
-
-$_SESSION['userID']=$justAddedID;
+$user = new User($charname);
+$_SESSION['userID']=$user->createUser();
 header("Location: $serverRoot/choosemission.php");
 exit;
 ?>

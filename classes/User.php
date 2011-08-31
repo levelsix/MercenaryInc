@@ -29,7 +29,9 @@ class User {
 	private $last_login;
 	private $num_consecutive_days_played;	
 		
-	function __construct() {
+
+	function __construct($name) {
+		$this->name = $name;
 	}
 	
 	public static function getUser($userID)
@@ -39,6 +41,21 @@ class User {
 		return $objUser;
 	}
 	
+	public function createUser() {
+		$userparams = array();
+		$userparams['name'] = $this->name;
+		$justAddedID = ConnectionFactory::InsertIntoTableBasicReturnInsertID("users", $userparams);
+		if ($justAddedID) {
+			$usercitiesparams = array();
+			$usercitiesparams['user_id'] = $justAddedID;
+			$usercitiesparams['city_id'] = 1;
+			$usercitiesparams['rank_avail'] = 1;
+			$success = ConnectionFactory::InsertIntoTableBasic("users_cities", $usercitiesparams);
+			if ($success) {
+				return $justAddedID;
+			}
+		}
+	}
 	
 	public function updateUserCash($cashChange) {
 		$cashparams = array();

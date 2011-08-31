@@ -109,6 +109,33 @@ class ConnectionFactory {
 		return $stmt->execute($values);
 	}
 	
+	public static function InsertIntoTableBasicReturnInsertID($tablename, $params) {
+		$mydb = self::getFactory()->getConnection();
+		//TODO: after refactor, just eliminate getFactory, change getConnection to static, and call that?
+	
+		$questions = array();
+		$keys = array();
+		$values = array();
+		foreach($params as $key=>$value) {
+			$keys[] = $key;
+			$values[] = $value;
+			$questions[] = '?';
+		}
+	
+		$stmtString = "INSERT INTO ". $tablename . "(";
+		$stmtString .= self::getArrayInString($keys, ',') . ") VALUES (";
+		$stmtString .= self::getArrayInString($questions, ',') . ")";
+	
+	
+		$stmt = $mydb->prepare($stmtString);
+	
+		$success = $stmt->execute($values);
+		if ($success) {
+			return $mydb->lastInsertId(); 
+		}
+		return 0;
+	}
+	
 	private static function getArrayInString($array, $delim) {
 		$arrlength = count($array);
 		$toreturn = "";
