@@ -24,17 +24,6 @@ if (!$user->updateUserCash($payment*-1)){
 	exit;
 }
 
-
-
-/*
-
-$cashUpdateStmt = ConnectionFactory::updateUserCash($payment*-1, $userID);
-if ($cashUpdateStmt == NULL) {
-	header("Location: $serverRoot/errorpage.html");
-	exit;
-}*/
-
-
 $_SESSION['battleTab'] = 'bounty';
 header("Location: $serverRoot/battle.php");
 exit;

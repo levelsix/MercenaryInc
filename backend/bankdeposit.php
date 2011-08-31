@@ -1,6 +1,8 @@
 <?php
 include($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
 include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
+
 
 session_start();
 
@@ -13,28 +15,22 @@ if (!is_numeric($amount) || strrchr($amount, '.')) {
 	exit;
 }
 
-$db = ConnectionFactory::getFactory()->getConnection();
+$user = User::getUser($userID);
 
-$userStmt = $db->prepare("SELECT * FROM users WHERE id = ?");
-$userStmt->execute(array($userID));
-
-$userResult = $userStmt->fetch(PDO::FETCH_ASSOC);
-if (!$userResult) {
-	header("Location: $serverRoot/errorpage.html");
-	exit;
-}
-
-$userCash = $userResult["cash"];
-if ($amount > $userCash) {
+if ($amount > $user->getCash()) {
 	$_SESSION['notEnoughCash'] = 'true';
 	header("Location: $serverRoot/bank.php");
 	exit;
 }
 
+if (!$user->updateUserCash($payment*-1)){
+	header("Location: $serverRoot/errorpage.html");
+	exit;
+}
+
 $toBeDeposited = round(0.9 * $amount);
 
-$cashUpdateStmt = $db->prepare("UPDATE users SET cash = cash - ?, bank_balance = bank_balance + ? WHERE id = ?");
-if (!($cashUpdateStmt->execute(array($amount, $toBeDeposited, $userID)))) {
+if (!$user->depositBankDeductCash($amount, $toBeDeposited)) {
 	header("Location: $serverRoot/errorpage.html");
 	exit;
 }

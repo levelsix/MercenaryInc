@@ -39,9 +39,6 @@ class User {
 		return $objUser;
 	}
 	
-	public function printName() {
-		echo $this->name;
-	}
 	
 	public function updateUserCash($cashChange) {
 		$cashparams = array();
@@ -53,5 +50,25 @@ class User {
 		return ConnectionFactory::updateTableRowRelativeBasic("users", $cashparams, $conditions);
 	}
 	
+	public function depositBankDeductCash($cashLost, $bankGain) {		
+		$bankparams = array();
+		$bankparams['bank_balance'] = $bankGain;
+		$bankparams['cash'] = $cashLost*-1;
+		
+		$conditions = array();
+		$conditions['id'] = $this->id;
+	
+		$success = ConnectionFactory::updateTableRowRelativeBasic("users", $bankparams, $conditions);
+		
+		if ($success) {
+			$this->cash -= $cashLost;
+			$this->bank_balance += $bankGain;
+		}
+		return $success;
+	}
+	
+	public function getCash() {
+		return $this->cash;
+	}
 	
 }
