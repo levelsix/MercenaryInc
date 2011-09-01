@@ -27,8 +27,13 @@ else if (strcmp($playertype, $playertype3) == 0) {
 }
 */
 
-$user = new User($charname);
-$_SESSION['userID']=$user->createUser();
+$user = User::createUser($charname);
+if (!$user) {
+	header("Location: $serverRoot/errorpage.html");
+	exit;
+}
+
+$_SESSION['userID']=$user->getID();
 header("Location: $serverRoot/choosemission.php");
 exit;
 ?>

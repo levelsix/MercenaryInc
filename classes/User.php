@@ -41,9 +41,9 @@ class User {
 		return $objUser;
 	}
 	
-	public function createUser() {
+	public static function createUser($name) {
 		$userparams = array();
-		$userparams['name'] = $this->name;
+		$userparams['name'] = $name;
 		$justAddedID = ConnectionFactory::InsertIntoTableBasicReturnInsertID("users", $userparams);
 		if ($justAddedID) {
 			$usercitiesparams = array();
@@ -52,9 +52,10 @@ class User {
 			$usercitiesparams['rank_avail'] = 1;
 			$success = ConnectionFactory::InsertIntoTableBasic("users_cities", $usercitiesparams);
 			if ($success) {
-				return $justAddedID;
+				return self::getUser($justAddedID);
 			}
 		}
+		return NULL;
 	}
 	
 	public function updateUserCash($cashChange) {
@@ -104,6 +105,10 @@ class User {
 	
 	public function getCash() {
 		return $this->cash;
+	}
+	
+	public function getID() {
+		return $this->id;
 	}
 	
 	public function getBankBalance() {

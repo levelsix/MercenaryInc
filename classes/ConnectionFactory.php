@@ -85,6 +85,7 @@ class ConnectionFactory {
 	/* 
 	 * $params should be an associative array from columns to values
 	 * used for basic inserts
+	 * returns success or failure
 	 */
 	public static function InsertIntoTableBasic($tablename, $params) {
 		$mydb = self::getFactory()->getConnection();

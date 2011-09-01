@@ -12,8 +12,8 @@ $targetID = $_GET['targetID'];
 // need to do a check on whether or not the user even has that much money
 $payment = $_GET['bountyAmount'];
 
-$bounty = new Bounty($userID, $targetID, $payment);
-if (!$bounty->createBounty()) {
+$bounty = Bounty::createBounty($userID, $targetID, $payment);
+if (!$bounty) {
 	header("Location: $serverRoot/errorpage.html");
 	exit;
 }

@@ -19,14 +19,18 @@ class Bounty {
 		$objBounty = ConnectionFactory::SelectRowAsClass("SELECT * FROM bounties where id = :bountyID", 
 											array("bountyID" => $bountyID), __CLASS__);
 		return $objBounty;
-	}	
-	
-	public function createBounty() {
+	}
+
+	public static function createBounty($requester_id, $target_id, $payment) {
 		$bountyparams = array();
-		$bountyparams['requester_id'] = $this->requester_id;
-		$bountyparams['target_id'] = $this->target_id;
-		$bountyparams['payment'] = $this->payment;
-		return ConnectionFactory::InsertIntoTableBasic("bounties", $bountyparams);
+		$bountyparams['requester_id'] = $requester_id;
+		$bountyparams['target_id'] = $target_id;
+		$bountyparams['payment'] = $payment;
+		$justInsertID = ConnectionFactory::InsertIntoTableBasicReturnInsertID("bounties", $bountyparams);
+		if ($justInsertID) {
+			return self::getBounty($justInsertID);
+		}
+		return NULL;
 	}
 	
 }
