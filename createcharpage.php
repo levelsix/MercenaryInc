@@ -4,7 +4,7 @@
 </head>
 
 <body>
-<?php include($_SERVER['DOCUMENT_ROOT'] . "/properties/playertypeproperties.php"); ?>
+<?php include_once($_SERVER['DOCUMENT_ROOT'] . "/properties/playertypeproperties.php"); ?>
 
 <form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/backend/charcreate.php" onsubmit="return validateChar();" method="post"> 
 Greetings, young warrior. What will you choose as your mercenary alias?

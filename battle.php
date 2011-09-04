@@ -3,7 +3,7 @@
 </head>
 <body>
 
-<?php include($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php"); 
+<?php include_once($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php"); 
 
 function getRandomIntegers($n, $max) {
 	$randomIntegers = array();

@@ -1,6 +1,6 @@
 <?php 
-include($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
-include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
 
 function computeStat($skillPoints, $itemPoints) {
 	$randomizedStat = rand(round(0.9 * $itemPoints), round(1.1 * $itemPoints));

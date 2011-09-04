@@ -2,7 +2,7 @@
 <head></head>
 <body>
 
-<?php include($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");?>
+<?php include_once($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");?>
 
 <!-- Create link to agency list page -->
 <form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/agencylist.php' method='GET'>

@@ -1,9 +1,8 @@
 <?php 
-include($_SERVER['DOCUMENT_ROOT'] . "/properties/playertypeproperties.php");
-include($_SERVER['DOCUMENT_ROOT'] . "/properties/playerinitproperties.php");
-include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
-include($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
-include($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/properties/playertypeproperties.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/properties/playerinitproperties.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
 
 
 session_start();

@@ -1,6 +1,6 @@
 <?php 
-include($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
-include($_SERVER['DOCUMENT_ROOT'] . "/properties/itemtypeproperties.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/properties/itemtypeproperties.php");
 
 $stmt = $db->prepare("SELECT * FROM items WHERE min_level <= ? ORDER BY min_level");
 $stmt->execute(array($playerLevel + 1));

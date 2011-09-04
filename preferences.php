@@ -4,7 +4,7 @@
 
 
 <body>
-<?php include($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php"); ?>
+<?php include_once($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php"); ?>
 
 These buttons don't work yet
 

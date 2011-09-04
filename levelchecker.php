@@ -1,5 +1,5 @@
 <?php
-include($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
 
 $missionsMinLevel = 1;
 $homeMinLevel = 2;

@@ -1,5 +1,5 @@
 <?php
-include($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
 $targetID = $_POST['targetID'];
 ?>
 Enter your bounty amount:

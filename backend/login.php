@@ -1,6 +1,6 @@
 <?php
-include($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
-include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
 
 function updateLogin($db, $userID, $loginTime) {
 	// Update last_login in database

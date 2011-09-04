@@ -1,8 +1,7 @@
 <?php
-include($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
-include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
-include($_SERVER['DOCUMENT_ROOT'] . "/classes/Bounty.php");
-include($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/Bounty.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
 
 
 session_start();

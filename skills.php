@@ -1,6 +1,6 @@
 <?php
-include($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
-include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
 
 $playerStmt = $db->prepare("SELECT * FROM users WHERE id = ?");
 $playerStmt->execute(array($_SESSION['userID']));

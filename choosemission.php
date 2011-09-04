@@ -5,9 +5,9 @@
 
 <body>
 <?php 
-include("topmenu.php");
-include("properties/citynames.php");
-include('properties/dbproperties.php');
+include_once("topmenu.php");
+include_once("properties/citynames.php");
+include_once('properties/dbproperties.php');
 
 
 function showFailureNotifications($db) {

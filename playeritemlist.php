@@ -1,5 +1,5 @@
 <?php 
-include($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
 
 $itemStmt = $db->prepare("SELECT * FROM users_items WHERE user_id = ?");
 $itemStmt->execute(array($_SESSION['userID']));
