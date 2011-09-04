@@ -24,8 +24,8 @@ if ($amount > $user->getBankBalance()) {
 	exit;
 }
 
-$cashUpdateStmt = $db->prepare("UPDATE users SET cash = cash + ?, bank_balance = bank_balance - ? WHERE id = ?");
-if (!($cashUpdateStmt->execute(array($amount, $amount, $userID)))) {
+
+if (!$user->withdrawBankGainCash($amount)) {
 	header("Location: $serverRoot/errorpage.html");
 	exit;
 }

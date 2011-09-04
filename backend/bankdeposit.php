@@ -25,7 +25,7 @@ if ($amount > $user->getCash()) {
 
 $toBeDeposited = round(0.9 * $amount);
 
-if (!$user->withdrawBankGainCash($amount)) {
+if (!$user->depositBankDeductCash($amount, $toBeDeposited)) {
 	header("Location: $serverRoot/errorpage.html");
 	exit;
 }

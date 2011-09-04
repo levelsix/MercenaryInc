@@ -1,5 +1,7 @@
 <?php
 include($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
+
 
 session_start();
 
@@ -26,13 +28,9 @@ if (isset($_SESSION['withdrew'])) {
 }
 
 $userID = $_SESSION['userID'];
+$user = User::getUser($userID);
+$bankBalance = $user->getBankBalance();
 
-$bankStmt = $db->prepare("SELECT bank_balance FROM users WHERE id = ?");
-$bankStmt->execute(array($userID));
-
-$bankBalance = 0;
-if ($bankResult = $bankStmt->fetch(PDO::FETCH_ASSOC))
-	$bankBalance = $bankResult["bank_balance"];
 ?>
 
 Your current bank balance is <?php echo $bankBalance; ?>.
