@@ -1,4 +1,7 @@
 <?php
+
+include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/Utils.php");
+
 class ConnectionFactory {
 	
 	/*
@@ -41,15 +44,65 @@ class ConnectionFactory {
 		$mydb = self::getFactory()->getConnection();
 		$sth = $mydb->prepare($query);
 		$sth->execute($values);
-		
+				
 		$sth->setFetchMode(PDO::FETCH_CLASS, $className);
 		$obj = $sth->fetch();
 		return $obj;
 	}
-			
-	private static function selectFromTable($tablename, $columns, $conditions) {
+	
+	public static function SelectRowsAsClasses($query, $values, $className) {
+		$mydb = self::getFactory()->getConnection();
+		$sth = $mydb->prepare($query);
+		$sth->execute($values);
 		
+		$sth->setFetchMode(PDO::FETCH_CLASS, $className);
+		$objs = $sth->fetchAll();
+		return $objs;
 	}
+	
+	
+	/*trying sth new
+	public static function SelectRowsAsClasses($tablename, $desiredFields, $conditions) {
+		$values = array();
+		$condclauses = array();
+		foreach($conditions as $key=>$value) {
+			$condclauses[] = $key."=?";
+			$values[] = $value;
+		}
+		$query = createSelectQuery($tablename, $desiredFields, $condclauses, $values);
+		
+		echo $query;
+		
+		$mydb = self::getFactory()->getConnection();
+		$sth = $mydb->prepare($query);
+		$sth->execute($values);
+		
+		$sth->setFetchMode(PDO::FETCH_CLASS, $className);
+		$objs = $sth->fetchAll();
+		return $objs;
+	}
+	
+	private function createSelectQuery($tablename, $desiredFields, $condclauses, $values) {
+		$query = "SELECT ";
+		if ($params) {
+			$query .= getArrayInString($desiredFields, ',');
+		} else {
+			$query .= "* ";
+		}
+		$query .= "from " . $tablename . " where ";
+		$query .= getArrayInString($condclauses, " OR ");
+		return $query;
+	}
+	*/
+	
+	public static function SelectAsStatementHandler($query, $values) {
+		$mydb = self::getFactory()->getConnection();
+		$sth = $mydb->prepare($query);
+		$sth->execute($values);
+		$sth->setFetchMode(PDO::FETCH_ASSOC);
+		return $sth;
+	}
+	
 	
 	/*
 	* $params should be an associative array from columns to values
@@ -74,8 +127,8 @@ class ConnectionFactory {
 		}
 		
 		$stmtString = "UPDATE ". $tablename . " SET ";
-		$stmtString .= self::getArrayInString($setclauses, ',') . " WHERE ";
-		$stmtString .= self::getArrayInString($condclauses, 'and');
+		$stmtString .= getArrayInString($setclauses, ',') . " WHERE ";
+		$stmtString .= getArrayInString($condclauses, 'and');
 		
 		$stmt = $mydb->prepare($stmtString);
 
@@ -101,8 +154,8 @@ class ConnectionFactory {
 		}
 				
 		$stmtString = "INSERT INTO ". $tablename . "(";
-		$stmtString .= self::getArrayInString($keys, ',') . ") VALUES (";
-		$stmtString .= self::getArrayInString($questions, ',') . ")";
+		$stmtString .= getArrayInString($keys, ',') . ") VALUES (";
+		$stmtString .= getArrayInString($questions, ',') . ")";
 		
 		
 		$stmt = $mydb->prepare($stmtString);
@@ -124,8 +177,8 @@ class ConnectionFactory {
 		}
 	
 		$stmtString = "INSERT INTO ". $tablename . "(";
-		$stmtString .= self::getArrayInString($keys, ',') . ") VALUES (";
-		$stmtString .= self::getArrayInString($questions, ',') . ")";
+		$stmtString .= getArrayInString($keys, ',') . ") VALUES (";
+		$stmtString .= getArrayInString($questions, ',') . ")";
 	
 	
 		$stmt = $mydb->prepare($stmtString);
@@ -136,18 +189,5 @@ class ConnectionFactory {
 		}
 		return 0;
 	}
-	
-	private static function getArrayInString($array, $delim) {
-		$arrlength = count($array);
-		$toreturn = "";
-		for ($i = 0; $i < $arrlength; $i++) {
-			$toreturn .= $array[$i];
-			if ($i != $arrlength-1) {
-				$toreturn .= ", ";
-			}
-		}
-		return $toreturn;
-	}
-	
 }
 ?>

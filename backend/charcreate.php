@@ -7,8 +7,6 @@ include($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
 
 
 session_start();
-$db = ConnectionFactory::getFactory()->getConnection();
-
 $charname = $_POST['charname'];
 
 /*

@@ -27,4 +27,8 @@ class Mission {
 		return $objMission;
 	}
 	
+	public function getName() {
+		return $this->name;
+	}
+	
 }

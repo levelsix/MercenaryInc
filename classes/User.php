@@ -1,4 +1,7 @@
 <?php
+
+include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/Utils.php");
+
 class User {
 	
 	private $id;
@@ -30,15 +33,50 @@ class User {
 	private $num_consecutive_days_played;	
 		
 
-	function __construct($name) {
-		$this->name = $name;
+	function __construct() {
 	}
 	
+	/*
+	 * Returns a user
+	 */
 	public static function getUser($userID)
 	{
 		$objUser = ConnectionFactory::SelectRowAsClass("SELECT * FROM users where id = :userID", 
 											array("userID" => $userID), __CLASS__);
 		return $objUser;
+	}
+	
+	/*
+	 * Returns an array of users in agency. currently loops through statementhandler. better way?
+	 */
+	public static function getUsersInAgency($userID) {
+		$agencySth = ConnectionFactory::SelectAsStatementHandler(
+		"SELECT * FROM agencies WHERE (user_one_id = ? OR user_two_id = ?) AND accepted = 1", 
+		array($userID, $userID));
+		
+		$agencySize = $agencySth->rowCount();
+		$userIDs = array();
+		while ($row = $agencySth->fetch(PDO::FETCH_ASSOC)) {
+			$agentID = $row["user_one_id"];
+			if ($agentID == $userID) $agentID = $row["user_two_id"];
+			array_push($userIDs, $agentID);
+		}
+		
+		return self::getUsers($userIDs);
+	}
+	
+	public static function getUsers($userIDs) {
+		$condclauses = array();
+		$values = array();
+		foreach($userIDs as $key=>$value) {
+			array_push($condclauses, "id=?");
+			array_push($values, $value); 		
+		}
+		$query = "SELECT * from users where ";
+		$query .= getArrayInString($condclauses, ' OR ');
+		
+		$objUsers = ConnectionFactory::SelectRowsAsClasses($query, $values, __CLASS__);
+		return $objUsers;		
 	}
 	
 	public static function createUser($name) {
@@ -102,13 +140,16 @@ class User {
 		return $success;
 	}
 	
-	
 	public function getCash() {
 		return $this->cash;
 	}
 	
 	public function getID() {
 		return $this->id;
+	}
+	
+	public function getName() {
+		return $this->name;
 	}
 	
 	public function getBankBalance() {

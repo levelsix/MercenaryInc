@@ -1,8 +1,8 @@
 <?php
+
 include($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
 include($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
 include($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
-
 
 session_start();
 
