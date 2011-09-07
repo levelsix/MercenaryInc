@@ -30,6 +30,10 @@ class Mission {
 		return $objMission;
 	}
 	
+	public static function getMissionItemRequirements() {
+		
+	}
+		
 	public function getName() {
 		return $this->name;
 	}

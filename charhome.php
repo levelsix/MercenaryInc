@@ -5,6 +5,8 @@
 <body>
 <?php 
 include_once($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php"); 
+include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/Item.php");
+
 
 function getItemWithID($db, $itemID) {
 	$stmt = $db->prepare("SELECT name FROM items WHERE id = ?");
@@ -34,9 +36,9 @@ if (isset($_SESSION['dailyBonus'])) {
 	print "Congratulations! You found " . $_SESSION['dailyBonus'] . " cash. <br>";
 	unset($_SESSION['dailyBonus']);
 } else if (isset($_SESSION['weeklyBonus'])) {
-	$item = getItemWithID($db, $_SESSION['weeklyBonus']);
+	$item = Item::getItem($_SESSION['weeklyBonus']);
 	
-	print "Congratulations! For playing the last 7 days, you received one $item! <br>";
+	print "Congratulations! For playing the last 7 days, you received one ". $item->getName() ."! <br>";
 	unset($_SESSION['weeklyBonus']);
 }
 ?>

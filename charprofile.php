@@ -1,5 +1,18 @@
 <?php 
 include_once($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/Item.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
+
+session_start();
+$userID = $_SESSION['userID'];
+$user = User::getUser($userID);
+if (!$user) {
+	// Redirect to error page. this isnt working. b/c theres text above?
+	header("Location: $serverRoot/errorpage.html");
+	exit;
+}
+
 // Skills button
 ?>
 <form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/skills.php'>
@@ -7,36 +20,17 @@ include_once($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
 </form>
 
 <?php
-session_start();
-$userID = $_SESSION['userID'];
 
-$userStmt = $db->prepare("SELECT * FROM users WHERE id = ?");
-$userStmt->execute(array($userID));
-
-$numRows = $userStmt->rowCount();
-
-$userResult = $userStmt->fetch(PDO::FETCH_ASSOC);
-if (!$userResult) {
-	// Redirect to error page
-	header("Location: $serverRoot/errorpage.html");
-	exit;
-}
-
-// Error: redirect
-if ($numRows != 1) {
-	header("Location: $serverRoot/errorpage.html");
-	exit;
-}
 
 // User information
-$userName = $userResult["name"];
-$userLevel = $userResult["level"];
-$userType = $userResult["type"];
-$userMissionsCompleted = $userResult["missions_completed"];
-$userFightsWon = $userResult["fights_won"];
-$userFightsLost = $userResult["fights_lost"];
-$userKills = $userResult["kills"];
-$userDeaths = $userResult["deaths"];
+$userName = $user->getName();
+$userLevel = $user->getLevel();
+$userType = $user->getType();
+$userMissionsCompleted = $user->getNumMissionsCompleted();
+$userFightsWon = $user->getFightsWon();
+$userFightsLost = $user->getFightsLost();
+$userKills = $user->getUserKills();
+$userDeaths = $user->getUserDeaths();
 ?>
 
 <?php echo $userName;?><br>
@@ -53,12 +47,12 @@ Deaths: <?php echo $userDeaths;?><br>
 <br><br>Cash flow <br>
 ----------------------------------------------------- <br>
 <?php 
-$userIncome = $userResult["income"];
-$userUpkeep = $userResult["upkeep"];
+$userIncome = $user->getIncome();
+$userUpkeep = $user->getUpkeep();
 ?>
 Income: <?php echo $userIncome;?><br>
 Upkeep: -<?php echo $userUpkeep;?><br>
-Net Income: <?php echo $userIncome - $userUpkeep;?><br>
+Net Income: <?php echo $user->getNetIncome();?><br>
 
 
 <!-- Achievements -->
@@ -70,16 +64,10 @@ Net Income: <?php echo $userIncome - $userUpkeep;?><br>
 <br><br>Items: <br>
 ----------------------------------------------------- <br>
 <?php 
-$itemsStmt = $db->prepare("SELECT * FROM users_items JOIN items ON (users_items.item_id = items.id) WHERE users_items.user_id = ?");
-$itemsStmt->execute(array($userID));
-
-$numItems = $itemsStmt->rowCount();
-
-while ($row = $itemsStmt->fetch(PDO::FETCH_ASSOC)) {
-	// Need to filter by type and display in different categories
-	// Temporary code - doesn't filter type
-	$quantity = $row["quantity"];
-	$itemName = $row["name"];
-	print $quantity . "x " . $itemName . "<br>";
+$itemIDsToQuantity = User::getUsersItemsIDsToQuantity($userID);
+foreach ($itemIDsToQuantity as $key => $value) {
+	$item = Item::getItem($key);
+	print $value . "x " . $item->getName() . "<br>";
 }
+
 ?>

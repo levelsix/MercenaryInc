@@ -96,6 +96,21 @@ class User {
 		return NULL;
 	}
 	
+	public static function getUsersItemsIDsToQuantity($userID) {
+		$query = "SELECT users_items.quantity, items.id FROM users_items JOIN items ON " .
+				"(users_items.item_id = items.id) WHERE users_items.user_id = ?";
+		$itemSth = ConnectionFactory::SelectAsStatementHandler($query, array($userID));
+		
+		$itemIDsToQuantity = array();
+		while ($row = $itemSth->fetch(PDO::FETCH_ASSOC)) {
+			$itemID = $row["id"];
+			$itemIDsToQuantity[$itemID] = $row["quantity"];
+		}
+	
+		return $itemIDsToQuantity;
+	}
+	
+	
 	public function updateUserCash($cashChange) {
 		$cashparams = array();
 		$cashparams['cash'] = $cashChange;
@@ -154,6 +169,46 @@ class User {
 	
 	public function getBankBalance() {
 		return $this->bank_balance;
+	}
+	
+	public function getLevel() {
+		return $this->level;
+	}
+	
+	public function getType() {
+		return $this->type;
+	}
+	
+	public function getNumMissionsCompleted() {
+		return $this->missions_completed;
+	}
+	
+	public function getFightsWon() {
+		return $this->fights_won;
+	}
+	
+	public function getFightsLost() {
+		return $this->fights_lost;
+	}
+	
+	public function getUserKills() {
+		return $this->kills;
+	}
+	
+	public function getUserDeaths() {
+		return $this->deaths;
+	}
+	
+	public function getIncome() {
+		return $this->income;
+	}
+	
+	public function getUpkeep() {
+		return $this->upkeep;
+	}
+	
+	public function getNetIncome() {
+		return $this->income - $this->upkeep;
 	}
 	
 }

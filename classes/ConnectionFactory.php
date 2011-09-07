@@ -99,7 +99,9 @@ class ConnectionFactory {
 		$mydb = self::getFactory()->getConnection();
 		$sth = $mydb->prepare($query);
 		$sth->execute($values);
+		
 		$sth->setFetchMode(PDO::FETCH_ASSOC);
+		
 		return $sth;
 	}
 	

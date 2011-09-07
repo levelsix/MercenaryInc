@@ -24,4 +24,25 @@ class Item {
 		return $objItem;
 	}	
 	
+	
+	public static function getItems($itemIDs) {
+		$condclauses = array();
+		$values = array();
+		foreach($itemIDs as $key=>$value) {
+			array_push($condclauses, "id=?");
+			array_push($values, $value);
+		}
+		$query = "SELECT * from items where ";
+		$query .= getArrayInString($condclauses, ' OR ');
+	
+		$objItems = ConnectionFactory::SelectRowsAsClasses($query, $values, __CLASS__);
+		return $objItems;
+	}
+	
+	public function getName(){
+		return $this->name;
+	}
+	
+	
+	
 }
