@@ -352,7 +352,7 @@ if ($doMission) {
 	
 		// Update the db
 		$updateStmt = $db->prepare("UPDATE users SET level = ?, skill_points = skill_points + ? WHERE id = ?");
-		$updateStmt->execute(array($newLevel, $skillPointsGained, $id));
+		$updateStmt->execute(array($newLevel, $skillPointsGained, $userID));
 	
 		$_SESSION['levelUp'] = 1;
 		$_SESSION['newLevel'] = $newLevel;
