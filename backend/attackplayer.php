@@ -3,8 +3,9 @@ include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
 
 function computeStat($skillPoints, $itemPoints) {
+	// Definitely need to fix this formula
 	$randomizedStat = rand(round(0.9 * $itemPoints), round(1.1 * $itemPoints));
-	return $randomizedStat;
+	return $randomizedStat + $skillPoints;
 }
 
 function getItemStats($db, $userID, $agencySize, $statType) {
@@ -24,6 +25,11 @@ function updateUserHealthAndFightsRecord($db, $winnerID, $loserID) {
 function updateUserStamina($db, $userID) {
 	$updateStmt = $db->prepare("UPDATE users SET stamina = stamina - 1 WHERE id = ?");
 	$updateStmt->execute(array($userID));
+}
+
+function updateUserExp($db, $userID, $exp) {
+	$updateStmt = $db->prepare("UPDATE users SET experience = experience + ? WHERE id = ?");
+	$updateStmt->execute(array($exp, $userID));
 }
 
 $maxDamage = 24;
@@ -71,14 +77,41 @@ if ($userAttack > $otherUserDefense) {
 	$_SESSION['won'] = 'true';
 	$winner = $id;
 	$loser = $otherUserID;
+	
+	$expGained = rand(1, 5);
+	$_SESSION['expGained'] = $expGained;
+	
+	updateUserExp($db, $id, $expGained);
 } else {
 	$_SESSION['won'] = 'false';
 	$winner = $otherUserID;
 	$loser = $id;
+	
+	$expGained = rand(1, 3);
+	// Need to put exp gained in battle history for other player	
+	updateUserExp($db, $otherUserID, $expGained);
 }
 
 updateUserHealthAndFightsRecord($db, $winner, $loser);
 updateUserStamina($db, $id);
+
+$userLevel = $userResult['level'];
+// The user exp is a value from an old query, so add the experience gained
+$userExp = $userResult['experience'] + $expGained;
+
+$levelUpArr = userLeveledUp($userLevel, $userExp);
+if ($levelUpArr) {
+	$newLevel = $levelUpArr['newLevel'];
+	$skillPointsGained = $levelUpArr['skillPointsGained'];
+	
+	// Update the db
+	$updateStmt = $db->prepare("UPDATE users SET level = ?, skill_points = skill_points + ? WHERE id = ?");
+	$updateStmt->execute(array($newLevel, $skillPointsGained, $id));
+
+	$_SESSION['levelUp'] = 1;
+	$_SESSION['newLevel'] = $newLevel;
+	$_SESSION['skillPointsGained'] = $skillPointsGained;
+}
 
 header("Location: $serverRoot/battle.php");
 exit;

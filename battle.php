@@ -23,8 +23,15 @@ function getPotentialOpponents($db, $userID, $level, $agencySize) {
 	$maxAgencySize = $agencySize + 5;
 	$minAgencySize = max(array(1, $agencySize - 5));
 	
-	$usersStmt = $db->prepare("SELECT * FROM users WHERE level = ? AND agency_size <= ? AND agency_size >= ? AND id != ?");
-	$usersStmt->execute(array($level, $maxAgencySize, $minAgencySize, $userID));
+	//$usersStmt = $db->prepare("SELECT * FROM users WHERE level = ? AND agency_size <= ? AND agency_size >= ? AND id != ?");
+	//$usersStmt->execute(array($level, $maxAgencySize, $minAgencySize, $userID));
+	
+	// temporary solution for level range
+	$minLevel = $level - 5;
+	$maxLevel = $level + 5;
+	$usersStmt = $db->prepare("SELECT * FROM users WHERE level <= ? AND level >= ? AND agency_size <= ? AND agency_size >= ? AND id != ?");
+	$usersStmt->execute(array($maxLevel, $minLevel, $maxAgencySize, $minAgencySize, $userID));
+	
 	$numUsers = $usersStmt->rowCount();
 		
 	// TODO: execute further queries with higher level or agency size ranges if too few users
@@ -126,10 +133,21 @@ if (isset($_SESSION['notEnoughStamina'])) {
 if (isset($_SESSION['won'])) {
 	if ($_SESSION['won'] == 'true') {
 		echo "Congratulations! You won! <br>";
+		echo "You gained " . $_SESSION['expGained'] . " experience! <br>";
 	} else {
-		echo "Sorry, you're a Conrad (i.e. a loser). <br>";
+		echo "Sorry, you lost. <br>";
 	}
 	unset($_SESSION['won']);
+}
+
+// Level up
+if (isset($_SESSION['levelUp'])) {
+	$newLevel = $_SESSION['newLevel'];
+	$skillPointsGained = $_SESSION['skillPointsGained'];
+	include_once($_SERVER['DOCUMENT_ROOT'] . "/levelupnotice.php");
+	unset($_SESSION['newLevel']);
+	unset($_SESSION['skillPointsGained']);
+	unset($_SESSION['levelUp']);
 }
 
 $userID = $_SESSION['userID'];
