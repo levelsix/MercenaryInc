@@ -70,6 +70,7 @@ $playerEnergy = $result['energy'];
 $playerStaminaMax = $result['stamina_max'];
 $playerHealthMax = $result['health_max'];
 $playerEnergyMax = $result['energy_max'];
+$playerExp = $result['experience'];
 //$playerExpToNextLevel
 ?>
 Name: <?php echo $playerName;?>  
@@ -78,6 +79,7 @@ Cash: <?php echo $playerCash;?>
 Stamina: <?php echo $playerStamina;?>/<?php echo $playerStaminaMax;?> 
 Health: <?php echo $playerHealth;?>/<?php echo $playerHealthMax;?> 
 Energy: <?php echo $playerEnergy;?>/<?php echo $playerEnergyMax;?> 
+Experience: <?php echo $playerExp; ?>
 <br><br>
 -----------------------------------------------------
 <br>

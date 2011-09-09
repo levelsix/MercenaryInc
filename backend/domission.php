@@ -338,6 +338,27 @@ if ($doMission) {
 	$updateStmt = $db->prepare("UPDATE users SET energy = energy - ?, missions_completed = missions_completed + 1, cash = cash + ?, experience = experience + ? WHERE id = ?");
 	if (!($updateStmt->execute(array($missionResult['energy_cost'], $cashGained * $multiplier, $expGained * $multiplier, $_SESSION['userID']))))
 		redirect("$serverRoot/errorpage.html");
+	else $_SESSION['energyLost'] = $missionResult['energy_cost'];
+	
+	// Level up check
+	$userLevel = $userResult['level'];
+	// The user exp is a value from an old query, so add the experience gained
+	$userExp = $userResult['experience'] + ($expGained * $multiplier);
+	
+	$levelUpArr = userLeveledUp($userLevel, $userExp);
+	if ($levelUpArr) {
+		$newLevel = $levelUpArr['newLevel'];
+		$skillPointsGained = $levelUpArr['skillPointsGained'];
+	
+		// Update the db
+		$updateStmt = $db->prepare("UPDATE users SET level = ?, skill_points = skill_points + ? WHERE id = ?");
+		$updateStmt->execute(array($newLevel, $skillPointsGained, $id));
+	
+		$_SESSION['levelUp'] = 1;
+		$_SESSION['newLevel'] = $newLevel;
+		$_SESSION['skillPointsGained'] = $skillPointsGained;
+	}
+	
 } else {
 	$_SESSION['missionfail'] = "true";	
 }

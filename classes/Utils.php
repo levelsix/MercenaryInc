@@ -16,9 +16,10 @@ function getArrayInString($array, $delim) {
 // Otherwise returns -1
 function userLeveledUp($currLevel, $totalExp) {
 	// Currently just takes 10 exp to level up at each level
-	$newLevel = $currLevel + 1;
-	if ($totalExp >= $newLevel * 10) {
-		$skillPointsGained = 3;
+	$newLevel = floor($totalExp / 10);
+	
+	if ($newLevel > $currLevel) {
+		$skillPointsGained = 3 * ($newLevel - $currLevel);
 		
 		return array("newLevel" => $newLevel, "skillPointsGained" => $skillPointsGained);
 	}

@@ -117,6 +117,16 @@ function displayBountyAttack($db, $userID) {
 	dont make this db call tho..
  */
 
+// Level up
+if (isset($_SESSION['levelUp'])) {
+	$newLevel = $_SESSION['newLevel'];
+	$skillPointsGained = $_SESSION['skillPointsGained'];
+	include_once($_SERVER['DOCUMENT_ROOT'] . "/levelupnotice.php");
+	unset($_SESSION['newLevel']);
+	unset($_SESSION['skillPointsGained']);
+	unset($_SESSION['levelUp']);
+}
+
 // Session checks
 if (isset($_SESSION['notEnoughHealth'])) {
 	echo "You don't have enough health to battle! Please go heal yourself first. <br>";
@@ -138,16 +148,6 @@ if (isset($_SESSION['won'])) {
 		echo "Sorry, you lost. <br>";
 	}
 	unset($_SESSION['won']);
-}
-
-// Level up
-if (isset($_SESSION['levelUp'])) {
-	$newLevel = $_SESSION['newLevel'];
-	$skillPointsGained = $_SESSION['skillPointsGained'];
-	include_once($_SERVER['DOCUMENT_ROOT'] . "/levelupnotice.php");
-	unset($_SESSION['newLevel']);
-	unset($_SESSION['skillPointsGained']);
-	unset($_SESSION['levelUp']);
 }
 
 $userID = $_SESSION['userID'];

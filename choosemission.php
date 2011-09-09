@@ -159,8 +159,8 @@ Chance of getting loot: <?php echo $missionInfoRow['chance_of_loot'];?><br>
 	$itemRow = $itemStmt->fetch(PDO::FETCH_ASSOC);
 	?>	
 
-	You're not supposed to know this but the item you might get is the <?php echo $itemRow['name'];?><br>
-	didnt put in agency or item requirements too lazy but they work
+	<!--You're not supposed to know this but the item you might get is the <?php echo $itemRow['name'];?><br>
+	didnt put in agency or item requirements too lazy but they work-->
 	
 <?php 	
 	if (!missionIsLocked($missionInfoRow, $playerLevel)) {
@@ -230,6 +230,15 @@ function showJustUnlockedCityRank() {
 
 session_start();
 
+// Level up
+if (isset($_SESSION['levelUp'])) {
+	$newLevel = $_SESSION['newLevel'];
+	$skillPointsGained = $_SESSION['skillPointsGained'];
+	include_once($_SERVER['DOCUMENT_ROOT'] . "/levelupnotice.php");
+	unset($_SESSION['newLevel']);
+	unset($_SESSION['skillPointsGained']);
+	unset($_SESSION['levelUp']);
+}
 
 if (isset($_POST['postedCityID'])) {
 	$_SESSION['currentMissionCity'] = $_POST['postedCityID'];
