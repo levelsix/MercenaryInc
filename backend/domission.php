@@ -117,21 +117,20 @@ function associateItemsWithIDs($items) {
 if ($doMission) {
 	$_SESSION['missionsuccess'] = "true";
 	
-	//items lost
 	$itemsLost = array();
 	$hasLostItems = false;
 	$missionItems = associateItemsWithIDs(Item::getItems(array_keys($requiredItemIDsToQuantity)));
 	foreach ($requiredItemIDsToQuantity as $reqItemID => $quantityReq) {
 		$random = rand(0, 100);
 		$missionItem = $missionItems[$reqItemID];
-		$chanceLoss = $missionItem->getChanceOfLoss();
+		$chanceLoss = $missionItem->getChanceOfLoss();		
 		if ($random < $chanceLoss*100) {
 			if (!$user->decrementUserItem($reqItemID, 1)) {
 				redirect("$serverRoot/errorpage.html");
 			} else {
 				$userItemIDsToQuantity[$reqItemID]--;
 				$hasLostItems = true;
-				array_push($itemsLost, $itemID);
+				array_push($itemsLost, $reqItemID);
 			}
 		}
 	}

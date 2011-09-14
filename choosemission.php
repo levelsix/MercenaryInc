@@ -48,8 +48,8 @@ function showSuccessNotifications($db) {
 	}
 	
 	if (isset($_SESSION['itemsLost'])){
-		/*why is this never set*/
 		$itemsLostArray = $_SESSION['itemsLost'];
+		
 		$itemsLost = Item::getItems($itemsLostArray);
 		foreach($itemsLost as $item) {
 			print "You lost a " . $item->getName() . "<br>";
@@ -153,7 +153,7 @@ Chance of getting loot: <?php echo $missionInfoRow['chance_of_loot'];?><br>
 	?>	
 
 	You're not supposed to know this but the item you might get is the <?php echo $itemRow['name'];?><br>
-	didnt put in agency or item requirements too lazy but they work
+	didnt put in agency or item requirements too lazy but they work<br>
 <?php 	
 print "Item Requirements:<br>";
 $itemIDsToQuantity = Mission::getMissionRequiredItemsIDsToQuantity($missionID);
