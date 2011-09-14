@@ -5,7 +5,8 @@
 
 <body>
 <?php include_once($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php"); ?>
-
+Placeholder page.
+<!--
 These buttons don't work yet
 
 <form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/changealias.php"> 
@@ -14,7 +15,8 @@ These buttons don't work yet
 
 <form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/changetype.php"> 
 <input type="submit" value="Change Type" />
-</form>			
+</form>	
+-->		
 
 </body>
 </html>
