@@ -8,6 +8,9 @@
 include_once("topmenu.php");
 include_once("properties/citynames.php");
 include_once('properties/dbproperties.php');
+include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/Item.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/Mission.php");
+
 
 
 function showFailureNotifications($db) {
@@ -21,19 +24,12 @@ function showFailureNotifications($db) {
 		unset($_SESSION['needMoreEnergy']);
 	}
 	if (isset($_SESSION['itemsMissing'])) {
-		
 		$itemsMissingArray = $_SESSION['itemsMissing'];
-		foreach($itemsMissingArray as $key=>$value) {
-			print "You are missing " . $value . " ";
-			
-			$itemStmt = $db->prepare("SELECT * FROM items WHERE id = ?");
-			$itemStmt->execute(array($key));
-			$row = $itemStmt->fetch(PDO::FETCH_ASSOC);
-			print $row['name'] . "s<br>";	
-			
-			unset($itemsMissingArray[$key]);
+		$items = Item::getItems(array_keys($itemsMissingArray));
+		foreach($items as $item) {
+			print "You are missing " . $itemsMissingArray[$item->getID()] . " ";	
+			print $item->getName() . "s<br>";
 		}
-		
 		unset($_SESSION['itemsMissing']);
 	}
 	print "<br><br>";
@@ -46,26 +42,21 @@ function showSuccessNotifications($db) {
 	print "You gained " . $_SESSION['baseExpGained'] . " exp <br>";
 	
 	if (isset($_SESSION['gainedLootItemID'])) {
-		$itemStmt = $db->prepare("SELECT * FROM items WHERE id = ?");
-		$itemStmt->execute(array($_SESSION['gainedLootItemID']));
-		$row = $itemStmt->fetch(PDO::FETCH_ASSOC);
-		print "Lucky you! You received a " . $row['name'] . "<br>";
+		$item = Item::getItem($_SESSION['gainedLootItemID']);
+		print "Lucky you! You received a " . $item->getName() . "<br>";
 		unset($_SESSION['gainedLootItemID']);
 	}
 	
 	if (isset($_SESSION['itemsLost'])){
+		/*why is this never set*/
 		$itemsLostArray = $_SESSION['itemsLost'];
-		foreach($itemsLostArray as $key=>$value) {
-			print "You lost a ";
-			$itemStmt = $db->prepare("SELECT * FROM items WHERE id = ?");
-			$itemStmt->execute(array($value));
-			$row = $itemStmt->fetch(PDO::FETCH_ASSOC);
-			print $row['name'] . "<br>";
+		$itemsLost = Item::getItems($itemsLostArray);
+		foreach($itemsLost as $item) {
+			print "You lost a " . $item->getName() . "<br>";
 			unset($itemsLostArray[$key]);
 		}
 		unset($_SESSION['itemsLost']);
 	}
-	
 	
 	print "You used " . $_SESSION['energyLost'] . " energy <br>";
 	print "<br><br>";
@@ -103,6 +94,8 @@ function displayMissionInfo($db, $missionInfoRow, $playerLevel, $cityRank) {
 	if ($row['min_level'] == ($playerLevel+1)) {
 		print "<b>LOCKED</b> <br>";
 	}
+	$missionID = $missionInfoRow['id'];
+	
 	?>
 
 	
@@ -161,8 +154,15 @@ Chance of getting loot: <?php echo $missionInfoRow['chance_of_loot'];?><br>
 
 	You're not supposed to know this but the item you might get is the <?php echo $itemRow['name'];?><br>
 	didnt put in agency or item requirements too lazy but they work
-	
+	<br>
 <?php 	
+print "Item Requirements:<br>";
+$itemIDsToQuantity = Mission::getMissionRequiredItemsIDsToQuantity($missionID);
+foreach ($itemIDsToQuantity as $key => $value) {
+	$item = Item::getItem($key);
+	print $value . "x " . $item->getName() . "<br>";
+}
+
 	if (!missionIsLocked($missionInfoRow, $playerLevel)) {
 		?>
 		<form action='backend/domission.php' method='post'>

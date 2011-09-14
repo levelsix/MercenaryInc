@@ -26,6 +26,10 @@ class Item {
 	
 	
 	public static function getItems($itemIDs) {
+		if (count($itemIDs) <= 0) {
+			return array();
+		}
+		
 		$condclauses = array();
 		$values = array();
 		foreach($itemIDs as $key=>$value) {
@@ -34,8 +38,8 @@ class Item {
 		}
 		$query = "SELECT * from items where ";
 		$query .= getArrayInString($condclauses, ' OR ');
-	
 		$objItems = ConnectionFactory::SelectRowsAsClasses($query, $values, __CLASS__);
+			
 		return $objItems;
 	}
 	
@@ -43,6 +47,13 @@ class Item {
 		return $this->name;
 	}
 	
+	public function getID() {
+		return $this->id;
+	}
+	
+	public function getChanceOfLoss() {
+		return $this->chance_of_loss;
+	}
 	
 	
 }

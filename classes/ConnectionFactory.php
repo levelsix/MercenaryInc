@@ -40,6 +40,26 @@ class ConnectionFactory {
 		return $this->db;
 	}
 	
+	public static function SelectValue($retrieveValue, $tablename, $conditions) {
+		$mydb = self::getFactory()->getConnection();
+		
+		$values = array();
+		
+		$condclauses = array();
+		foreach($conditions as $key=>$value) {
+			$condclauses[] = $key."=?";
+			$values[] = $value;
+		}
+		
+		$stmtString = "SELECT ". $retrieveValue . " FROM " . $tablename . " WHERE ";
+		$stmtString .= getArrayInString($condclauses, 'and');
+		
+		$stmt = $mydb->prepare($stmtString);
+		$stmt->execute($values);
+		
+		return $stmt->fetchColumn();		
+	}
+	
 	public static function SelectRowAsClass($query, $values, $className) {
 		$mydb = self::getFactory()->getConnection();
 		$sth = $mydb->prepare($query);
@@ -105,7 +125,6 @@ class ConnectionFactory {
 		return $sth;
 	}
 	
-	
 	/*
 	* $params should be an associative array from columns to values
 	* $conditions same
@@ -113,12 +132,44 @@ class ConnectionFactory {
 	public static function updateTableRowRelativeBasic($tablename, $params, $conditions) {
 		$mydb = self::getFactory()->getConnection();
 		//TODO: after refactor, just eliminate getFactory, change getConnection to static, and call that?
+	
+		$values = array();
+	
+		$setclauses = array();
+		foreach($params as $key=>$value) {
+			$setclauses[] = $key . "=" . $key . "+?";
+			$values[] = $value;
+		}
+	
+		$condclauses = array();
+		foreach($conditions as $key=>$value) {
+			$condclauses[] = $key."=?";
+			$values[] = $value;
+		}
+	
+		$stmtString = "UPDATE ". $tablename . " SET ";
+		$stmtString .= getArrayInString($setclauses, ',') . " WHERE ";
+		$stmtString .= getArrayInString($condclauses, 'and');
+	
+		$stmt = $mydb->prepare($stmtString);
+	
+		return $stmt->execute($values);
+	}
+	
+	
+	/*
+	* $params should be an associative array from columns to values
+	* $conditions same
+	*/
+	public static function updateTableRowAbsoluteBasic($tablename, $params, $conditions) {
+		$mydb = self::getFactory()->getConnection();
+		//TODO: after refactor, just eliminate getFactory, change getConnection to static, and call that?
 		
 		$values = array();
 		
 		$setclauses = array();
 		foreach($params as $key=>$value) {
-			$setclauses[] = $key . "=" . $key . "+?";
+			$setclauses[] = $key . "=?";
 			$values[] = $value;
 		}
 		
@@ -191,5 +242,41 @@ class ConnectionFactory {
 		}
 		return 0;
 	}
+	
+	public static function InsertOnDuplicateKeyUpdate($tablename, $params, $columnUpdate, $updateQuantity) {
+		$mydb = self::getFactory()->getConnection();
+		
+		$questions = array();
+		$keys = array();
+		$values = array();
+		foreach($params as $key=>$value) {
+			$keys[] = $key;
+			$values[] = $value;
+			$questions[] = '?';
+		}
+		$values[] = $updateQuantity;
+		
+		$stmtString = "INSERT INTO ". $tablename . "(";
+		$stmtString .= getArrayInString($keys, ',') . ") VALUES (";
+		$stmtString .= getArrayInString($questions, ',') . ") ";
+		$stmtString .= "ON DUPLICATE KEY UPDATE ";
+		$stmtString .= $columnUpdate."=".$columnUpdate."+?";
+		
+		$stmt = $mydb->prepare($stmtString);
+		
+		return $stmt->execute($values);
+	}
+	
+	public static function DeleteZeroAndBelowQuantity($tablename) {
+		$mydb = self::getFactory()->getConnection();
+		//TODO: after refactor, just eliminate getFactory, change getConnection to static, and call that?
+		
+		$stmtString = "DELETE FROM ". $tablename . " WHERE quantity<=?";		
+		
+		$stmt = $mydb->prepare($stmtString);
+		
+		return $stmt->execute(array(0));
+	}
+	
 }
 ?>

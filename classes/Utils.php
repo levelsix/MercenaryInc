@@ -6,7 +6,7 @@ function getArrayInString($array, $delim) {
 	for ($i = 0; $i < $arrlength; $i++) {
 		$toreturn .= $array[$i];
 		if ($i != $arrlength-1) {
-			$toreturn .= $delim;
+			$toreturn .= " " . $delim . " ";
 		}
 	}
 	return $toreturn;

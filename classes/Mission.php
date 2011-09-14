@@ -29,13 +29,77 @@ class Mission {
 											array("missionID" => $missionID), __CLASS__);
 		return $objMission;
 	}
-	
-	public static function getMissionItemRequirements() {
 		
+	public static function getMissionsInCity($cityID) {
+		
+		$query = "SELECT * from missions where city_id=?";
+		
+		$objMissions = ConnectionFactory::SelectRowsAsClasses($query, array($cityID), __CLASS__);
+		return $objMissions;
+	}
+	
+	public static function getMissionRequiredItemsIDsToQuantity($missionID) {
+		$query = "SELECT missions_itemreqs.item_quantity, items.id FROM missions_itemreqs JOIN items ON " .
+					"(missions_itemreqs.item_id = items.id) WHERE missions_itemreqs.mission_id = ?";
+		$itemSth = ConnectionFactory::SelectAsStatementHandler($query, array($missionID));
+	
+		$itemIDsToQuantity = array();
+		while ($row = $itemSth->fetch(PDO::FETCH_ASSOC)) {
+			$itemID = $row["id"];
+			$itemIDsToQuantity[$itemID] = $row["item_quantity"];
+		}
+	
+		return $itemIDsToQuantity;
 	}
 		
 	public function getName() {
 		return $this->name;
+	}
+	
+	public function getID() {
+		return $this->id;
+	}
+	
+	public function getMinAgencySize() {
+		return $this->min_agency_size;
+	}
+	
+	public function getEnergyCost() {
+		return $this->energy_cost;
+	}
+	
+	public function getChanceOfLoot() {
+		return $this->chance_of_loot;
+	}
+	
+	public function getLootItemID() {
+		return $this->loot_item_id;
+	}
+	
+	public function getRandomCashGained() {
+		return rand($this->min_cash_gained, $this->max_cash_gained);
+	}
+	
+	public function getExpGained() {
+		return $this->exp_gained;
+	}
+	
+	public function getCityID() {
+		return $this->city_id;
+	}
+	
+	public function getRankReqTimes($rank) {
+		switch($rank) {
+			case 1:
+				return $this->rank_one_times;
+				break;
+			case 2:
+				return $this->rank_two_times;
+				break;
+			case 3:
+				return $this->rank_three_times;
+				break;
+		}
 	}
 	
 }

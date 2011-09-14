@@ -66,6 +66,10 @@ class User {
 	}
 	
 	public static function getUsers($userIDs) {
+		if (count($userIDs) <= 0) {
+			return array();
+		}
+		
 		$condclauses = array();
 		$values = array();
 		foreach($userIDs as $key=>$value) {
@@ -155,6 +159,45 @@ class User {
 		return $success;
 	}
 	
+	public function decrementUserItem($itemID, $quantity) {
+		$itemParams = array();
+		$itemParams['quantity'] = $quantity*-1;
+		
+		$conditions = array();
+		$conditions['user_id'] = $this->id;
+		$conditions['item_id'] = $itemID;
+		$success = ConnectionFactory::updateTableRowRelativeBasic("users_items", $itemParams, $conditions);
+		if ($success) {
+			$success = ConnectionFactory::DeleteZeroAndBelowQuantity("users_items");				
+		}
+		return $success;
+	}
+	
+	public function incrementUserItem($itemID, $quantity) {
+		$itemParams = array();
+		$itemParams['user_id'] = $this->id;
+		$itemParams['item_id'] = $itemID;
+		$itemParams['quantity'] = $quantity;
+	
+		//for this to work, need to modify appropriate tables to have unique constraint over two columns
+		//http://www.w3schools.com/sql/sql_unique.asp		
+		//although i think the two primary keys are doing it
+		return ConnectionFactory::InsertOnDuplicateKeyUpdate("users_items", $itemParams, "quantity", $quantity);
+	}
+	
+	public function updateUserEnergyCashExpCompletedmissions($energyCost, $totalCashGained, $totalExpGained) {
+		$missionCompleteParams = array();
+		$missionCompleteParams['energy'] = $energyCost*-1;
+		$missionCompleteParams['missions_completed'] = 1;
+		$missionCompleteParams['cash'] = $totalCashGained;
+		$missionCompleteParams['experience'] = $totalExpGained;
+		
+		$conditions = array();
+		$conditions['id'] = $this->id;
+		
+		return ConnectionFactory::updateTableRowRelativeBasic("users", $missionCompleteParams, $conditions);		
+	}	
+	
 	public function getCash() {
 		return $this->cash;
 	}
@@ -209,6 +252,14 @@ class User {
 	
 	public function getNetIncome() {
 		return $this->income - $this->upkeep;
+	}
+	
+	public function getAgencySize() {
+		return $this->agency_size;
+	}
+	
+	public function getEnergy() {
+		return $this->energy;
 	}
 	
 }
