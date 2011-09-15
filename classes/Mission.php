@@ -31,10 +31,16 @@ class Mission {
 	}
 		
 	public static function getMissionsInCity($cityID) {
-		
 		$query = "SELECT * from missions where city_id=?";
 		
 		$objMissions = ConnectionFactory::SelectRowsAsClasses($query, array($cityID), __CLASS__);
+		return $objMissions;
+	}
+	
+	public static function getMissionsInCityGivenPlayerLevel($playerLevel, $cityID) {
+		$query = "SELECT * FROM missions WHERE min_level <= ? AND city_id = ? ORDER BY min_level";
+
+		$objMissions = ConnectionFactory::SelectRowsAsClasses($query, array($playerLevel, $cityID), __CLASS__);
 		return $objMissions;
 	}
 	
@@ -76,6 +82,14 @@ class Mission {
 		return $this->loot_item_id;
 	}
 	
+	public function getMinCashGained() {
+		return $this->min_cash_gained;
+	}
+	
+	public function getMaxCashGained() {
+		return $this->max_cash_gained;
+	}
+	
 	public function getRandomCashGained() {
 		return rand($this->min_cash_gained, $this->max_cash_gained);
 	}
@@ -100,6 +114,14 @@ class Mission {
 				return $this->rank_three_times;
 				break;
 		}
+	}
+	
+	public function getMinLevel() {
+		return $this->min_level;
+	}
+	
+	public function getDescription() {
+		return $this->description;
 	}
 	
 }

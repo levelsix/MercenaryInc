@@ -65,6 +65,19 @@ class User {
 		return self::getUsers($userIDs);
 	}
 	
+	public static function getAvailableCityIDsToRankAvail($userID) {
+		$query = "SELECT * from users_cities WHERE rank_avail > 0 AND user_id =?";
+		$citySth = ConnectionFactory::SelectAsStatementHandler($query, array($userID));
+				
+		$cityIDsToRankAvail = array();
+		while ($row = $citySth->fetch(PDO::FETCH_ASSOC)) {
+			$cityID = $row['city_id'];
+			$cityIDsToRankAvail[$cityID] = $row['rank_avail'];
+		}
+		
+		return $cityIDsToRankAvail;
+	}
+	
 	public static function getUsers($userIDs) {
 		if (count($userIDs) <= 0) {
 			return array();

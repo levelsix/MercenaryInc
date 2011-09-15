@@ -6,14 +6,26 @@
 <body>
 <?php 
 include_once("topmenu.php");
-include_once("properties/citynames.php");
-include_once('properties/dbproperties.php');
 include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/Item.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/Mission.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/UserMissionData.php");
 
 
+function getCityNameFromCityID($cityID) {
+	switch ($cityID)
+	{
+		case 1:
+			return "kalm";
+		case 2:
+			return "zanarkand";
+		case 3:
+			return "midgar";
+		default:;
+	}
+}
 
-function showFailureNotifications($db) {
+function showFailureNotifications() {
 	print "<b>You have not met the requirements for the mission. </b><br>";
 	if (isset($_SESSION['needMoreAgency'])) {
 		print "You need " . $_SESSION['needMoreAgency'] . " more members in your agency. <br>";
@@ -36,7 +48,7 @@ function showFailureNotifications($db) {
 	unset($_SESSION['missionfail']);
 }
 
-function showSuccessNotifications($db) {
+function showSuccessNotifications() {
 	print "<b>Congrats, you have successfully completed the mission </b><br>";
 	print "You gained " . $_SESSION['baseCashGained'] . " cash <br>";
 	print "You gained " . $_SESSION['baseExpGained'] . " exp <br>";
@@ -67,131 +79,105 @@ function showSuccessNotifications($db) {
 	unset($_SESSION['missionsuccess']);
 }
 
-function displayMissions($db, $playerLevel) {
+function displayMissions($playerLevel, $cityIDsToRankAvail) {
 	if (isset($_SESSION['currentMissionCity'])) {
+		$visibleMissions = Mission::getMissionsInCityGivenPlayerLevel($playerLevel+1, $_SESSION['currentMissionCity']);
 		
-		$missionStmt = $db->prepare("SELECT * FROM missions WHERE min_level <= ? AND city_id = ? ORDER BY min_level");
-		$missionStmt->execute(array($playerLevel+1, $_SESSION['currentMissionCity']));
-		$numMissions = $missionStmt->rowCount();
-		
-		if ($numMissions == 0) {
+		if (count($visibleMissions) == 0) {
 			echo "No missions available in this city";
 		} else {
-			$userCitiesStmt = $db->prepare("SELECT * from users_cities WHERE user_id= ? AND city_id=?");
-			$userCitiesStmt->execute(array($_SESSION['userID'], $_SESSION['currentMissionCity']));			
-			$userCitiesRow = $userCitiesStmt->fetch(PDO::FETCH_ASSOC);
-			$cityRank = $userCitiesRow['rank_avail'];
-			while ($row = $missionStmt->fetch(PDO::FETCH_ASSOC)) {
-				displayMissionInfo($db, $row, $playerLevel, $cityRank);
-			}
+			$cityRank = -1;
+			foreach($cityIDsToRankAvail as $cityID=>$rankAvail) {
+				if ($cityID==$_SESSION['currentMissionCity']) {
+					$cityRank = $cityIDsToRankAvail[$cityID];
+				}
+			}			
+			foreach($visibleMissions as $visibleMission) {
+				displayMissionInfo($visibleMission, $playerLevel, $cityRank);
+			}			
 		}
 	} else {
 		print "Select a city to do missions in from above";
 	}
 }
 
-function displayMissionInfo($db, $missionInfoRow, $playerLevel, $cityRank) {
-	if ($row['min_level'] == ($playerLevel+1)) {
+function displayMissionInfo($mission, $playerLevel, $cityRank) {
+	if (missionIsLocked($mission, $playerLevel)) {
 		print "<b>LOCKED</b> <br>";
 	}
-	$missionID = $missionInfoRow['id'];
-	
-	?>
-
-	
-	Title: <?php echo $missionInfoRow['name'];?><br>
-	City: <?php echo ucfirst(getCityNameFromCityID($missionInfoRow['city_id']));?><br>
-	
-	<?php 
-	
-	$userMissionsStmt = $db->prepare("SELECT * from users_missions WHERE user_id=? AND mission_id=?");
-	$userMissionsStmt->execute(array($_SESSION['userID'], $missionInfoRow['id']));
-	$userMissionsRow = $userMissionsStmt->fetch(PDO::FETCH_ASSOC);
-	
-	$completionPercent;
-	if ($cityRank == 4) {
-		$completionPercent=100;
-		$cityRank=3;
-	} else {
-		$userTimesMissionDoneInThisRank;
-		$missionTimesToMasterRank;
-		if ($cityRank==1){
- 			$missionTimesToMasterRank=$missionInfoRow['rank_one_times'];
-			$userTimesMissionDoneInThisRank=$userMissionsRow['rank_one_times'];
-		}
-		if ($cityRank==2){
- 			$missionTimesToMasterRank=$missionInfoRow['rank_two_times'];
-			$userTimesMissionDoneInThisRank=$userMissionsRow['rank_two_times'];
-		}
-		if ($cityRank==3){
-			$missionTimesToMasterRank=$missionInfoRow['rank_three_times'];
-			$userTimesMissionDoneInThisRank=$userMissionsRow['rank_three_times'];
-		}
-		
-		if ($userTimesMissionDoneInThisRank >= $missionTimesToMasterRank) {
-			$completionPercent = 100; 
-		} else {
-			$completionPercent = number_format($userTimesMissionDoneInThisRank/$missionTimesToMasterRank, 2)*100;
-		}
-	}
-?>
-	
-<?php echo $completionPercent;?>% R<?php echo $cityRank; ?><br>
-Description: <?php echo $missionInfoRow['description'];?><br>
-Minimum level: <?php echo $missionInfoRow['min_level'];?><br>
-Cost: <?php echo $missionInfoRow['energy_cost'];?> energy<br>
-Will Gain: <?php echo $missionInfoRow['exp_gained']; ?> exp<br>
-Will Gain <?php echo $missionInfoRow['min_cash_gained'];?> - 
-<?php echo $missionInfoRow['max_cash_gained'];?><br>
-Chance of getting loot: <?php echo $missionInfoRow['chance_of_loot'];?><br>
-
-<?php 		
-	$itemID=$missionInfoRow['loot_item_id'];
-	$itemStmt = $db->prepare("SELECT * from items WHERE id = ?");
-	$itemStmt->execute(array($itemID));
-	$itemRow = $itemStmt->fetch(PDO::FETCH_ASSOC);
+	$missionID = $mission->getID();
 	?>	
-
-	You're not supposed to know this but the item you might get is the <?php echo $itemRow['name'];?><br>
-	didnt put in agency or item requirements too lazy but they work<br>
-<?php 	
-print "Item Requirements:<br>";
-$itemIDsToQuantity = Mission::getMissionRequiredItemsIDsToQuantity($missionID);
-foreach ($itemIDsToQuantity as $key => $value) {
-	$item = Item::getItem($key);
-	print $value . "x " . $item->getName() . "<br>";
-}
-
-	if (!missionIsLocked($missionInfoRow, $playerLevel)) {
-		?>
-		<form action='backend/domission.php' method='post'>
-		<input type='hidden' name='missionID' value='<?php echo $missionInfoRow['id']?>' />
-		<input type='hidden' name='currentMissionCity' value='<?php echo $_SESSION['currentMissionCity'];?>' />
-		<input type='submit' value='Do It' />
-		</form>
+		Title: <?php echo $mission->getName();?><br>
+		City: <?php echo ucfirst(getCityNameFromCityID($mission->getCityID()));?><br>
+		
 		<?php 
+		
+		$userMissionData = UserMissionData::getUserMissionData($_SESSION['userID'], $mission->getID());
+		$completionPercent;
+		if ($cityRank == 4) {
+			$completionPercent=100;
+			$cityRank=3;
+		} else {
+			$userTimesMissionDoneInThisRank = 0;
+			if ($userMissionData) $userMissionData->getRankTimes($cityRank);
+			$missionTimesToMasterRank = $mission->getRankReqTimes($cityRank);
+			if ($userTimesMissionDoneInThisRank >= $missionTimesToMasterRank) {
+				$completionPercent = 100; 
+			} else {
+				$completionPercent = number_format($userTimesMissionDoneInThisRank/$missionTimesToMasterRank, 2)*100;
+			}
+		}
+	?>
+		
+	
+	<?php echo $completionPercent;?>% R<?php echo $cityRank; ?><br>
+	Description: <?php echo $mission->getDescription();?><br>
+	Minimum level: <?php echo $mission->getMinLevel();?><br>
+	Cost: <?php echo $mission->getEnergyCost();?> energy<br>
+	Will Gain: <?php echo $mission->getExpGained(); ?> exp<br>
+	Will Gain <?php echo $mission->getMinCashGained();?> - 
+	<?php echo $mission->getMaxCashGained();?> cash<br>
+	Chance of getting loot: <?php echo $mission->getChanceOfLoot();?><br>
+	
+	<?php 		
+	
+		$lootItemID = $mission->getLootItemID();
+		if ($lootItemID) {
+			$lootItem = Item::getItem($lootItemID);
+			?>
+			You're not supposed to know this but the item you might get is the <?php echo $lootItem->getName();?><br>
+			didnt put in agency or item requirements too lazy but they work<br>
+	<?php 	
+		}
+	print "Item Requirements:<br>";
+	$itemIDsToQuantity = Mission::getMissionRequiredItemsIDsToQuantity($missionID);
+	foreach ($itemIDsToQuantity as $key => $value) {
+		$item = Item::getItem($key);
+		print $value . "x " . $item->getName() . "<br>";
 	}
 	
-	print "<br><br>";
-	
-	
+		if (!missionIsLocked($mission, $playerLevel)) {
+			?>
+			<form action='backend/domission.php' method='post'>
+			<input type='hidden' name='missionID' value='<?php echo $mission->getID()?>' />
+			<input type='hidden' name='currentMissionCity' value='<?php echo $_SESSION['currentMissionCity'];?>' />
+			<input type='submit' value='Do It' />
+			</form>
+			<?php 
+		}
+		print "<br><br>";
 }
 
-function missionIsLocked($missionInfoRow, $playerLevel) {
-	if ($missionInfoRow['min_level'] == ($playerLevel+1)) {
+
+function missionIsLocked($mission, $playerLevel) {
+	if ($mission->getMinLevel() == ($playerLevel+1)) {
 		return true;
 	}
 	return false;
 }
 
-function listCities($db) {
-	
-	$availCityStmt = $db->prepare("SELECT * FROM users_cities WHERE rank_avail > 0 AND user_id = ?");
-	$availCityStmt->execute(array($_SESSION['userID']));
-	$numAvailCities = $availCityStmt->rowCount();
-	
-	while ($row = $availCityStmt->fetch(PDO::FETCH_ASSOC)) {
-		$cityID = $row['city_id'];
+function listCities($cityIDsToRankAvail) {
+	foreach ($cityIDsToRankAvail as $cityID=>$rankAvail) {
 		$cityName = getCityNameFromCityID($cityID);
 ?>
 		<form action='choosemission.php' method='post'>
@@ -200,6 +186,7 @@ function listCities($db) {
 		</form>
 <?php
 	}
+
 }
 
 function showJustUnlockedMissionRank() {
@@ -244,11 +231,11 @@ if (isset($_POST['postedCityID'])) {
 }
 
 if (isset($_SESSION['missionfail']) && $_SESSION['missionfail'] == true) {
-	showFailureNotifications($db);
+	showFailureNotifications();
 }
 
 if (isset($_SESSION['missionsuccess']) && $_SESSION['missionsuccess'] == true) {
-	showSuccessNotifications($db);
+	showSuccessNotifications();
 } 
 
 if (isset($_SESSION['justUnlockedThisMissionRank'])) {
@@ -259,9 +246,9 @@ if (isset($_SESSION['justUnlockedThisCityRank'])) {
 	showJustUnlockedCityRank();
 }
 
-
-listCities($db);
-displayMissions($db, $playerLevel);
+$cityIDsToRankAvail = User::getAvailableCityIDsToRankAvail($_SESSION['userID']);
+listCities($cityIDsToRankAvail);
+displayMissions($playerLevel, $cityIDsToRankAvail);
 
 ?>
 </body>
