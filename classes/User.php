@@ -211,6 +211,42 @@ class User {
 		return ConnectionFactory::updateTableRowRelativeBasic("users", $missionCompleteParams, $conditions);		
 	}	
 	
+	/*TODO: change this to use LIMIT in the query and use mysql to randomize instead*/
+	public function getPotentialOpponents() {
+		$userID = $this->id;
+		$level = $this->level;
+		$agencySize = $this->agency_size;
+				
+		// get up to 10 people to list on the attack list
+		$attackListSize = 10;
+		
+		$maxAgencySize = $agencySize + 5;
+		$minAgencySize = max(array(1, $agencySize - 5));
+		
+		// temporary solution for level range
+		$minLevel = $level - 5;
+		$maxLevel = $level + 5;
+		
+		$query = "SELECT * FROM users WHERE level <= ? AND level >= ? AND agency_size <= ? AND agency_size >= ? AND id != ?";
+		$objAllPotOpps = ConnectionFactory::SelectRowsAsClasses($query, array($maxLevel, $minLevel, $maxAgencySize, $minAgencySize, $userID), __CLASS__);
+				
+		if (!$objAllPotOpps || count($objAllPotOpps) < $attackListSize) {
+			// TODO: execute further queries with higher level or agency size ranges if too few users
+			//the next lines is temp solution if there is 1<x<attacklistsize opponents
+			if ($objAllPotOpps) return $objAllPotOpps;
+			else return array();
+		}
+
+		// get random indices
+		$randomIntegers = getRandomIntegers($attackListSize, count($objAllPotOpps));
+		
+		$opponents = array();
+		foreach ($randomIntegers as $key=>$value) {
+			array_push($opponents, $objAllPotOpps[$key]);
+		}
+		return $opponents;
+	}
+	
 	public function getCash() {
 		return $this->cash;
 	}

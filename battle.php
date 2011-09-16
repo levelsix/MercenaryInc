@@ -4,62 +4,20 @@
 <body>
 
 <?php include_once($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php"); 
+include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/Bounty.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/Utils.php");
 
-function getRandomIntegers($n, $max) {
-	$randomIntegers = array();
-	while (count($randomIntegers) < $n) {
-		$randomInt = rand(0, $max - 1);
-		if (!isset($randomIntegers[$randomInt])) {
-			$randomIntegers[$randomInt] = 1;
-		}
-	}
-	return $randomIntegers;
-}
 
-function getPotentialOpponents($db, $userID, $level, $agencySize) {
-	// get up to 10 people to list on the attack list
-	$attackListSize = 10;
-		
-	$maxAgencySize = $agencySize + 5;
-	$minAgencySize = max(array(1, $agencySize - 5));
-	
-	//$usersStmt = $db->prepare("SELECT * FROM users WHERE level = ? AND agency_size <= ? AND agency_size >= ? AND id != ?");
-	//$usersStmt->execute(array($level, $maxAgencySize, $minAgencySize, $userID));
-	
-	// temporary solution for level range
-	$minLevel = $level - 5;
-	$maxLevel = $level + 5;
-	$usersStmt = $db->prepare("SELECT * FROM users WHERE level <= ? AND level >= ? AND agency_size <= ? AND agency_size >= ? AND id != ?");
-	$usersStmt->execute(array($maxLevel, $minLevel, $maxAgencySize, $minAgencySize, $userID));
-	
-	$numUsers = $usersStmt->rowCount();
-		
-	// TODO: execute further queries with higher level or agency size ranges if too few users
-	$randomIntegers = array();
-	$allEligibleUsers = $usersStmt->fetchAll(PDO::FETCH_ASSOC);
-	
-	if ($numUsers < $attackListSize) return $allEligibleUsers;
-	
-	// get random indices
-	$randomIntegers = getRandomIntegers($attackListSize, $numUsers);
-	// populate the array with these indices
-	$opponents = array();
-	foreach ($randomIntegers as $key=>$value) {
-		array_push($opponents, $allEligibleUsers[$key]);
-	}
-	
-	return $opponents;
-}
-
-function displayNormalAttack($db, $userID, $level, $agencySize) {
-	$opponents = getPotentialOpponents($db, $userID, $level, $agencySize);
+function displayNormalAttack($user) {
+	$opponents = $user->getPotentialOpponents();
 	
 	// treat each value as a row received from a PDO fetch
-	foreach ($opponents as $value) {
-		$id = $value['id'];
-		$name = $value['name'];
-		$opposingLevel = $value['level'];
-		$opposingAgencySize = $value['agency_size'];
+	foreach ($opponents as $opponent) {
+		$id = $opponent->getID();
+		$name = $opponent->getName();
+		$opposingLevel = $opponent->getLevel();
+		$opposingAgencySize = $opponent->getAgencySize();
 		?>
 		
 		Mercenary: <a href='<?php $_SERVER['DOCUMENT_ROOT'] ?>/externalplayerprofile.php?userID=<?php echo $id;?>'><?php echo $name; ?></a>
@@ -75,18 +33,19 @@ function displayNormalAttack($db, $userID, $level, $agencySize) {
 	}
 }
 
-function displayBountyAttack($db, $userID) {
-	$bountyStmt = $db->prepare("SELECT * FROM bounties JOIN users ON (bounties.target_id = users.id) WHERE bounties.is_complete = 0 AND bounties.target_id != ?");
-	$bountyStmt->execute(array($userID));
-	$numBounties = $bountyStmt->rowCount();
+function displayBountyAttack($user) {
+	$bounties = Bounty::getBountiesForUser($user->getID());
+	$numBounties = count($bounties);
 	
 	if ($numBounties <= 0) {
 		print "There are currently no bounties. Sorry!";
 	} else {
-		while ($row = $bountyStmt->fetch(PDO::FETCH_ASSOC)) {
-			$id = $row["target_id"];
-			$userName = $row["name"];
-			$bountyAmount = $row["payment"];
+		foreach($bounties as $bounty) {
+			
+			$id = $bounty->getTargetID();
+			//is this safe..
+			$userName = $bounty->name;
+			$bountyAmount = $bounty->getPayment();
 ?>
 			
 			Mercenary: <a href='<?php $_SERVER['DOCUMENT_ROOT'] ?>/externalplayerprofile.php?userID=<?php echo $id;?>'><?php echo $userName; ?></a> Bounty: <?php echo $bountyAmount;?>
@@ -150,29 +109,26 @@ if (isset($_SESSION['won'])) {
 	unset($_SESSION['won']);
 }
 
-$userID = $_SESSION['userID'];
-// $result is from topmenu
-$playerAgencySize = $result['agency_size'];
+$user = User::getUser($_SESSION['userID']);
 
 if (isset($_POST['battleTab'])) {
 	if ($_POST['battleTab'] == 'normal') {
-		displayNormalAttack($db, $userID, $playerLevel, $playerAgencySize);
+		displayNormalAttack($user);
 	}
 	if ($_POST['battleTab'] == 'bounty') {
-		displayBountyAttack($db, $userID);
+		displayBountyAttack($user);
 	}
 } else {
 	if (isset($_SESSION['battleTab'])) {
 		if ($_SESSION['battleTab'] == 'bounty') {
-			displayBountyAttack($db, $userID);
+			displayBountyAttack($user);
 		}
 		unset($_SESSION['battleTab']);
 	} else {
-		displayNormalAttack($db, $userID, $playerLevel, $playerAgencySize);
+		displayNormalAttack($user);
 	}
 }
 ?>
-
 
 </body>
 </html>

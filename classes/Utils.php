@@ -27,4 +27,17 @@ function userLeveledUp($currLevel, $totalExp) {
 	return false;
 }
 
+
+function getRandomIntegers($n, $max) {
+	$randomIntegers = array();
+	while (count($randomIntegers) < $n) {
+		$randomInt = rand(0, $max - 1);
+		if (!isset($randomIntegers[$randomInt])) {
+			$randomIntegers[$randomInt] = 1;
+		}
+	}
+	return $randomIntegers;
+}
+
+
 ?>

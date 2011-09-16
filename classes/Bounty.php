@@ -11,10 +11,7 @@ class Bounty {
 	private $payment;
 	private $is_complete;
 		
-	function __construct($userID, $targetID, $payment) {
-		$this->requester_id = $userID;
-		$this->target_id = $targetID;
-		$this->payment = $payment;
+	function __construct() {
 	}
 	
 	public static function getBounty($bountyID)
@@ -22,6 +19,13 @@ class Bounty {
 		$objBounty = ConnectionFactory::SelectRowAsClass("SELECT * FROM bounties where id = :bountyID", 
 											array("bountyID" => $bountyID), __CLASS__);
 		return $objBounty;
+	}
+	
+	public static function getBountiesForUser($userID) {
+		$query = "SELECT * FROM bounties JOIN users ON (bounties.target_id = users.id) WHERE bounties.is_complete = 0 AND bounties.target_id != ?";
+		
+		$objBounties = ConnectionFactory::SelectRowsAsClasses($query, array($userID), __CLASS__);
+		return $objBounties;
 	}
 
 	public static function createBounty($requester_id, $target_id, $payment) {
@@ -34,6 +38,14 @@ class Bounty {
 			return self::getBounty($justInsertID);
 		}
 		return NULL;
+	}
+		
+	public function getTargetID() {
+		return $this->target_id;
+	}
+	
+	public function getPayment() {
+		return $this->payment;
 	}
 	
 }
