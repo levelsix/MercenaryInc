@@ -65,9 +65,11 @@ Net Income: <?php echo $user->getNetIncome();?><br>
 ----------------------------------------------------- <br>
 <?php 
 $itemIDsToQuantity = User::getUsersItemsIDsToQuantity($userID);
+$itemIDsToItems = Item::getItemIDsToItems(array_keys($itemIDsToQuantity));
 foreach ($itemIDsToQuantity as $key => $value) {
-	$item = Item::getItem($key);
+	$item = $itemIDsToItems[$key];
 	print $value . "x " . $item->getName() . "<br>";
 }
+
 
 ?>

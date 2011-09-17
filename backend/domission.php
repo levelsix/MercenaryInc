@@ -1,6 +1,4 @@
 <?php
-include_once($_SERVER['DOCUMENT_ROOT'] . "/properties/dbproperties.php");
-include_once($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/Mission.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
@@ -119,7 +117,7 @@ if ($doMission) {
 	
 	$itemsLost = array();
 	$hasLostItems = false;
-	$missionItems = associateItemsWithIDs(Item::getItems(array_keys($requiredItemIDsToQuantity)));
+	$missionItems = Item::getItemIDsToItems(array_keys($requiredItemIDsToQuantity));
 	foreach ($requiredItemIDsToQuantity as $reqItemID => $quantityReq) {
 		$random = rand(0, 100);
 		$missionItem = $missionItems[$reqItemID];

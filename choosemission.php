@@ -151,8 +151,9 @@ function displayMissionInfo($mission, $playerLevel, $cityRank) {
 		}
 	print "Item Requirements:<br>";
 	$itemIDsToQuantity = Mission::getMissionRequiredItemsIDsToQuantity($missionID);
+	$itemIDsToItems = Item::getItemIDsToItems(array_keys($itemIDsToQuantity));
 	foreach ($itemIDsToQuantity as $key => $value) {
-		$item = Item::getItem($key);
+		$item = $itemIDsToItems[$key];
 		print $value . "x " . $item->getName() . "<br>";
 	}
 	

@@ -311,4 +311,12 @@ class User {
 		return $this->energy;
 	}
 	
+	public function getHealth() {
+		return $this->health;
+	}
+	
+	public function getStamina() {
+		return $this->stamina;
+	}
+	
 }

@@ -43,6 +43,23 @@ class Item {
 		return $objItems;
 	}
 	
+	public static function getItemIDsToItems($itemIDs) {
+		$objItems = self::getItems($itemIDs);
+		$toreturn = array();
+		foreach ($objItems as $objItem) { 
+			$itemID = $objItem->getID();
+			$toreturn[$itemID] = $objItem;
+		}
+		return $toreturn;
+	}
+	
+	/* should not be used because item objects do not encapsulate quantity by themselves
+	public static function getItemsForUser($userID) {
+		$query = "SELECT * FROM users_items WHERE user_id = ?";
+		$objItems = ConnectionFactory::SelectRowsAsClasses($query, array($userID), __CLASS__);
+		return $objItems;
+	}*/
+	
 	public function getName(){
 		return $this->name;
 	}

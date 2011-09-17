@@ -7,20 +7,6 @@
 include_once($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php"); 
 include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/Item.php");
 
-
-function getItemWithID($db, $itemID) {
-	$stmt = $db->prepare("SELECT name FROM items WHERE id = ?");
-	$stmt->execute(array($itemID));
-	
-	if ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-		return $result['name'];
-	} else {
-		// Doesn't work because of the topmenu include
-		header("Location: " . $GLOBALS['serverRoot'] . "/errorpage.html");
-		exit;
-	}
-}
-
 // Daily and weekly bonus check
 if (isset($_SESSION['allPastBonuses'])) {
 	$i = 1;
