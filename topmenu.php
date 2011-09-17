@@ -41,36 +41,32 @@
 
 <?php
 include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
-include_once($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
-  
+include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
+
 echo "Your stats are: ";
 print "<br>";
 
 session_start();
+$user = User::getUser($_SESSION['userID']);
 
-$db = ConnectionFactory::getFactory()->getConnection();
-
-$stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
-$stmt->execute(array($_SESSION['userID']));
-
-$num = $stmt->rowCount();
-if (!($result = $stmt->fetch(PDO::FETCH_ASSOC))) {
+if (!$user) {
 	// Redirect to error page
 	header("Location: $serverRoot/errorpage.html");
 	exit;
 }
 
-$playerName = $result['name'];
-$playerLevel = $result['level'];
-$playerType = $result['type'];
-$playerCash = $result['cash'];
-$playerStamina = $result['stamina'];
-$playerHealth = $result['health'];
-$playerEnergy = $result['energy'];
-$playerStaminaMax = $result['stamina_max'];
-$playerHealthMax = $result['health_max'];
-$playerEnergyMax = $result['energy_max'];
-$playerExp = $result['experience'];
+$playerName = $user->getName();
+$playerLevel = $user->getLevel();
+$playerType = $user->getType();
+$playerCash = $user->getCash();
+$playerStamina = $user->getStamina();
+$playerHealth = $user->getHealth();
+$playerEnergy = $user->getEnergy();
+$playerStaminaMax = $user->getStaminaMax();
+$playerHealthMax = $user->getHealthMax();
+$playerEnergyMax = $user->getEnergyMax();
+$playerExp = $user->getExperience();
+
 //$playerExpToNextLevel
 ?>
 Name: <?php echo $playerName;?>  

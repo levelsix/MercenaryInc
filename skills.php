@@ -1,19 +1,12 @@
 <?php
 include_once($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
-include_once($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
 
-$playerStmt = $db->prepare("SELECT * FROM users WHERE id = ?");
-$playerStmt->execute(array($_SESSION['userID']));
+$user = User::getUser($_SESSION['userID']);
 
-$playerResult = $playerStmt->fetch(PDO::FETCH_ASSOC);
-if (!$playerResult) {
-	header("Location: $serverRoot/errorpage.html");
-	exit;
-}
-
-$playerSkill = $playerResult["skill_points"];
-$playerAttack = $playerResult["attack"];
-$playerDefense = $playerResult["defense"];
+$playerSkill = $user->getSkillPoints();
+$playerAttack = $user->getAttack();
+$playerDefense = $user->getDefense();
 ?>
 
 

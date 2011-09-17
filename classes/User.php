@@ -319,4 +319,32 @@ class User {
 		return $this->stamina;
 	}
 	
+	public function getSkillPoints() {
+		return $this->skill_points;
+	}
+	
+	public function getAttack() {
+		return $this->attack;
+	}
+	
+	public function getDefense() {
+		return $this->defense;
+	}
+	
+	public function getExperience() {
+		return $this->experience;
+	}
+	
+	public function getStaminaMax() {
+		return $this->stamina_max;
+	}
+	
+	public function getHealthMax() {
+		return $this->health_max;
+	}
+	
+	public function getEnergyMax() {
+		return $this->experience;
+	}
+	
 }
