@@ -24,7 +24,6 @@ class Item {
 		return $objItem;
 	}	
 	
-	
 	public static function getItems($itemIDs) {
 		if (count($itemIDs) <= 0) {
 			return array();
@@ -53,6 +52,18 @@ class Item {
 		return $toreturn;
 	}
 	
+	public static function getItemIDsToItemsVisibleInShop($playerLevel) {
+		
+		$query = "SELECT * FROM items WHERE min_level <= ? ORDER BY min_level";
+		$objItems = ConnectionFactory::SelectRowsAsClasses($query, array($playerLevel+1), __CLASS__);
+		$toreturn = array();
+		foreach ($objItems as $objItem) {
+			$itemID = $objItem->getID();
+			$toreturn[$itemID] = $objItem;
+		}
+		return $toreturn;
+	}
+	
 	/* should not be used because item objects do not encapsulate quantity by themselves
 	public static function getItemsForUser($userID) {
 		$query = "SELECT * FROM users_items WHERE user_id = ?";
@@ -72,5 +83,16 @@ class Item {
 		return $this->chance_of_loss;
 	}
 	
+	public function getMinLevel() {
+		return $this->min_level;
+	}
+	
+	public function getType() {
+		return $this->type;
+	}
+	
+	public function getPrice() {
+		return $this->price;
+	}
 	
 }

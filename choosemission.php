@@ -11,7 +11,6 @@ include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/Mission.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/UserMissionData.php");
 
-
 function getCityNameFromCityID($cityID) {
 	switch ($cityID)
 	{
