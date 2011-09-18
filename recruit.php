@@ -12,22 +12,11 @@
 <!--  Show pending agency invitations-->
 Pending agency invitations: <br>
 <?php 
-$agenciesStmt = $db->prepare("SELECT * FROM agencies WHERE user_two_id = ? AND accepted = 0");
-$agenciesStmt->execute(array($_SESSION['userID']));
-$numPending = $agenciesStmt->rowCount();
-
-while ($row = $agenciesStmt->fetch(PDO::FETCH_ASSOC)) {
-	$inviterID = $row["user_one_id"];
-	$usersStmt = $db->prepare("SELECT name FROM users WHERE id = ?");
-	$usersStmt->execute(array($inviterID));
-	$usersResult = $usersStmt->fetch(PDO::FETCH_ASSOC);
-	$inviterName = "";
-	if (!$usersResult) {
-		continue;
-	} else {
-		$inviterName = $usersResult["name"];
-	}
-?>
+$pendingAgencyInviteUsers = $user->getPendingAgencyInviteUsers();
+foreach($pendingAgencyInviteUsers as $pendingUser) {
+	$inviterID = $pendingUser->getID();
+	$inviterName = $pendingUser->getName();
+	?>
 
 <?php echo $inviterName;?>
 <form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/backend/respondtoinvitation.php' method='POST'>
@@ -45,15 +34,7 @@ while ($row = $agenciesStmt->fetch(PDO::FETCH_ASSOC)) {
 
 // Show agency code
 print "Your agency code: <br>";
-
-$userStmt = $db->prepare("SELECT agency_code FROM users WHERE id = ?");
-$userStmt->execute(array($_SESSION['userID']));
-
-$userResult = $userStmt->fetch(PDO::FETCH_ASSOC);
-$agencyCode = "";
-if ($userResult) $agencyCode = $userResult['agency_code'];
-
-print $agencyCode;
+print $user->getAgencyCode();
 print "<br>";
 ?>
 

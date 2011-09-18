@@ -10,12 +10,7 @@ $recruitMinLevel = 6;
 
 session_start();
 
-$stmt = $db->prepare("SELECT level FROM users WHERE id = ?");
-$stmt->execute(array($_SESSION['userID']));
-
-$level = 0;
-if ($result = $stmt->fetch(PDO::FETCH_ASSOC))
-	$level = $result['level'];
+$level = $playerLevel;
 
 //TODO: refactor js to have absolute paths
 $tooLowLevelString = "You need to be at least level ";

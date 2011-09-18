@@ -127,6 +127,13 @@ class User {
 		return $itemIDsToQuantity;
 	}
 	
+	public function getPendingAgencyInviteUsers() {
+		$query = "SELECT * FROM agencies JOIN users ON (agencies.user_one_id = users.id) ";
+		$query .= "WHERE agencies.user_two_id = ? AND agencies.accepted = 0";
+		
+		$objUsers = ConnectionFactory::SelectRowsAsClasses($query, array($this->id), __CLASS__);
+		return $objUsers;
+	}
 	
 	public function updateUserCash($cashChange) {
 		$cashparams = array();
@@ -345,6 +352,10 @@ class User {
 	
 	public function getEnergyMax() {
 		return $this->experience;
+	}
+	
+	public function getAgencyCode() {
+		return $this->agency_code;
 	}
 	
 }

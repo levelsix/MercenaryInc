@@ -5,7 +5,9 @@ include_once($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
 $attribute = $_POST['attributeToIncrease'];
 
 session_start();
-$db = ConnectionFactory::getFactory()->getConnection();
+
+$user->useSkillPoint($attribute);
+//$db = ConnectionFactory::getFactory()->getConnection();
 
 if ($attribute == 'attack') {
 	$skillStmt = $db->prepare("UPDATE users SET skill_points=skill_points-1 WHERE id=?");
