@@ -1,6 +1,8 @@
 <?php 
 include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
+
 
 function computeStat($skillPoints, $itemPoints) {
 	// Definitely need to fix this formula
@@ -32,44 +34,35 @@ function updateUserExp($db, $userID, $exp) {
 	$updateStmt->execute(array($exp, $userID));
 }
 
-$maxDamage = 24;
-
 session_start();
+$maxDamage = 24;
 $id = $_SESSION['userID'];
 $otherUserID = $_POST['userID'];
 
-$db = ConnectionFactory::getFactory()->getConnection();
-
-$userStmt = $db->prepare("SELECT * FROM users WHERE id = ?");
-$userStmt->execute(array($id));
-
-$userResult = $userStmt->fetch(PDO::FETCH_ASSOC);
-
-$userHealth = $userResult['health'];
+$user = User::getUser($id);
+$userHealth = $user->getHealth();
 if ($userHealth < $maxDamage + 1) {
 	$_SESSION['notEnoughHealth'] = 1;
 	header("Location: $serverRoot/battle.php");
 	exit;
 }
-$userStamina = $userResult['stamina'];
+$userStamina = $user->getStamina();
 if ($userStamina <= 0) {
 	$_SESSION['notEnoughStamina'] = 1;
 	header("Location: $serverRoot/battle.php");
 	exit;
 }
 
-$otherUserStmt = $db->prepare("SELECT * FROM users WHERE id = ?");
-$otherUserStmt->execute(array($otherUserID));
-
-$otherUserResult = $otherUserStmt->fetch(PDO::FETCH_ASSOC);
-
-$otherUserHealth = $otherUserResult['health'];
+$otherUser = User::getUser($otherUserID);
+$otherUserHealth = $otherUser->getHealth();
 if ($otherUserHealth < $maxDamage + 1) {
 	$_SESSION['otherNotEnoughHealth'] = 1;
 	header("Location: $serverRoot/battle.php");
 	exit;
 }
 
+echo "got this far";
+/*
 $userAttack = computeStat($userResult['attack'], getItemStats($db, $id, $userResult['agency_size'], "attack"));
 $otherUserDefense = computeStat($otherUserResult['defense'], getItemStats($db, $otherUserID, $otherUserResult['agency_size'], "defense"));
 
@@ -115,4 +108,5 @@ if ($levelUpArr) {
 
 header("Location: $serverRoot/battle.php");
 exit;
+*/
 ?>
