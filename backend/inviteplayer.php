@@ -1,30 +1,25 @@
 <?php
-include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
-include_once($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
+
 
 session_start();
 
 $agencyCode = $_GET['agencyCode'];
-$userId = $_SESSION['userID'];
+$user = User::getUser($_SESSION['userID']);
 
-$db = ConnectionFactory::getFactory()->getConnection();
+$result = $user->invitePlayer($agencyCode);
 
-$userStmt = $db->prepare("SELECT id FROM users WHERE agency_code = ?");
-$userStmt->execute(array($agencyCode));
-
-$userResult = $userStmt->fetch(PDO::FETCH_ASSOC);
-if (!$userResult) {
+if ($result == "noUserWithAgencyCode") {
+	$_SESSION['noUserWithAgencyCode'] = true;
+}
+if ($result == "success") {
+	$_SESSION['successInvite'] = true;
+}
+if ($result == "fail") {
 	header("Location: $serverRoot/errorpage.html");
 	exit;
 }
 
-$inviteeId = $userResult["id"];
-
-$insertInvitationStmt = $db->prepare("INSERT IGNORE INTO agencies (user_one_id, user_two_id, accepted) VALUES (?, ?, 0)");
-if (!($insertInvitationStmt->execute(array($userId, $inviteeId)))) {
-	header("Location: $serverRoot/errorpage.html");
-	exit;
-}
 
 header("Location: $serverRoot/recruit.php");
 exit;

@@ -2,12 +2,25 @@
 <head></head>
 <body>
 
-<?php include_once($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");?>
+<?php include_once($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
+if (isset($_SESSION['noUserWithAgencyCode']) && $_SESSION['noUserWithAgencyCode']) {
+	echo "no invite sent because no user with that agency code exists";
+	print "<br><br>";
+	unset($_SESSION['noUserWithAgencyCode']);
+}
+if (isset($_SESSION['successInvite']) && $_SESSION['successInvite']) {
+	echo "invite successfully sent";
+	print "<br><br>";
+	unset($_SESSION['successInvite']);
+}
+
+?>
 
 <!-- Create link to agency list page -->
 <form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/agencylist.php' method='GET'>
 <input type='submit' value='My Agency'/>
 </form>
+
 
 <!--  Show pending agency invitations-->
 Pending agency invitations: <br>

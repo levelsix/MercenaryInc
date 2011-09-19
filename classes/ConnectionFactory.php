@@ -216,6 +216,34 @@ class ConnectionFactory {
 		return $stmt->execute($values);
 	}
 	
+	/*
+	* $params should be an associative array from columns to values
+	* used for basic inserts
+	* returns success or failure
+	*/
+	public static function InsertIgnoreIntoTableBasic($tablename, $params) {
+		$mydb = self::getFactory()->getConnection();
+		//TODO: after refactor, just eliminate getFactory, change getConnection to static, and call that?
+		
+		$questions = array();
+		$keys = array();
+		$values = array();
+		foreach($params as $key=>$value) {
+		$keys[] = $key;
+		$values[] = $value;
+		$questions[] = '?';
+		}
+		
+		$stmtString = "INSERT IGNORE INTO ". $tablename . "(";
+		$stmtString .= getArrayInString($keys, ',') . ") VALUES (";
+		$stmtString .= getArrayInString($questions, ',') . ")";
+		
+		
+		$stmt = $mydb->prepare($stmtString);
+						
+		return $stmt->execute($values);
+	}
+	
 	public static function InsertIntoTableBasicReturnInsertID($tablename, $params) {
 		$mydb = self::getFactory()->getConnection();
 		//TODO: after refactor, just eliminate getFactory, change getConnection to static, and call that?

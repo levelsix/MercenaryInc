@@ -254,6 +254,25 @@ class User {
 		return $opponents;
 	}
 	
+	/*string based success codes*/
+	public function invitePlayer($inviteeAgencyCode) {
+		$userIDQuery = "SELECT id FROM users WHERE agency_code = ?";
+		$userIDSth = ConnectionFactory::SelectAsStatementHandler($userIDQuery, array($inviteeAgencyCode));
+		$userIDRow = $userIDSth->fetch(PDO::FETCH_ASSOC);
+		if ($userIDRow) {
+			$inviteeID = $userIDRow['id'];
+			$success = ConnectionFactory::InsertIgnoreIntoTableBasic("agencies", array('user_one_id'=>$this->id, 
+				'user_two_id'=>$inviteeID, 'accepted'=>0));
+			if (!$success) {
+				return "fail";
+			} else {
+				return "success";
+			}
+		} else {
+			return "noUserWithAgencyCode";
+		}
+	}
+		
 	public function getCash() {
 		return $this->cash;
 	}
