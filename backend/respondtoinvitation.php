@@ -24,7 +24,6 @@ if ($accepted == 'true') {
 		header("Location: $serverRoot/errorpage.html");
 		exit;
 	}
-	
 	incrementAgencySize($db, $userID);
 	incrementAgencySize($db, $inviterID);
 } else {

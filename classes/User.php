@@ -272,6 +272,35 @@ class User {
 			return "noUserWithAgencyCode";
 		}
 	}
+	
+	public function useSkillPoint($attribute) {
+		
+		$skillParams = array();
+		if ($attribute == 'attack') {
+			$skillParams['skill_points'] = -1;
+			$skillParams['attack'] = 1;
+		}
+		if ($attribute == 'defense') {
+			$skillParams['skill_points'] = -1;
+			$skillParams['defense'] = 1;
+		}
+		if ($attribute == 'energymax') {
+			$skillParams['skill_points'] = -1;
+			$skillParams['energy_max'] = 1;
+		}
+		if ($attribute == 'healthmax') {
+			$skillParams['skill_points'] = -1;
+			$skillParams['health_max'] = 10;
+		}
+		if ($attribute == 'staminamax') {
+			$skillParams['skill_points'] = -2;
+			$skillParams['stamina_max'] = 1;
+		}
+		$conditions = array();
+		$conditions['id'] = $this->id;
+		
+		return ConnectionFactory::updateTableRowRelativeBasic("users", $skillParams, $conditions);
+	}
 		
 	public function getCash() {
 		return $this->cash;
