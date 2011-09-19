@@ -127,6 +127,7 @@ class User {
 		return $itemIDsToQuantity;
 	}
 	
+	
 	public function getPendingAgencyInviteUsers() {
 		$query = "SELECT * FROM agencies JOIN users ON (agencies.user_one_id = users.id) ";
 		$query .= "WHERE agencies.user_two_id = ? AND agencies.accepted = 0";
@@ -217,7 +218,7 @@ class User {
 		
 		return ConnectionFactory::updateTableRowRelativeBasic("users", $missionCompleteParams, $conditions);		
 	}	
-	
+		
 	/*TODO: change this to use LIMIT in the query and use mysql to randomize instead*/
 	public function getPotentialOpponents() {
 		$userID = $this->id;
@@ -360,6 +361,24 @@ class User {
 		}
 	}
 		
+	public function acceptInvite($inviterID) {
+		$conditions = array();
+		$conditions['user_one_id'] = $inviterID;
+		$conditions['user_two_id'] = $this->id;
+
+		$success = ConnectionFactory::updateTableRowAbsoluteBasic("agencies", array('accepted'=>1), $conditions);
+
+		if ($success) {
+			return ConnectionFactory::updateTableRowsRelativeOnIDs("users", array('agency_size'=>1),
+				array($this->id, $inviterID));
+		}
+	}
+	
+	public function rejectInvite($inviterID) {
+		return ConnectionFactory::DeleteRowFromTable("agencies", array('user_one_id'=>$inviterID, 
+				'user_two_id'=>$this->id));
+	}
+	
 	public function getCash() {
 		return $this->cash;
 	}
