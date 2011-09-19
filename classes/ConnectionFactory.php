@@ -156,6 +156,37 @@ class ConnectionFactory {
 		return $stmt->execute($values);
 	}
 	
+	/*
+	* $params should be an associative array from columns to values
+	* $conditions same
+	*/
+	public static function updateTableRowsRelativeOnIDs($tablename, $params, $IDs) {
+		$mydb = self::getFactory()->getConnection();
+		//TODO: after refactor, just eliminate getFactory, change getConnection to static, and call that?
+	
+		$values = array();
+	
+		$setclauses = array();
+		foreach($params as $key=>$value) {
+			$setclauses[] = $key . "=" . $key . "+?";
+			$values[] = $value;
+		}
+	
+		$condclauses = array();
+		foreach($IDs as $key=>$value) {
+			$condclauses[] = "id=?";
+			$values[] = $value;
+		}
+	
+		$stmtString = "UPDATE ". $tablename . " SET ";
+		$stmtString .= getArrayInString($setclauses, ',') . " WHERE ";
+		$stmtString .= getArrayInString($condclauses, 'OR');
+	
+		$stmt = $mydb->prepare($stmtString);
+	
+		return $stmt->execute($values);
+	}
+	
 	
 	/*
 	* $params should be an associative array from columns to values
@@ -304,6 +335,24 @@ class ConnectionFactory {
 		$stmt = $mydb->prepare($stmtString);
 		
 		return $stmt->execute(array(0));
+	}
+	
+	public static function DeleteRowFromTable($tablename, $conditions) {
+		$mydb = self::getFactory()->getConnection();
+		//TODO: after refactor, just eliminate getFactory, change getConnection to static, and call that?
+		
+		$stmtString = "DELETE FROM ". $tablename . " WHERE ";
+		
+		$condclauses = array();
+		foreach($conditions as $key=>$value) {
+			$condclauses[] = $key."=?";
+			$values[] = $value;
+		}
+		
+		$stmtString .= getArrayInString($condclauses, 'and');
+		
+		$stmt = $mydb->prepare($stmtString);
+		return $stmt->execute($values);		
 	}
 	
 }
