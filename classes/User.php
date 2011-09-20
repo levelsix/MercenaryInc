@@ -30,7 +30,8 @@ class User {
 	private $agency_code;
 	private $agency_size;
 	private $last_login;
-	private $num_consecutive_days_played;	
+	private $num_consecutive_days_played;
+	private $diamonds;	
 		
 
 	function __construct() {
@@ -474,6 +475,10 @@ class User {
 	
 	public function getAgencyCode() {
 		return $this->agency_code;
+	}
+	
+	public function getDiamonds() {
+		return $this->diamonds;
 	}
 	
 }

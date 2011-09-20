@@ -66,6 +66,7 @@ $playerStaminaMax = $user->getStaminaMax();
 $playerHealthMax = $user->getHealthMax();
 $playerEnergyMax = $user->getEnergyMax();
 $playerExp = $user->getExperience();
+$playerDiamonds = $user->getDiamonds();
 
 //$playerExpToNextLevel
 ?>
@@ -75,7 +76,8 @@ Cash: <?php echo $playerCash;?>
 Stamina: <?php echo $playerStamina;?>/<?php echo $playerStaminaMax;?> 
 Health: <?php echo $playerHealth;?>/<?php echo $playerHealthMax;?> 
 Energy: <?php echo $playerEnergy;?>/<?php echo $playerEnergyMax;?> 
-Experience: <?php echo $playerExp; ?>
+Experience: <?php echo $playerExp; ?> 
+Diamonds: <?php echo $playerDiamonds; ?> 
 <br><br>
 -----------------------------------------------------
 <br>
