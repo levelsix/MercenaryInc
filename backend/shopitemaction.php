@@ -18,8 +18,8 @@ if ($actionToDo == 'buy') {
 	$user->updateUserCash($storePrice*-1);
 } else if ($actionToDo = 'sell') {	
 	$user->decrementUserItem($itemID, 1);
-	$user->updateUserCash($storePrice);
+	$user->updateUserCash($storePrice*$SELL_RATIO);
 }
 
-header("Location: $serverRoot/shoplist.php");
+header("Location: $serverRoot/shopitemlist.php");
 ?>

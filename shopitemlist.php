@@ -42,7 +42,7 @@ if ($num == 0) {
 <?php 	
 		if (($playerCash >= $itemPrice) && (!itemIsLocked($item, $playerLevel))){
 ?>
-			<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/backend/shopaction.php' method='post'>
+			<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/backend/shopitemaction.php' method='post'>
 			<input type='hidden' name='actionToDo' value='buy' />
 			<input type='hidden' name='storePrice' value='<?php echo $itemPrice;?>' />
 			<input type='hidden' name='itemID' value='<?php echo $itemID;?>' />
@@ -54,10 +54,11 @@ if ($num == 0) {
 		}
 		if ($quantity >= 1 && !itemIsLocked($item, $playerLevel)) {
 ?>
-			<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/backend/shopaction.php' method='post'>
+			<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/backend/shopitemaction.php' method='post'>
 			<input type='hidden' name='actionToDo' value='sell' />
 			<input type='hidden' name='storePrice' value='<?php echo $itemPrice;?>' />
 			<input type='hidden' name='itemID' value='<?php echo $itemID;?>' />
+			<input type='hidden' name='oldUserQuantity' value='<?php echo $quantity;?>' />
 			<input type='submit' value='Sell' />
 			</form>
 <?php 

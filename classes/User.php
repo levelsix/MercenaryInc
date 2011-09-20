@@ -127,6 +127,20 @@ class User {
 		return $itemIDsToQuantity;
 	}
 	
+	public static function getUsersRealEstateIDsToQuantity($userID) {
+		$query = "SELECT users_realestates.quantity, realestate.id FROM users_realestates JOIN realestate ON " .
+						"(users_realestates.realestate_id = realestate.id) WHERE users_realestates.user_id = ?";
+		$reSth = ConnectionFactory::SelectAsStatementHandler($query, array($userID));
+		
+		$reIDsToQuantity = array();
+		while ($row = $reSth->fetch(PDO::FETCH_ASSOC)) {
+			$reID = $row["id"];
+			$reIDsToQuantity[$reID] = $row["quantity"];
+		}
+		
+		return $reIDsToQuantity;
+	}
+	
 	
 	public function getPendingAgencyInviteUsers() {
 		$query = "SELECT * FROM agencies JOIN users ON (agencies.user_one_id = users.id) ";
@@ -143,6 +157,17 @@ class User {
 		$conditions = array();
 		$conditions['id'] = $this->id;
 
+		return ConnectionFactory::updateTableRowRelativeBasic("users", $cashparams, $conditions);
+	}
+	
+	public function updateUserCashAndIncome($cashChange, $incomeChange) {
+		$cashparams = array();
+		$cashparams['cash'] = $cashChange;
+		$cashparams['income'] = $incomeChange;
+	
+		$conditions = array();
+		$conditions['id'] = $this->id;
+	
 		return ConnectionFactory::updateTableRowRelativeBasic("users", $cashparams, $conditions);
 	}
 	
@@ -204,6 +229,32 @@ class User {
 		//http://www.w3schools.com/sql/sql_unique.asp		
 		//although i think the two primary keys are doing it
 		return ConnectionFactory::InsertOnDuplicateKeyUpdate("users_items", $itemParams, "quantity", $quantity);
+	}
+	
+	public function decrementUserRealEstate($realEstateID, $quantity) {
+		$realEstateParams = array();
+		$realEstateParams['quantity'] = $quantity*-1;
+		
+		$conditions = array();
+		$conditions['user_id'] = $this->id;
+		$conditions['realestate_id'] = $realEstateID;
+		$success = ConnectionFactory::updateTableRowRelativeBasic("users_realestates", $realEstateParams, $conditions);
+		if ($success) {
+			$success = ConnectionFactory::DeleteZeroAndBelowQuantity("users_realestates");
+		}
+		return $success;
+	}
+	
+	public function incrementUserRealEstate($realEstateID, $quantity) {
+		$realEstateParams = array();
+		$realEstateParams['user_id'] = $this->id;
+		$realEstateParams['realestate_id'] = $realEstateID;
+		$realEstateParams['quantity'] = $quantity;
+					
+		//for this to work, need to modify appropriate tables to have unique constraint over two columns
+		//http://www.w3schools.com/sql/sql_unique.asp
+		//although i think the two primary keys are doing it
+		return ConnectionFactory::InsertOnDuplicateKeyUpdate("users_realestates", $realEstateParams, "quantity", $quantity);
 	}
 	
 	public function updateUserEnergyCashExpCompletedmissions($energyCost, $totalCashGained, $totalExpGained) {

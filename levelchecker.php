@@ -4,7 +4,8 @@ include_once($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
 $missionsMinLevel = 1;
 $homeMinLevel = 2;
 $battleMinLevel = 3;
-$shopMinLevel = 4;
+$shopItemMinLevel = 4;
+$shopREMinLevel = 4;
 $profileMinLevel = 5;
 $recruitMinLevel = 6;
 
@@ -30,11 +31,19 @@ if (strcmp($_POST['pageRequestType'], "mission") == 0){
 		print "<br>";
 		echo "<insert links to allowable paths here>";
 	}
-} else if (strcmp($_POST['pageRequestType'], "shop") == 0){
-	if ($level >=  $shopMinLevel) {
-		echo "<script>location.href='$serverRoot/shoplist.php'</script>";
+} else if (strcmp($_POST['pageRequestType'], "shopitem") == 0){
+	if ($level >=  $shoItemMinLevel) {
+		echo "<script>location.href='$serverRoot/shopitemlist.php'</script>";
 	} else {
-		echo $tooLowLevelString . $shopMinLevel . " to shop";
+		echo $tooLowLevelString . $shopItemMinLevel . " to shop";
+		print "<br>";
+		echo "<insert links to allowable paths here>";
+	}
+} else if (strcmp($_POST['pageRequestType'], "shoprealestate") == 0){
+	if ($level >=  $shopREMinLevel) {
+		echo "<script>location.href='$serverRoot/shoprealestatelist.php'</script>";
+	} else {
+		echo $tooLowLevelString . $shopREMinLevel . " to shop";
 		print "<br>";
 		echo "<insert links to allowable paths here>";
 	}
