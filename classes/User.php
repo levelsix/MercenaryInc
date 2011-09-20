@@ -458,6 +458,45 @@ class User {
 				'user_two_id'=>$this->id));
 	}
 	
+	// $healthAmt is a relative amount to increment/decrement current health by
+	public function updateHealth($healthAmt) {
+		$params = array();
+		$params['health'] = $healthAmt;
+		
+		$conditions = array();
+		$conditions['id'] = $this->id;
+		
+		$success = ConnectionFactory::updateTableRowRelativeBasic("user", $params, $conditions);
+		
+		if ($success) {
+			$this->health += $healthAmt;
+		}
+		return $success;
+	}
+	
+	public function updateHealthStaminaFightsExperience($healthAmt, $staminaAmt, $fightsWon, $fightsLost, $expAmt) {
+		$params = array();
+		$params['health'] = $healthAmt;
+		$params['stamina'] = $staminaAmt;
+		$params['fights_won'] = $fightsWon;
+		$params['fights_lost'] = $fightsLost;
+		$params['experience'] = $expAmt;
+		
+		$conditions = array();
+		$conditions['id'] = $this->id;
+		
+		$success = ConnectionFactory::updateTableRowRelativeBasic("user", $params, $conditions);
+		
+		if ($success) {
+			$this->health += $healthAmt;
+			$this->stamina += $staminaAmt;
+			$this->fights_won += $fightsWon;
+			$this->fights_lost += $fightsLost;
+			$this->experience += $expAmt;
+		}
+		return $success;
+	}
+	
 	public function getCash() {
 		return $this->cash;
 	}

@@ -12,21 +12,20 @@ function getArrayInString($array, $delim) {
 	return $toreturn;
 }
 
-// Returns the new level if the user has leveled up
-// Otherwise returns -1
-function userLeveledUp($currLevel, $totalExp) {
+// Returns the number of skill points gained in a level up
+// Returns 0 if no level up (i.e. no skill points gained)
+function checkLevelUp($currLevel, $totalExp) {
 	// Currently just takes 10 exp to level up at each level
 	$newLevel = floor($totalExp / 10);
 	
 	if ($newLevel > $currLevel) {
 		$skillPointsGained = 3 * ($newLevel - $currLevel);
-		
-		return array("newLevel" => $newLevel, "skillPointsGained" => $skillPointsGained);
+	
+		return $skillPointsGained;
 	}
 	
-	return false;
+	return 0;
 }
-
 
 function getRandomIntegers($n, $max) {
 	$randomIntegers = array();
