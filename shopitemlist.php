@@ -14,11 +14,34 @@ function itemIsLocked($item, $playerLevel) {
 $itemIDsToItems = Item::getItemIDsToItemsVisibleInShop($playerLevel);
 $num = count($itemIDsToItems);
 
-if ($num == 0) { 
-	echo "No items available.";
+if (isset($_POST['itemTab'])) {
+	$_SESSION['itemTab'] = $_POST['itemTab'];
 } else {
-	$userItemIDsToQuantity = User::getUsersItemsIDsToQuantity($_SESSION['userID']);
-	foreach ($itemIDsToItems as $itemID => $item) {
+	$_SESSION['itemTab'] = 1;
+}
+?>
+
+<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/shopitemlist.php' method='POST'>
+<input type='hidden' name='itemTab' value='1' />
+<input type='submit' value='<?php echo getItemTypeFromTypeID(1);?>s'/>
+</form>
+
+<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/shopitemlist.php' method='POST'>
+<input type='hidden' name='itemTab' value='2' />
+<input type='submit' value='<?php echo getItemTypeFromTypeID(2);?>s'/>
+</form>
+
+<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/shopitemlist.php' method='POST'>
+<input type='hidden' name='itemTab' value='3' />
+<input type='submit' value='<?php echo getItemTypeFromTypeID(3);?>s'/>
+</form>
+
+<?php 
+echo ucfirst(getItemTypeFromTypeID($_SESSION['itemTab'])) . "s";
+print "<br><br>";
+$userItemIDsToQuantity = User::getUsersItemsIDsToQuantity($_SESSION['userID']);
+foreach ($itemIDsToItems as $itemID => $item) {
+	if ($item->getType() == $_SESSION['itemTab']) {
 		if (itemIsLocked($item, $playerLevel)) {
 			print "<b>LOCKED</b> <br>";
 		}
@@ -68,6 +91,6 @@ if ($num == 0) {
 
 		
 		print "<br><br>";
-	}	
-}
+	}
+}	
 ?>
