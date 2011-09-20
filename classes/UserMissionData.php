@@ -40,6 +40,7 @@ class UserMissionData {
 	public function completeMission($mission) {
 		$completeParams = array();
 		$completeParams['times_complete'] = 1;
+		$this->times_complete++;
 				
 		$cityRank = ConnectionFactory::SelectValue("rank_avail", "users_cities", 
 			array("user_id" => $this->user_id, "city_id" => $mission->getCityID()));
@@ -47,12 +48,15 @@ class UserMissionData {
 		switch ($cityRank) {
 			case 1:
 				$completeParams['rank_one_times']=1;
+				$this->rank_one_times++;
 				break;
 			case 2:
 				$completeParams['rank_two_times']=1;
+				$this->rank_two_times++;
 				break;
 			case 3:
 				$completeParams['rank_three_times']=1;
+				$this->rank_three_times++;
 				break;
 		}
 		
@@ -73,6 +77,7 @@ class UserMissionData {
 					$_SESSION['justUnlockedThisMissionRank'] = $currRank + 1;
 					$unlockedMissionRank = true;
 					$completeParams['curr_rank']=1;
+					$this->curr_rank++;
 				} else {
 					return;
 				}
