@@ -21,7 +21,7 @@
 </form>
 
 <form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/levelchecker.php" method="post"> 
-<input type="hidden" name="pageRequestType" value="shop" />
+<input type="hidden" name="pageRequestType" value="shopitem" />
 <input type="submit" value="Shop" />
 </form>
 

@@ -2,7 +2,7 @@
 
 function getItemTypeFromTypeID($type) {
 	$itemtype1="weapon";
-	$itemtype2="gear";
+	$itemtype2="protection";
 	$itemtype3="vehicle";
 	
 	switch ($type)

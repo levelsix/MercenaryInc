@@ -43,7 +43,7 @@ if (isset($_SESSION['dailyBonus'])) {
 </form>
 
 <form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/levelchecker.php" method="post"> 
-<input type="hidden" name="pageRequestType" value="shop" />
+<input type="hidden" name="pageRequestType" value="shopitem" />
 <input type="submit" value="Shop" />
 </form>
 
@@ -63,6 +63,11 @@ if (isset($_SESSION['dailyBonus'])) {
 <form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/levelchecker.php" method="post">
 <input type="hidden" name="pageRequestType" value="profile" />
 <input type="submit" value="My Profile" />
+</form>
+
+<form action="<?php $_SERVER['DOCUMENT_ROOT'] ?>/levelchecker.php" method="post">
+<input type="hidden" name="pageRequestType" value="shoprealestate" />
+<input type="submit" value="Real Estate" />
 </form>
 </body>
 
