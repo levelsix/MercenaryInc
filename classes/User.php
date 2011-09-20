@@ -158,7 +158,10 @@ class User {
 		$conditions = array();
 		$conditions['id'] = $this->id;
 
-		return ConnectionFactory::updateTableRowRelativeBasic("users", $cashparams, $conditions);
+		$success = ConnectionFactory::updateTableRowRelativeBasic("users", $cashparams, $conditions);
+		if ($success) {
+			$this->cash += $cashChange;
+		}
 	}
 	
 	public function updateUserCashAndIncome($cashChange, $incomeChange) {
@@ -168,8 +171,12 @@ class User {
 	
 		$conditions = array();
 		$conditions['id'] = $this->id;
-	
-		return ConnectionFactory::updateTableRowRelativeBasic("users", $cashparams, $conditions);
+		
+		$success = ConnectionFactory::updateTableRowRelativeBasic("users", $cashparams, $conditions);
+		if ($success) {
+			$this->cash += $cashChange;
+			$this->income += $incomeChange;
+		}
 	}
 	
 	public function depositBankDeductCash($cashLost, $bankGain) {		
@@ -268,7 +275,13 @@ class User {
 		$conditions = array();
 		$conditions['id'] = $this->id;
 		
-		return ConnectionFactory::updateTableRowRelativeBasic("users", $missionCompleteParams, $conditions);		
+		$success = ConnectionFactory::updateTableRowRelativeBasic("users", $missionCompleteParams, $conditions);		
+		if ($success) {
+			$this->cash += $cashLost;
+			$this->missions_completed += 1;
+			$this->energy -= $energyCost;
+			$this->experience += $totalExpGained;	
+		}
 	}	
 		
 	/*TODO: change this to use LIMIT in the query and use mysql to randomize instead*/
@@ -352,7 +365,11 @@ class User {
 		$conditions = array();
 		$conditions['id'] = $this->id;
 		
-		return ConnectionFactory::updateTableRowRelativeBasic("users", $skillParams, $conditions);
+		$success = ConnectionFactory::updateTableRowRelativeBasic("users", $skillParams, $conditions);
+		if ($success) {
+			$this->skill_points -= $skillParams['skill_points'];
+		}
+		return $success;
 	}
 	
 	public function updateLogin() {
@@ -362,7 +379,11 @@ class User {
 		$conditions = array();
 		$conditions['id'] = $this->id;
 		
-		return ConnectionFactory::updateTableRowAbsoluteBasic("users", $params, $conditions);
+		$success = ConnectionFactory::updateTableRowAbsoluteBasic("users", $params, $conditions);
+		if ($success) {
+			$this->last_login = $params['last_login'];
+		}
+		return $success;
 	}
 	
 	public function updateCashNumConsecLogin($cash, $numConsecDays) {
@@ -377,10 +398,16 @@ class User {
 		$conditions['id'] = $this->id;
 		
 		if ($cash != 0) {
-			return ConnectionFactory::updateTableRowGenericBasic("users", $absParams, $relParams, $conditions);
+			$success = ConnectionFactory::updateTableRowGenericBasic("users", $absParams, $relParams, $conditions);
 		} else {
-			return ConnectionFactory::updateTableRowAbsoluteBasic("users", $absParams, $conditions);
+			$success = ConnectionFactory::updateTableRowAbsoluteBasic("users", $absParams, $conditions);
 		}
+		if ($success) {
+			$this->num_consecutive_days_played = $numConsecDays;
+			$this->last_login = $absParams['last_login'];
+			$this->cash += $cash;
+		}
+		return $success;
 	}
 	
 	public function getDailyBonuses() {
