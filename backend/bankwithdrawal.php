@@ -1,5 +1,4 @@
 <?php
-include_once($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
 
 session_start();
@@ -13,7 +12,6 @@ if (!is_numeric($amount) || strrchr($amount, '.')) {
 	exit;
 }
 
-$db = ConnectionFactory::getFactory()->getConnection();
 
 $user = User::getUser($userID);
 
