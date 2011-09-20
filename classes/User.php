@@ -301,6 +301,64 @@ class User {
 		
 		return ConnectionFactory::updateTableRowRelativeBasic("users", $skillParams, $conditions);
 	}
+	
+	public function updateLogin() {
+		$params = array();
+		$params['last_login'] = date('Y-m-d H:i:s');
+		
+		$conditions = array();
+		$conditions['id'] = $this->id;
+		
+		return ConnectionFactory::updateTableRowAbsoluteBasic("users", $params, $conditions);
+	}
+	
+	public function updateCashNumConsecLogin($cash, $numConsecDays) {
+		$absParams = array();
+		$absParams['num_consecutive_days_played'] = $numConsecDays;
+		$absParams['last_login'] = date('Y-m-d H:i:s');
+		
+		$relParams = array();
+		$relParams['cash'] = $cash;
+		
+		$conditions = array();
+		$conditions['id'] = $this->id;
+		
+		if ($cash != 0) {
+			return ConnectionFactory::updateTableRowGenericBasic("users", $absParams, $relParams, $conditions);
+		} else {
+			return ConnectionFactory::updateTableRowAbsoluteBasic("users", $absParams, $conditions);
+		}
+	}
+	
+	public function getDailyBonuses() {
+		$query = "SELECT * FROM users_dailybonuses WHERE user_id = ?";
+		$values = array($this->id);
+		
+		$result = ConnectionFactory::SelectRowAsAssociativeArray($query, $values);
+		
+		return $result;
+	}
+	
+	public function updateDailyBonus($amount, $numConsecDays) {
+		if ($numConsecDays < 6) {
+			$params = array();
+			$params['user_id'] = $this->id;
+		
+			$dayString = 'day' . ($numConsecDays + 1);
+			$params[$dayString] = $amount;
+
+			return ConnectionFactory::InsertOnDuplicateKeyUpdate("users_dailybonuses", $params, $dayString, $amount);
+		} else {
+			$params = array();
+			for ($i = 1; $i <= 6; $i++)
+				$params['day' . $i] = 0;
+			
+			$conditions = array();
+			$conditions['user_id'] = $this->id;
+			
+			return ConnectionFactory::updateTableRowAbsoluteBasic("users_dailybonuses", $params, $conditions);
+		}
+	}
 		
 	public function getCash() {
 		return $this->cash;
@@ -404,6 +462,14 @@ class User {
 	
 	public function getAgencyCode() {
 		return $this->agency_code;
+	}
+	
+	public function getLastLogin() {
+		return $this->last_login;
+	}
+	
+	public function getNumConsecDaysPlayed() {
+		return $this->num_consecutive_days_played;
 	}
 	
 }

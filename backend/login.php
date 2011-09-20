@@ -1,7 +1,9 @@
 <?php
 include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
 
+/*
 function updateLogin($db, $userID, $loginTime) {
 	// Update last_login in database
 	//$stmt = $db->prepare("UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?");
@@ -15,10 +17,10 @@ function updateLogin($db, $userID, $loginTime) {
 
 function updateUserCashAndLogin($db, $userID, $cashAmount, $loginTime) {
 	// Give daily bonus and update last_login
-	/*
-	$stmt = $db->prepare("UPDATE users SET cash = cash + ?, last_login = CURRENT_TIMESTAMP WHERE id = ?");
-	$stmt->execute(array($cashAmount, $userID));
-	*/
+
+	//$stmt = $db->prepare("UPDATE users SET cash = cash + ?, last_login = CURRENT_TIMESTAMP WHERE id = ?");
+	//$stmt->execute(array($cashAmount, $userID));
+	
 	$stmt = $db->prepare("UPDATE users SET cash = cash + ?, last_login = ? WHERE id = ?");
 	if (!$stmt->execute(array($cashAmount, $loginTime, $userID))) {
 		header("Location: ." . $GLOBALS['serverRoot'] . "/errorpage.html");
@@ -28,10 +30,10 @@ function updateUserCashAndLogin($db, $userID, $cashAmount, $loginTime) {
 
 function updateUserCashLoginAndNumConsec($db, $userID, $cashAmount, $loginTime, $numConsecDays) {
 	// Give daily bonus and update last_login
-	/*
-	$stmt = $db->prepare("UPDATE users SET cash = cash + ?, last_login = CURRENT_TIMESTAMP, num_consecutive_days_played = ? WHERE id = ?");
-	$stmt->execute(array($cashAmount, $numConsecDays, $userID));
-	*/
+	
+	//$stmt = $db->prepare("UPDATE users SET cash = cash + ?, last_login = CURRENT_TIMESTAMP, num_consecutive_days_played = ? WHERE id = ?");
+	//$stmt->execute(array($cashAmount, $numConsecDays, $userID));
+	
 	$stmt = $db->prepare("UPDATE users SET cash = cash + ?, last_login = ?, num_consecutive_days_played = ? WHERE id = ?");
 	if (!$stmt->execute(array($cashAmount, $loginTime, $numConsecDays, $userID))) {
 		header("Location: ." . $GLOBALS['serverRoot'] . "/errorpage.html");
@@ -111,8 +113,26 @@ function updateLatest($db, $userID, $cashAmount, $numConsecDays) {
 		exit;
 	}
 }
+*/
 
-function getWeeklyBonusItemID($db) {
+function loggedInYesterday($login) {
+	$today = date('Y-m-d') . " 08:00:00";
+	$yesterday = date('Y-m-d', time() - (60 * 60 * 24)) . " 08:00:00";
+	
+	$currentTime = date('H:i:s');
+	if ($currentTime < "08:00:00") {
+		$today = date('Y-m-d', time() - (60 * 60 * 24)) . " 08:00:00";
+		$yesterday = date('Y-m-d', time() - (2 * 60 * 60 * 24)) . " 08:00:00";
+	}
+		
+	if ($login < $today && $login > $yesterday)  {
+		return true;
+	}
+	return false;
+}
+
+function getWeeklyBonusItemID() {
+	// Stub implementation
 	return 1;
 }
 
@@ -124,67 +144,73 @@ session_start();
 $_SESSION['userID'] = $id;
 
 // Check if daily bonus should be given
-// Daily bonus will be given starting at 00:00:00 (midnight) PST -> 08:00:00 GMT
-// For now we operate in PST since we're developing locally
-//TODO: we change everything back to GMT when pushing to production
-$db = ConnectionFactory::getFactory()->getConnection();
+// Daily bonus will be given starting at 00:00:00 (midnight) PST -> 08:00:00 UTC
+$user = User::getUser($id);
 
 // Get last login time
-$stmt = $db->prepare("SELECT last_login, num_consecutive_days_played FROM users WHERE id = ?");
-$stmt->execute(array($id));
-$result = $stmt->fetch(PDO::FETCH_ASSOC);
-$lastLogin = $result['last_login'];
+$lastLogin = $user->getLastLogin();
 
 $currentDate = date('Y-m-d H:i:s');
-//$dailyBonusDate = date('Y-m-d') . " 08:00:00";
-$dailyBonusDate = date('Y-m-d') . " 00:00:00";
+$currentTime = date('H:i:s');
+$dailyBonusDate = date('Y-m-d') . " 08:00:00";
+if ($currentTime < "08:00:00") {
+	// Use yesterday's date as daily bonus time
+	$dailyBonusDate = date('Y-m-d', time() - (60 * 60 * 24)) . " 08:00:00";
+}
+
+$loggedInYesterday = loggedInYesterday($lastLogin);
 
 if (strcmp($currentDate, $dailyBonusDate) >= 0) {
 	// <= or < here?
 	if (strcmp($lastLogin, $dailyBonusDate) < 0) {
-		$dailyBonusAmount = 1000;
+		$dailyBonusAmount = rand(500, 10000);
 		
-		// Daily bonus over the week and weekly bonus
-		$pastDailyBonusesStmt = $db->prepare("SELECT * FROM users_dailybonuses WHERE user_id = ?");
-		$pastDailyBonusesStmt->execute(array($id));
-		
-		$numRows = $pastDailyBonusesStmt->rowCount();
-		// No daily bonuses for this user yet
-		if ($numRows == 0) {
-			$dailyBonusInsertStmt = $db->prepare("INSERT INTO users_dailybonuses (user_id, day1) VALUES (?, ?)");
-			if (!$dailyBonusInsertStmt->execute(array($id, $dailyBonusAmount))) {
-				header("Location: ." . $GLOBALS['serverRoot'] . "/errorpage.html");
-				exit;
-			}
-			
-			updateUserCashLoginAndNumConsec($db, $id, $dailyBonusAmount, $currentDate, 1);
+		if (!$loggedInYesterday) { // User didn't log in yesterday, cash bonus only
+			$user->updateCashNumConsecLogin($dailyBonusAmount, 1);			
 			$_SESSION['dailyBonus'] = $dailyBonusAmount;
-		} else { // Update daily bonuses for this user
-			$numConsecDays = $result['num_consecutive_days_played'];
-			
-			// Fetch the daily bonuses and pass it into the session to display
-			$_SESSION['allPastBonuses'] = $pastDailyBonusesStmt->fetch(PDO::FETCH_ASSOC);
-			unset($_SESSION['allPastBonuses']['user_id']); // Don't pass along the user ID
-			
-			updateLatest($db, $id, $dailyBonusAmount, $numConsecDays);
-						
-			if ($numConsecDays == 6) { // weekly bonus
-				$weeklyBonusItemID = getWeeklyBonusItemID($db);
-				
-				//updateUserItems($db, $id, $weeklyBonusItemID);
-				updateLoginAndNumConsec($db, $id, $currentDate, 0);
-				
-				$_SESSION['weeklyBonus'] = $weeklyBonusItemID;
-			} else { // cash bonus only
-				updateUserCashLoginAndNumConsec($db, $id, $dailyBonusAmount, $currentDate, $numConsecDays + 1);
+		} else { // User did log in yesterday
+			// Daily bonus over the week and weekly bonus
+			$pastDailyBonuses = $user->getDailyBonuses();
+
+			$numRows = count($pastDailyBonuses);
+							
+			// No daily bonuses for this user yet
+			if ($numRows == 0) {
+				// Insert a row for this user in the user_dailybonuses table
+				$user->updateDailyBonus($dailyBonusAmount, 0);
+					
+				// Update the user's cash, num consec days logged in, and login time
+				$user->updateCashNumConsecLogin($dailyBonusAmount, 1);
 				$_SESSION['dailyBonus'] = $dailyBonusAmount;
+			} else { // Update daily bonuses for this user
+				$numConsecDays = $user->getNumConsecDaysPlayed();
+					
+				// Get the daily bonuses and pass it into the session to display				
+				$_SESSION['allPastBonuses'] = $pastDailyBonuses;
+				unset($_SESSION['allPastBonuses']['user_id']); // Don't pass along the user ID
+					
+				$user->updateDailyBonus($dailyBonusAmount, $numConsecDays);
+
+				if ($numConsecDays == 6) {
+					// weekly bonus
+					$weeklyBonusItemID = getWeeklyBonusItemID();
+
+					//updateUserItems($db, $id, $weeklyBonusItemID);
+
+					$user->updateCashNumConsecLogin(0, 0);
+
+					$_SESSION['weeklyBonus'] = $weeklyBonusItemID;
+				} else { // cash bonus only
+					$user->updateCashNumConsecLogin($dailyBonusAmount, $numConsecDays + 1);
+					$_SESSION['dailyBonus'] = $dailyBonusAmount;
+				}
 			}
 		}
 	} else {
-		updateLogin($db, $id, $currentDate);
+		$user->updateLogin();
 	}
 } else {
-	updateLogin($db, $id, $currentDate);
+	$user->updateLogin();
 }
 
 header("Location: $serverRoot/charhome.php");

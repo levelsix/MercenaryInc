@@ -125,6 +125,11 @@ class ConnectionFactory {
 		return $sth;
 	}
 	
+	public static function SelectRowAsAssociativeArray($query, $values) {
+		$sth = ConnectionFactory::SelectAsStatementHandler($query, $values);
+		return $sth->fetch();
+	}
+	
 	/*
 	* $params should be an associative array from columns to values
 	* $conditions same
@@ -188,6 +193,44 @@ class ConnectionFactory {
 		return $stmt->execute($values);
 	}
 	
+	/*
+	 * Update a row in a table with both absolute and relative values
+	 * i.e. combines the functionality of updateTableRowRelative and updateTableRowAbsolute
+	 */
+	public static function updateTableRowGenericBasic($tablename, $absParams, $relParams, $conditions) {
+		$mydb = self::getFactory()->getConnection();
+		//TODO: after refactor, just eliminate getFactory, change getConnection to static, and call that?
+		
+		$values = array();
+		
+		$absSetClauses = array();
+		foreach($absParams as $key=>$value) {
+			$absSetClauses[] = $key . "=?";
+			$values[] = $value;
+		}
+		
+		$relSetClauses = array();
+		foreach($relParams as $key=>$value) {
+			$relSetClauses[] = $key . "=" . $key . "+?";
+			$values[] = $value;
+		}
+		
+		$condclauses = array();
+		foreach($conditions as $key=>$value) {
+			$condclauses[] = $key."=?";
+			$values[] = $value;
+		}
+		
+		$stmtString = "UPDATE ". $tablename . " SET ";
+		$stmtString .= getArrayInString($absSetClauses, ',') . ", " . getArrayInString($relSetClauses, ',');
+		$stmtString .= " WHERE ";
+		$stmtString .= getArrayInString($condclauses, 'and');
+		
+		$stmt = $mydb->prepare($stmtString);
+		
+		return $stmt->execute($values);
+	}
+	
 	/* 
 	 * $params should be an associative array from columns to values
 	 * used for basic inserts
@@ -229,9 +272,9 @@ class ConnectionFactory {
 		$keys = array();
 		$values = array();
 		foreach($params as $key=>$value) {
-		$keys[] = $key;
-		$values[] = $value;
-		$questions[] = '?';
+			$keys[] = $key;
+			$values[] = $value;
+			$questions[] = '?';
 		}
 		
 		$stmtString = "INSERT IGNORE INTO ". $tablename . "(";
