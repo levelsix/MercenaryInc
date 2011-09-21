@@ -78,7 +78,7 @@ if ($userAttack > $otherUserDefense) { // user wins
 	
 	$expGained = rand(1, 5);
 	$_SESSION['expGained'] = $expGained;
-	
+		
 	$user->updateHealthStaminaFightsExperience($healthLoss, -1, 1, 0, $expGained);
 	$otherUser->updateHealthStaminaFightsExperience($healthLoss, 0, 0, 1, 0);
 } else { // user loses

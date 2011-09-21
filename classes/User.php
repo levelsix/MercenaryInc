@@ -466,7 +466,7 @@ class User {
 		$conditions = array();
 		$conditions['id'] = $this->id;
 		
-		$success = ConnectionFactory::updateTableRowRelativeBasic("user", $params, $conditions);
+		$success = ConnectionFactory::updateTableRowRelativeBasic("users", $params, $conditions);
 		
 		if ($success) {
 			$this->health += $healthAmt;
@@ -484,9 +484,9 @@ class User {
 		
 		$conditions = array();
 		$conditions['id'] = $this->id;
-		
-		$success = ConnectionFactory::updateTableRowRelativeBasic("user", $params, $conditions);
-		
+				
+		$success = ConnectionFactory::updateTableRowRelativeBasic("users", $params, $conditions);
+				
 		if ($success) {
 			$this->health += $healthAmt;
 			$this->stamina += $staminaAmt;

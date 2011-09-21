@@ -155,7 +155,7 @@ class ConnectionFactory {
 		$stmtString = "UPDATE ". $tablename . " SET ";
 		$stmtString .= getArrayInString($setclauses, ',') . " WHERE ";
 		$stmtString .= getArrayInString($condclauses, 'and');
-	
+			
 		$stmt = $mydb->prepare($stmtString);
 	
 		return $stmt->execute($values);
@@ -186,7 +186,7 @@ class ConnectionFactory {
 		$stmtString = "UPDATE ". $tablename . " SET ";
 		$stmtString .= getArrayInString($setclauses, ',') . " WHERE ";
 		$stmtString .= getArrayInString($condclauses, 'OR');
-	
+			
 		$stmt = $mydb->prepare($stmtString);
 	
 		return $stmt->execute($values);
