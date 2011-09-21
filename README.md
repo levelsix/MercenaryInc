@@ -8,10 +8,7 @@ Make sure you have the MySQL PDO driver
 
 ##Database Connection
 In the properties directory, create a file called dbproperties.php and define four variables
-`$user="...";
-
-$password="...";
-
-$database="mercenaryinc";
-
-$server="...";`
+`$user="...";`
+`$password="...";`
+`$database="mercenaryinc";`
+`$server="...";`
