@@ -40,6 +40,9 @@ class ConnectionFactory {
 		return $this->db;
 	}
 	
+	/*
+	 * returns the value of a single column for a single row
+	 */
 	public static function SelectValue($retrieveValue, $tablename, $conditions) {
 		$mydb = self::getFactory()->getConnection();
 		
@@ -60,6 +63,9 @@ class ConnectionFactory {
 		return $stmt->fetchColumn();		
 	}
 	
+	/*
+	 * returns a row as a class using PDO's FETCH_CLASS option
+	 */
 	public static function SelectRowAsClass($query, $values, $className) {
 		$mydb = self::getFactory()->getConnection();
 		$sth = $mydb->prepare($query);
@@ -70,6 +76,9 @@ class ConnectionFactory {
 		return $obj;
 	}
 	
+	/*
+	 * returns several rows as a class using PDO's FETCH_CLASS option
+	 */
 	public static function SelectRowsAsClasses($query, $values, $className) {
 		$mydb = self::getFactory()->getConnection();
 		$sth = $mydb->prepare($query);
@@ -115,6 +124,9 @@ class ConnectionFactory {
 	}
 	*/
 	
+	/*
+	 * returns a PDO statement handler using the given query
+	 */
 	public static function SelectAsStatementHandler($query, $values) {
 		$mydb = self::getFactory()->getConnection();
 		$sth = $mydb->prepare($query);
@@ -125,15 +137,19 @@ class ConnectionFactory {
 		return $sth;
 	}
 	
+	/*
+	 * returns the result of a query as an associative array where the keys
+	 * are column names and the values are the column values
+	 */
 	public static function SelectRowAsAssociativeArray($query, $values) {
 		$sth = ConnectionFactory::SelectAsStatementHandler($query, $values);
 		return $sth->fetch();
 	}
 	
 	/*
-	* $params should be an associative array from columns to values
-	* $conditions same
-	*/
+	 * updates a row with relative values, i.e. health = health + 10
+	 * $params and $conditions should be associative arrays from column names to values
+	 */
 	public static function updateTableRowRelativeBasic($tablename, $params, $conditions) {
 		$mydb = self::getFactory()->getConnection();
 		//TODO: after refactor, just eliminate getFactory, change getConnection to static, and call that?
@@ -162,9 +178,11 @@ class ConnectionFactory {
 	}
 	
 	/*
-	* $params should be an associative array from columns to values
-	* $conditions same
-	*/
+	 * updates several rows with id equal to any of the ids in the array $IDs
+	 * the column name for the WHERE condition must be "id"
+	 * updates with relative values, i.e. health = health + 10
+	 * $params and $conditions should be associative arrays from column names to values
+	 */
 	public static function updateTableRowsRelativeOnIDs($tablename, $params, $IDs) {
 		$mydb = self::getFactory()->getConnection();
 		//TODO: after refactor, just eliminate getFactory, change getConnection to static, and call that?
@@ -194,9 +212,9 @@ class ConnectionFactory {
 	
 	
 	/*
-	* $params should be an associative array from columns to values
-	* $conditions same
-	*/
+	 * updates a row with absolute values, i.e. health = 10
+	 * $params and $conditions should be associative arrays from column names to values
+	 */
 	public static function updateTableRowAbsoluteBasic($tablename, $params, $conditions) {
 		$mydb = self::getFactory()->getConnection();
 		//TODO: after refactor, just eliminate getFactory, change getConnection to static, and call that?
@@ -227,6 +245,7 @@ class ConnectionFactory {
 	/*
 	 * Update a row in a table with both absolute and relative values
 	 * i.e. combines the functionality of updateTableRowRelative and updateTableRowAbsolute
+	 * $absParams, $relParams, and $conditions should be associative arrays from column names to values
 	 */
 	public static function updateTableRowGenericBasic($tablename, $absParams, $relParams, $conditions) {
 		$mydb = self::getFactory()->getConnection();
@@ -263,7 +282,7 @@ class ConnectionFactory {
 	}
 	
 	/* 
-	 * $params should be an associative array from columns to values
+	 * $params should be an associative array from column names to values
 	 * used for basic inserts
 	 * returns success or failure
 	 */
@@ -291,8 +310,8 @@ class ConnectionFactory {
 	}
 	
 	/*
-	* $params should be an associative array from columns to values
-	* used for basic inserts
+	* $params should be an associative array from column names to values
+	* used for basic insert ignore
 	* returns success or failure
 	*/
 	public static function InsertIgnoreIntoTableBasic($tablename, $params) {
@@ -318,6 +337,10 @@ class ConnectionFactory {
 		return $stmt->execute($values);
 	}
 	
+	/*
+	 * executes an insert into statement and returns the last insert ID
+	 * $params should be an associative array from column names to values
+	 */
 	public static function InsertIntoTableBasicReturnInsertID($tablename, $params) {
 		$mydb = self::getFactory()->getConnection();
 		//TODO: after refactor, just eliminate getFactory, change getConnection to static, and call that?
@@ -345,6 +368,12 @@ class ConnectionFactory {
 		return 0;
 	}
 	
+	/*
+	 * executes an insert into ... on duplicate key update SQL statement
+	 * $params should be an associative array from column names to values
+	 * $columnUpdate is the column to update if there is a duplicate key
+	 * $updateQuantity is the value to update to (relative, NOT absolute)
+	 */
 	public static function InsertOnDuplicateKeyUpdate($tablename, $params, $columnUpdate, $updateQuantity) {
 		$mydb = self::getFactory()->getConnection();
 		
@@ -369,6 +398,10 @@ class ConnectionFactory {
 		return $stmt->execute($values);
 	}
 	
+	/*
+	 * deletes all rows in a table where the quantity <= 0
+	 * the column name must be "quantity"
+	 */
 	public static function DeleteZeroAndBelowQuantity($tablename) {
 		$mydb = self::getFactory()->getConnection();
 		//TODO: after refactor, just eliminate getFactory, change getConnection to static, and call that?
@@ -380,6 +413,10 @@ class ConnectionFactory {
 		return $stmt->execute(array(0));
 	}
 	
+	/*
+	 * deletes a row from a table
+	 * $conditions should be an associative array from column names to values
+	 */
 	public static function DeleteRowFromTable($tablename, $conditions) {
 		$mydb = self::getFactory()->getConnection();
 		//TODO: after refactor, just eliminate getFactory, change getConnection to static, and call that?

@@ -1,5 +1,9 @@
 <?php
 
+/*
+ * returns the concatenation of each element in the array separated by
+ * the delimiter
+ */
 function getArrayInString($array, $delim) {
 	$arrlength = count($array);
 	$toreturn = "";
@@ -27,6 +31,7 @@ function checkLevelUp($currLevel, $totalExp) {
 	return 0;
 }
 
+// Returns n random integers in the range [0, $max)
 function getRandomIntegers($n, $max) {
 	$randomIntegers = array();
 	while (count($randomIntegers) < $n) {

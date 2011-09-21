@@ -66,6 +66,10 @@ class User {
 		return self::getUsers($userIDs);
 	}
 	
+	/*
+	 * returns an associative array where the keys are city IDs and the values
+	 * are the mission rank that is available to the user (i.e. rank 1, 2, 3)
+	 */
 	public static function getAvailableCityIDsToRankAvail($userID) {
 		$query = "SELECT * from users_cities WHERE rank_avail > 0 AND user_id =?";
 		$citySth = ConnectionFactory::SelectAsStatementHandler($query, array($userID));
@@ -79,6 +83,9 @@ class User {
 		return $cityIDsToRankAvail;
 	}
 	
+	/*
+	 * returns an array of users given an array of user IDs
+	 */
 	public static function getUsers($userIDs) {
 		if (count($userIDs) <= 0) {
 			return array();
@@ -96,7 +103,10 @@ class User {
 		$objUsers = ConnectionFactory::SelectRowsAsClasses($query, $values, __CLASS__);
 		return $objUsers;		
 	}
-	
+
+	/*
+	 * creates a user with the given username
+	 */
 	public static function createUser($name) {
 		$userparams = array();
 		$userparams['name'] = $name;
@@ -114,6 +124,10 @@ class User {
 		return NULL;
 	}
 	
+	/*
+	 * returns an associative array where the key is an item ID and
+	 * the value is the quantity of that item that the user owns
+	 */
 	public static function getUsersItemsIDsToQuantity($userID) {
 		$query = "SELECT users_items.quantity, items.id FROM users_items JOIN items ON " .
 				"(users_items.item_id = items.id) WHERE users_items.user_id = ?";
@@ -128,6 +142,10 @@ class User {
 		return $itemIDsToQuantity;
 	}
 	
+	/*
+	 * returns an associative array where the key is an real estate ID and
+	 * the value is the quantity of that item that the user owns
+	 */
 	public static function getUsersRealEstateIDsToQuantity($userID) {
 		$query = "SELECT users_realestates.quantity, realestate.id FROM users_realestates JOIN realestate ON " .
 						"(users_realestates.realestate_id = realestate.id) WHERE users_realestates.user_id = ?";
@@ -142,7 +160,10 @@ class User {
 		return $reIDsToQuantity;
 	}
 	
-	
+	/*
+	 * returns an array of users that have invited the current user
+	 * user_one_id is the inviter, user_two_id is the invitee
+	 */
 	public function getPendingAgencyInviteUsers() {
 		$query = "SELECT * FROM agencies JOIN users ON (agencies.user_one_id = users.id) ";
 		$query .= "WHERE agencies.user_two_id = ? AND agencies.accepted = 0";
@@ -151,6 +172,9 @@ class User {
 		return $objUsers;
 	}
 	
+	/*
+	 * updates the user's cash
+	 */
 	public function updateUserCash($cashChange) {
 		$cashparams = array();
 		$cashparams['cash'] = $cashChange;
@@ -162,8 +186,12 @@ class User {
 		if ($success) {
 			$this->cash += $cashChange;
 		}
+		return $success;
 	}
 	
+	/*
+	 * updates the user's cash and income
+	 */
 	public function updateUserCashAndIncome($cashChange, $incomeChange) {
 		$cashparams = array();
 		$cashparams['cash'] = $cashChange;
@@ -179,6 +207,9 @@ class User {
 		}
 	}
 	
+	/*
+	 * updates the user's bank balance and cash after a deposit
+	 */
 	public function depositBankDeductCash($cashLost, $bankGain) {		
 		$bankparams = array();
 		$bankparams['bank_balance'] = $bankGain;
@@ -196,6 +227,9 @@ class User {
 		return $success;
 	}
 	
+	/*
+	 * updates the user's bank balance and cash after a withdrawal
+	 */
 	public function withdrawBankGainCash($cashGain) {
 		$bankparams = array();
 		$bankparams['bank_balance'] = $cashGain*-1;
@@ -213,6 +247,9 @@ class User {
 		return $success;
 	}
 	
+	/*
+	 * removes $quantity number of item from the user
+	 */
 	public function decrementUserItem($itemID, $quantity) {
 		$itemParams = array();
 		$itemParams['quantity'] = $quantity*-1;
@@ -227,6 +264,9 @@ class User {
 		return $success;
 	}
 	
+	/*
+	 * gives the user $quantity number of an item
+	 */
 	public function incrementUserItem($itemID, $quantity) {
 		$itemParams = array();
 		$itemParams['user_id'] = $this->id;
@@ -239,6 +279,9 @@ class User {
 		return ConnectionFactory::InsertOnDuplicateKeyUpdate("users_items", $itemParams, "quantity", $quantity);
 	}
 	
+	/*
+	 * removes $quantity number of real estate from the user
+	 */
 	public function decrementUserRealEstate($realEstateID, $quantity) {
 		$realEstateParams = array();
 		$realEstateParams['quantity'] = $quantity*-1;
@@ -253,6 +296,9 @@ class User {
 		return $success;
 	}
 	
+	/*
+	 * gives the user $quantity number of real estate
+	 */
 	public function incrementUserRealEstate($realEstateID, $quantity) {
 		$realEstateParams = array();
 		$realEstateParams['user_id'] = $this->id;
@@ -265,6 +311,11 @@ class User {
 		return ConnectionFactory::InsertOnDuplicateKeyUpdate("users_realestates", $realEstateParams, "quantity", $quantity);
 	}
 	
+	/*
+	 * updates the user's energy, cash, experience, and completed missions in one
+	 * database hit
+	 * used after mission completion
+	 */
 	public function updateUserEnergyCashExpCompletedmissions($energyCost, $totalCashGained, $totalExpGained) {
 		$missionCompleteParams = array();
 		$missionCompleteParams['energy'] = $energyCost*-1;
@@ -283,7 +334,10 @@ class User {
 			$this->experience += $totalExpGained;	
 		}
 	}	
-		
+
+	/*
+	 * returns an array of users for the attack list
+	 */
 	/*TODO: change this to use LIMIT in the query and use mysql to randomize instead*/
 	public function getPotentialOpponents() {
 		$userID = $this->id;
@@ -320,6 +374,9 @@ class User {
 		return $opponents;
 	}
 	
+	/*
+	 * gives a player an agency recruit invite based on their agency code
+	 */
 	/*string based success codes*/
 	public function invitePlayer($inviteeAgencyCode) {
 		$userIDQuery = "SELECT id FROM users WHERE agency_code = ?";
@@ -339,6 +396,9 @@ class User {
 		}
 	}
 	
+	/*
+	 * applies skill points towards an attribute
+	 */
 	public function useSkillPoint($attribute) {
 		
 		$skillParams = array();
@@ -372,6 +432,9 @@ class User {
 		return $success;
 	}
 	
+	/*
+	 * updates the user's last_login to the current time
+	 */
 	public function updateLogin() {
 		$params = array();
 		$params['last_login'] = date('Y-m-d H:i:s');
@@ -386,6 +449,10 @@ class User {
 		return $success;
 	}
 	
+	/*
+	 * updates the user's last_login, cash, and num_consec_days_played in one db hit
+	 * used for when the user has daily bonuses to apply
+	 */
 	public function updateCashNumConsecLogin($cash, $numConsecDays) {
 		$absParams = array();
 		$absParams['num_consecutive_days_played'] = $numConsecDays;
@@ -410,6 +477,11 @@ class User {
 		return $success;
 	}
 	
+	/*
+	 * returns an associative array where the keys are columns in the
+	 * users_dailybonuses table and values are the values of those columns for the user
+	 * the array tells how much the user gained for their daily bonus for each day
+	 */
 	public function getDailyBonuses() {
 		$query = "SELECT * FROM users_dailybonuses WHERE user_id = ?";
 		$values = array($this->id);
@@ -419,6 +491,11 @@ class User {
 		return $result;
 	}
 	
+	/*
+	 * updates the user's daily bonus amount in the users_dailybonuses table
+	 * if the user has gotten a weekly bonus or does not log in for consecutive days,
+	 * the values are reset to 0 for that user and it starts again from day1
+	 */
 	public function updateDailyBonus($amount, $numConsecDays) {
 		if ($numConsecDays < 6) {
 			$params = array();
@@ -440,6 +517,9 @@ class User {
 		}
 	}
 		
+	/*
+	 * accepts an agency invite from the given inviter 
+	 */
 	public function acceptInvite($inviterID) {
 		$conditions = array();
 		$conditions['user_one_id'] = $inviterID;
@@ -453,11 +533,17 @@ class User {
 		}
 	}
 	
+	/*
+	 * rejects an agency invite from the given inviter
+	 */
 	public function rejectInvite($inviterID) {
 		return ConnectionFactory::DeleteRowFromTable("agencies", array('user_one_id'=>$inviterID, 
 				'user_two_id'=>$this->id));
 	}
 	
+	/*
+	 * increments/decrements the user's health
+	 */
 	// $healthAmt is a relative amount to increment/decrement current health by
 	public function updateHealth($healthAmt) {
 		$params = array();
@@ -474,6 +560,10 @@ class User {
 		return $success;
 	}
 	
+	/*
+	 * updates the user's health, stamina, fights_won/fights_lost, and experience in one db hit
+	 * used after battles
+	 */
 	public function updateHealthStaminaFightsExperience($healthAmt, $staminaAmt, $fightsWon, $fightsLost, $expAmt) {
 		$params = array();
 		$params['health'] = $healthAmt;
@@ -497,12 +587,18 @@ class User {
 		return $success;
 	}
 	
+	/*
+	 * setter for the type attribute
+	 */
 	public function setType($playerType) {
 		ConnectionFactory::updateTableRowAbsoluteBasic("users", array('type'=>$playerType),
 		array('id'=>$this->id));
 		$this->type = $playerType;
 	}
 	
+	/*
+	 * Getters
+	 */
 	public function getCash() {
 		return $this->cash;
 	}
