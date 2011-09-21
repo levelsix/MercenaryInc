@@ -1,8 +1,7 @@
 <?php 
 include_once($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
-include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/Item.php");
-include_once($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
+
 
 session_start();
 $userID = $_SESSION['userID'];
@@ -13,62 +12,41 @@ if (!$user) {
 	exit;
 }
 
-// Skills button
+if (isset($_POST['profileTab'])) {
+	$_SESSION['profileTab'] = $_POST['profileTab'];
+} else {
+	$_SESSION['profileTab'] = 'info';
+}
+
 ?>
-<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/skills.php'>
+
+<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/charprofile.php' method='POST'>
+<input type='hidden' name='profileTab' value='info'/>
+<input type='submit' value='Info'/>
+</form>
+<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/charprofile.php' method='POST'>
+<input type='hidden' name='profileTab' value='skills'/>
 <input type='submit' value='Skills'/>
+</form>
+<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/charprofile.php' method='POST'>
+<input type='hidden' name='profileTab' value='comments'/>
+<input type='submit' value='Comments'/>
 </form>
 
 <?php
-
-
-// User information
-$userName = $user->getName();
-$userLevel = $user->getLevel();
-$userType = $user->getType();
-$userMissionsCompleted = $user->getNumMissionsCompleted();
-$userFightsWon = $user->getFightsWon();
-$userFightsLost = $user->getFightsLost();
-$userKills = $user->getUserKills();
-$userDeaths = $user->getUserDeaths();
-?>
-
-<?php echo $userName;?><br>
-Level <?php echo $userLevel;?> <?php echo ucfirst($userType);?><br>
------------------------------------------------------ <br>
-Missions Completed: <?php echo $userMissionsCompleted;?><br>
-Fights Won: <?php echo $userFightsWon;?><br>
-Fights Lost: <?php echo $userFightsLost;?><br>
-Kills: <?php echo $userKills;?><br>
-Deaths: <?php echo $userDeaths;?><br>
-
-
-<!--  Cash flow-->
-<br><br>Cash flow <br>
------------------------------------------------------ <br>
-<?php 
-$userIncome = $user->getIncome();
-$userUpkeep = $user->getUpkeep();
-?>
-Income: <?php echo $userIncome;?><br>
-Upkeep: -<?php echo $userUpkeep;?><br>
-Net Income: <?php echo $user->getNetIncome();?><br>
-
-
-<!-- Achievements -->
-<br><br>Achievements: <br>
------------------------------------------------------ <br>
-
-
-<!-- Items -->
-<br><br>Items: <br>
------------------------------------------------------ <br>
-<?php 
-$itemIDsToQuantity = User::getUsersItemsIDsToQuantity($userID);
-$itemIDsToItems = Item::getItemIDsToItems(array_keys($itemIDsToQuantity));
-foreach ($itemIDsToQuantity as $key => $value) {
-	$item = $itemIDsToItems[$key];
-	print $value . "x " . $item->getName() . "<br>";
+if (isset($_SESSION['profileTab'])) {
+	if ($_SESSION['profileTab'] == 'skills') {
+		include_once($_SERVER['DOCUMENT_ROOT'] . "/skills.php");
+	}
+	if ($_SESSION['profileTab'] == 'info') {
+		$profileUser = $user;
+		include_once($_SERVER['DOCUMENT_ROOT'] . "/userinfo.php");
+	}
+	if ($_SESSION['profileTab'] == 'comments') {
+		$commentsUser = $user;
+		include_once($_SERVER['DOCUMENT_ROOT'] . "/comments.php");
+	}
+	unset($_SESSION['profileTab']);
 }
 
 

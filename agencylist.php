@@ -1,13 +1,7 @@
 <?php
 include_once($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
-?>
 
-<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/recruit.php' method='GET'>
-<input type='submit' value='Back'/>
-</form>
-
-<?php 
 session_start();
 $agencyUsers = User::getUsersInAgency($_SESSION['userID']);
 

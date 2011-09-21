@@ -1,4 +1,5 @@
 <?php
+$numItemTypes = 3;
 
 function getItemTypeFromTypeID($type) {
 	$itemtype1="weapon";

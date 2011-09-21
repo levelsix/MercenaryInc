@@ -2,8 +2,6 @@
 include_once($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
 
-$user = User::getUser($_SESSION['userID']);
-
 $playerSkill = $user->getSkillPoints();
 $playerAttack = $user->getAttack();
 $playerDefense = $user->getDefense();
