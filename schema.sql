@@ -19,8 +19,12 @@ CREATE TABLE `agencies` (
 
 CREATE TABLE `battle_history` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `winner_id` int(11) unsigned NOT NULL,
-  `loser_id` int(11) unsigned NOT NULL,
+  `user_id` int(11) unsigned NOT NULL,
+  `won` int(1) unsigned NOT NULL DEFAULT '0',
+  `bounty` int(1) unsigned DEFAULT '0',
+  `damage_taken` int(11) unsigned DEFAULT '0',
+  `cash_lost` int(11) unsigned DEFAULT '0',
+  `exp_gained` int(11) unsigned DEFAULT '0',
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1
