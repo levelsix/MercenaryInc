@@ -58,19 +58,7 @@ function displayBountyAttack($user) {
 		}
 	}
 }
-?>
 
-<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/battle.php' method='POST'>
-<input type='hidden' name='battleTab' value='normal' />
-<input type='submit' value='Attack an Enemy Agency'/>
-</form>
-
-<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/battle.php' method='POST'>
-<input type='hidden' name='battleTab' value='bounty' />
-<input type='submit' value='Check the Bounty List'/>
-</form>
-
-<?php 
 /*
  * TODO: if first time here, have them choose their class/type
 	dont make this db call tho..
@@ -110,23 +98,36 @@ if (isset($_SESSION['won'])) {
 }
 
 $user = User::getUser($_SESSION['userID']);
-
-if (isset($_POST['battleTab'])) {
-	if ($_POST['battleTab'] == 'normal') {
-		displayNormalAttack($user);
-	}
-	if ($_POST['battleTab'] == 'bounty') {
-		displayBountyAttack($user);
-	}
-} else {
-	if (isset($_SESSION['battleTab'])) {
-		if ($_SESSION['battleTab'] == 'bounty') {
+if ($user->getType()) {
+	?>
+	<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/battle.php' method='POST'>
+	<input type='hidden' name='battleTab' value='normal' />
+	<input type='submit' value='Attack an Enemy Agency'/>
+	</form>
+	<form action='<?php $_SERVER['DOCUMENT_ROOT'] ?>/battle.php' method='POST'>
+	<input type='hidden' name='battleTab' value='bounty' />
+	<input type='submit' value='Check the Bounty List'/>
+	</form>
+	<?php 
+	if (isset($_POST['battleTab'])) {
+		if ($_POST['battleTab'] == 'normal') {
+			displayNormalAttack($user);
+		}
+		if ($_POST['battleTab'] == 'bounty') {
 			displayBountyAttack($user);
 		}
-		unset($_SESSION['battleTab']);
 	} else {
-		displayNormalAttack($user);
+		if (isset($_SESSION['battleTab'])) {
+			if ($_SESSION['battleTab'] == 'bounty') {
+				displayBountyAttack($user);
+			}
+			unset($_SESSION['battleTab']);
+		} else {
+			displayNormalAttack($user);
+		}
 	}
+} else {
+	echo "<script>location.href='$serverRoot/chooseclasspage.php'</script>";
 }
 ?>
 
