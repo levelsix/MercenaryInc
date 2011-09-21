@@ -497,6 +497,12 @@ class User {
 		return $success;
 	}
 	
+	public function setType($playerType) {
+		ConnectionFactory::updateTableRowAbsoluteBasic("users", array('type'=>$playerType),
+		array('id'=>$this->id));
+		$this->type = $playerType;
+	}
+	
 	public function getCash() {
 		return $this->cash;
 	}
