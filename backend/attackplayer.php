@@ -93,6 +93,7 @@ if ($userAttack > $otherUserDefense) { // user wins
 	$otherUser->updateHealthStaminaFightsExperience($healthLoss, 0, 1, 0, $expGained);
 }
 
+// Level up check
 $userLevel = $user->getLevel();
 // The user's exp attribute in the user object should be updated to reflect this battle
 $userExp = $user->getExperience();

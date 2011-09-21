@@ -588,6 +588,29 @@ class User {
 	}
 	
 	/*
+	 * updates the user's level and skill points (skill points is a relative gain)
+	 */
+	public function updateLevel($level, $skillPointsGained) {
+		$absParams = array();
+		$absParams['level'] = $level;
+		
+		$relParams = array();
+		$relParams['skill_points'] = $skillPointsGained;
+		
+		$conditions = array();
+		$conditions['id'] = $this->id;
+
+		$success = ConnectionFactory::updateTableRowGenericBasic("users", $absParams, $relParams, $conditions);
+		
+		if ($success) {
+			$this->level = $level;
+			$this->skill_points += $skillPointsGained;
+		}
+		
+		return $success;
+	}
+	
+	/*
 	 * setter for the type attribute
 	 */
 	public function setType($playerType) {
