@@ -13,7 +13,7 @@ function computeStat($skillPoints, $itemPoints) {
 function getItemStats($db, $userID, $agencySize, $statType) {
 	return 1;
 }
-
+/*
 function updateUserHealthAndFightsRecord($db, $winnerID, $loserID) {
 	$healthLoss = 15;	
 	
@@ -33,22 +33,26 @@ function updateUserExp($db, $userID, $exp) {
 	$updateStmt = $db->prepare("UPDATE users SET experience = experience + ? WHERE id = ?");
 	$updateStmt->execute(array($exp, $userID));
 }
-
+*/
 session_start();
 $maxDamage = 24;
 $id = $_SESSION['userID'];
 $otherUserID = $_POST['userID'];
 
 $user = User::getUser($id);
-$userHealth = $user->getHealth();
-if ($userHealth < $maxDamage + 1) {
-	$_SESSION['notEnoughHealth'] = 1;
-	header("Location: $serverRoot/battle.php");
-	exit;
-}
+
+// Stamina check
 $userStamina = $user->getStamina();
 if ($userStamina <= 0) {
 	$_SESSION['notEnoughStamina'] = 1;
+	header("Location: $serverRoot/battle.php");
+	exit;
+}
+
+// Health checks
+$userHealth = $user->getHealth();
+if ($userHealth < $maxDamage + 1) {
+	$_SESSION['notEnoughHealth'] = 1;
 	header("Location: $serverRoot/battle.php");
 	exit;
 }
@@ -61,12 +65,13 @@ if ($otherUserHealth < $maxDamage + 1) {
 	exit;
 }
 
-echo "got this far";
-/*
-$userAttack = computeStat($userResult['attack'], getItemStats($db, $id, $userResult['agency_size'], "attack"));
-$otherUserDefense = computeStat($otherUserResult['defense'], getItemStats($db, $otherUserID, $otherUserResult['agency_size'], "defense"));
 
-if ($userAttack > $otherUserDefense) {
+$userAttack = computeStat($user->getAttack(), getItemStats($db, $id, $user->getAgencySize(), "attack"));
+$otherUserDefense = computeStat($otherUser->getDefense(), getItemStats($db, $otherUserID, $otherUser->getAgencySize(), "defense"));
+
+$healthLoss = -15;
+
+if ($userAttack > $otherUserDefense) { // user wins
 	$_SESSION['won'] = 'true';
 	$winner = $id;
 	$loser = $otherUserID;
@@ -74,39 +79,31 @@ if ($userAttack > $otherUserDefense) {
 	$expGained = rand(1, 5);
 	$_SESSION['expGained'] = $expGained;
 	
-	updateUserExp($db, $id, $expGained);
-} else {
+	$user->updateHealthStaminaFightsExperience($healthLoss, -1, 1, 0, $expGained);
+	$otherUser->updateHealthStaminaFightsExperience($healthLoss, 0, 0, 1, 0);
+} else { // user loses
 	$_SESSION['won'] = 'false';
 	$winner = $otherUserID;
 	$loser = $id;
 	
 	$expGained = rand(1, 3);
-	// Need to put exp gained in battle history for other player	
-	updateUserExp($db, $otherUserID, $expGained);
+	// TODO Need to put exp gained in battle history for other player	
+
+	$user->updateHealthStaminaFightsExperience($healthLoss, -1, 0, 1, 0);
+	$otherUser->updateHealthStaminaFightsExperience($healthLoss, 0, 1, 0, $expGained);
 }
 
-updateUserHealthAndFightsRecord($db, $winner, $loser);
-updateUserStamina($db, $id);
+$userLevel = $user->getLevel();
+// The user's exp attribute in the user object should be updated to reflect this battle
+$userExp = $user->getExperience();
 
-$userLevel = $userResult['level'];
-// The user exp is a value from an old query, so add the experience gained
-$userExp = $userResult['experience'] + $expGained;
-
-$levelUpArr = userLeveledUp($userLevel, $userExp);
-if ($levelUpArr) {
-	$newLevel = $levelUpArr['newLevel'];
-	$skillPointsGained = $levelUpArr['skillPointsGained'];
-	
-	// Update the db
-	$updateStmt = $db->prepare("UPDATE users SET level = ?, skill_points = skill_points + ? WHERE id = ?");
-	$updateStmt->execute(array($newLevel, $skillPointsGained, $id));
-
+$skillPointsGained = checkLevelUp($userLevel, $userExp);
+if ($skillPointsGained > 0) {	
 	$_SESSION['levelUp'] = 1;
-	$_SESSION['newLevel'] = $newLevel;
+	$_SESSION['newLevel'] = $user->getLevel();
 	$_SESSION['skillPointsGained'] = $skillPointsGained;
 }
 
 header("Location: $serverRoot/battle.php");
 exit;
-*/
 ?>
