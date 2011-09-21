@@ -205,6 +205,7 @@ class User {
 			$this->cash += $cashChange;
 			$this->income += $incomeChange;
 		}
+		return $success;
 	}
 	
 	/*
@@ -325,7 +326,7 @@ class User {
 		
 		$conditions = array();
 		$conditions['id'] = $this->id;
-		
+				
 		$success = ConnectionFactory::updateTableRowRelativeBasic("users", $missionCompleteParams, $conditions);		
 		if ($success) {
 			$this->cash += $cashLost;
@@ -333,6 +334,7 @@ class User {
 			$this->energy -= $energyCost;
 			$this->experience += $totalExpGained;	
 		}
+		return $success;
 	}	
 
 	/*

@@ -59,11 +59,6 @@ function displayBountyAttack($user) {
 	}
 }
 
-/*
- * TODO: if first time here, have them choose their class/type
-	dont make this db call tho..
- */
-
 // Level up
 if (isset($_SESSION['levelUp'])) {
 	$newLevel = $_SESSION['newLevel'];

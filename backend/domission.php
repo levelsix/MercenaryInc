@@ -175,6 +175,7 @@ if ($doMission) {
 		redirect("$serverRoot/errorpage.html");
 	}
 	
+	
 	/*
 	// Level up check
 	$userLevel = $userResult['level'];
