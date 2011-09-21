@@ -28,9 +28,9 @@ function checkLevelUp($user) {
 	
 	if ($newLevel > $currLevel) {
 		$skillPointsGained = 3 * ($newLevel - $currLevel);
-	
-		$user->updateLevel($newLevel, $skillPointsGained);
 		
+		$user->updateLevel($newLevel, $skillPointsGained);
+				
 		return $skillPointsGained;
 	}
 	

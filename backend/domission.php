@@ -176,11 +176,7 @@ if ($doMission) {
 	}
 	
 	// Level up check
-	$userLevel = $user->getLevel();
-	// The user's exp attribute in the user object should be updated to reflect this battle
-	$userExp = $user->getExperience();
-
-	$skillPointsGained = checkLevelUp($userLevel, $userExp);
+	$skillPointsGained = checkLevelUp($user);
 	if ($skillPointsGained > 0) {
 		$_SESSION['levelUp'] = 1;
 		$_SESSION['newLevel'] = $user->getLevel();
