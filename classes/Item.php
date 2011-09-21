@@ -24,7 +24,7 @@ class Item {
 		return $objItem;
 	}	
 	
-	public static function getItems($itemIDs) {
+	public static function getItems($itemIDs) {		
 		if (count($itemIDs) <= 0) {
 			return array();
 		}
@@ -37,6 +37,7 @@ class Item {
 		}
 		$query = "SELECT * from items where ";
 		$query .= getArrayInString($condclauses, ' OR ');
+				
 		$objItems = ConnectionFactory::SelectRowsAsClasses($query, $values, __CLASS__);
 			
 		return $objItems;
@@ -94,6 +95,14 @@ class Item {
 	
 	public function getPrice() {
 		return $this->price;
+	}
+	
+	public function getAtkBoost() {
+		return $this->atk_boost;
+	}
+	
+	public function getDefBoost() {
+		return $this->def_boost;
 	}
 	
 }

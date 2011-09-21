@@ -143,6 +143,48 @@ class User {
 	}
 	
 	/*
+	 * returns an associative array of the top n items by item type sorted by stat (attack or defense)
+	 * the keys are item IDs and the values are quantities
+	 * $n should be the agency size of the user
+	 */
+	public static function getUsersTopItemsByStatIDsToQuantity($userID, $n, $stat) {
+		if ($stat == "attack") $orderBy = "atk_boost";
+		else if ($stat == "defense") $orderBy = "def_boost";
+		
+		$result = array();
+		
+		for ($i = 1; $i <= 3; $i++) { // for each item type
+			$query = "SELECT users_items.quantity AS quantity, items.id AS id" . 
+					" FROM users_items JOIN items ON (users_items.item_id = items.id)" .
+					" WHERE users_items.user_id = ? AND items.type = ?" .
+					" ORDER BY " . $orderBy . " LIMIT " . $n;
+			$values = array($userID, $i);
+			
+			$itemSth = ConnectionFactory::SelectAsStatementHandler($query, $values);
+			
+			$totalQuantity = 0;
+			while ($row = $itemSth->fetch(PDO::FETCH_ASSOC)) {
+				$itemID = $row['id'];
+				
+				$quantity = $row['quantity'];
+				// check if we've stored enough items to exceed the agency size yet
+				if ($totalQuantity + $quantity > $n) {
+					$quantity = $n - $totalQuantity;
+				}
+				$totalQuantity += $quantity;
+				
+				$result[$itemID] = $quantity;
+				
+				// once we have enough items in the array, break from the loop
+				if ($totalQuantity >= $n)
+					break;
+			}
+		}
+		
+		return $result;
+	}
+	
+	/*
 	 * returns an associative array where the key is an real estate ID and
 	 * the value is the quantity of that item that the user owns
 	 */

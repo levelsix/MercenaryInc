@@ -2,7 +2,7 @@
 include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/ConnectionFactory.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/properties/serverproperties.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
-
+include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/Item.php");
 
 function computeStat($skillPoints, $itemPoints) {
 	// Definitely need to fix this formula
@@ -10,30 +10,25 @@ function computeStat($skillPoints, $itemPoints) {
 	return $randomizedStat + $skillPoints;
 }
 
-function getItemStats($db, $userID, $agencySize, $statType) {
-	return 1;
-}
-/*
-function updateUserHealthAndFightsRecord($db, $winnerID, $loserID) {
-	$healthLoss = 15;	
+function getItemStats($userID, $agencySize, $statType) {
+	$topItems = User::getUsersTopItemsByStatIDsToQuantity($userID, $agencySize, $statType);
+	$itemObjs = Item::getItems(array_keys($topItems));
 	
-	$updateWinnerStmt = $db->prepare("UPDATE users SET health = health - ?, fights_won = fights_won + 1 WHERE id = ?");	
-	$updateWinnerStmt->execute(array($healthLoss, $winnerID));
+	$totalStat = 0;
+	foreach ($itemObjs as $item) {
+		$itemID = $item->getID();
+		if ($statType == "attack") {
+			$stat = $item->getAtkBoost();
+		} else if ($statType == "defense") {
+			$stat = $item->getDefBoost();
+		}
+		
+		$totalStat += $stat * $topItems[$itemID];
+	}
 	
-	$updateLoserStmt = $db->prepare("UPDATE users SET health = health - ?, fights_lost = fights_lost + 1 WHERE id = ?");
-	$updateLoserStmt->execute(array($healthLoss, $loserID));	
+	return $totalStat;
 }
 
-function updateUserStamina($db, $userID) {
-	$updateStmt = $db->prepare("UPDATE users SET stamina = stamina - 1 WHERE id = ?");
-	$updateStmt->execute(array($userID));
-}
-
-function updateUserExp($db, $userID, $exp) {
-	$updateStmt = $db->prepare("UPDATE users SET experience = experience + ? WHERE id = ?");
-	$updateStmt->execute(array($exp, $userID));
-}
-*/
 session_start();
 $maxDamage = 24;
 $id = $_SESSION['userID'];
@@ -66,8 +61,8 @@ if ($otherUserHealth < $maxDamage + 1) {
 }
 
 
-$userAttack = computeStat($user->getAttack(), getItemStats($db, $id, $user->getAgencySize(), "attack"));
-$otherUserDefense = computeStat($otherUser->getDefense(), getItemStats($db, $otherUserID, $otherUser->getAgencySize(), "defense"));
+$userAttack = computeStat($user->getAttack(), getItemStats($id, $user->getAgencySize(), "attack"));
+$otherUserDefense = computeStat($otherUser->getDefense(), getItemStats($otherUserID, $otherUser->getAgencySize(), "defense"));
 
 $healthLoss = -15;
 
