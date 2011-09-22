@@ -18,13 +18,19 @@ function getArrayInString($array, $delim) {
 
 // Returns the number of skill points gained in a level up
 // Returns 0 if no level up (i.e. no skill points gained)
-function checkLevelUp($currLevel, $totalExp) {
+// Updates the user object and the database if a level up occurs
+function checkLevelUp($user) {
+	$currLevel = $user->getLevel();
+	$totalExp = $user->getExperience();
+	
 	// Currently just takes 10 exp to level up at each level
 	$newLevel = floor($totalExp / 10);
 	
 	if ($newLevel > $currLevel) {
 		$skillPointsGained = 3 * ($newLevel - $currLevel);
 	
+		$user->updateLevel($newLevel, $skillPointsGained);
+		
 		return $skillPointsGained;
 	}
 	

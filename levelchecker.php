@@ -7,6 +7,7 @@ $battleMinLevel = 3;
 $shopItemMinLevel = 4;
 $shopREMinLevel = 4;
 $profileMinLevel = 5;
+$hospitalMinLevel = 5;
 $recruitMinLevel = 6;
 
 session_start();
@@ -15,7 +16,7 @@ $level = $playerLevel;
 
 //TODO: refactor js to have absolute paths
 $tooLowLevelString = "You need to be at least level ";
-if (strcmp($_POST['pageRequestType'], "mission") == 0){
+if ($_POST['pageRequestType'] == "mission"){
 	if ($level >=  $missionsMinLevel) {
 		echo "<script>location.href='$serverRoot/choosemission.php'</script>";
 	} else {
@@ -23,7 +24,7 @@ if (strcmp($_POST['pageRequestType'], "mission") == 0){
 		print "<br>";
 		echo "<insert links to allowable paths here>";
 	}
-} else if (strcmp($_POST['pageRequestType'], "battle") == 0){
+} else if ($_POST['pageRequestType'] == "battle"){
 	if ($level >=  $battleMinLevel) {
 		echo "<script>location.href='$serverRoot/battle.php'</script>";
 	} else {
@@ -31,7 +32,7 @@ if (strcmp($_POST['pageRequestType'], "mission") == 0){
 		print "<br>";
 		echo "<insert links to allowable paths here>";
 	}
-} else if (strcmp($_POST['pageRequestType'], "shopitem") == 0){
+} else if ($_POST['pageRequestType'] == "shopitem"){
 	if ($level >=  $shoItemMinLevel) {
 		echo "<script>location.href='$serverRoot/shopitemlist.php'</script>";
 	} else {
@@ -39,7 +40,7 @@ if (strcmp($_POST['pageRequestType'], "mission") == 0){
 		print "<br>";
 		echo "<insert links to allowable paths here>";
 	}
-} else if (strcmp($_POST['pageRequestType'], "shoprealestate") == 0){
+} else if ($_POST['pageRequestType'] == "shoprealestate"){
 	if ($level >=  $shopREMinLevel) {
 		echo "<script>location.href='$serverRoot/shoprealestatelist.php'</script>";
 	} else {
@@ -47,7 +48,7 @@ if (strcmp($_POST['pageRequestType'], "mission") == 0){
 		print "<br>";
 		echo "<insert links to allowable paths here>";
 	}
-} else if (strcmp($_POST['pageRequestType'], "recruit") == 0){
+} else if ($_POST['pageRequestType'] == "recruit"){
 	if ($level >=  $recruitMinLevel) {
 		echo "<script>location.href='$serverRoot/recruit.php'</script>";
 	} else {
@@ -55,7 +56,7 @@ if (strcmp($_POST['pageRequestType'], "mission") == 0){
 		print "<br>";
 		echo "<insert links to allowable paths here>";
 	}
-} else if (strcmp($_POST['pageRequestType'], "home") == 0){
+} else if ($_POST['pageRequestType'] == "home"){
 	if ($level >=  $homeMinLevel) {
 		echo "<script>location.href='$serverRoot/charhome.php'</script>";
 	} else {
@@ -63,7 +64,7 @@ if (strcmp($_POST['pageRequestType'], "mission") == 0){
 		print "<br>";
 		echo "<insert links to allowable paths here>";
 	}
-} else if (strcmp($_POST['pageRequestType'], "profile") == 0){
+} else if ($_POST['pageRequestType'] == "profile"){
 	if ($level >=  $profileMinLevel) {
 		echo "<script>location.href='$serverRoot/charprofile.php'</script>";
 	} else {
@@ -71,6 +72,13 @@ if (strcmp($_POST['pageRequestType'], "mission") == 0){
 		print "<br>";
 		echo "<insert links to allowable paths here>";
 	}
+} else if ($_POST['pageRequestType'] == "hospital"){
+	if ($level >=  $hospitalMinLevel) {
+		echo "<script>location.href='$serverRoot/hospital.php'</script>";
+	} else {
+		echo $tooLowLevelString . $hospitalMinLevel . " to get to hospital";
+		print "<br>";
+		echo "<insert links to allowable paths here>";
+	}
 }
-
 ?>

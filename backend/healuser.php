@@ -1,13 +1,11 @@
 <?php
 include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
 
-
-$attribute = $_POST['attributeToIncrease'];
-
 session_start();
-
+$healCost = $_POST['healCost'];
 $user = User::getUser($_SESSION['userID']);
-$user->useSkillPoint($attribute);
 
-header("Location: $serverRoot/skills.php");
+$user->healAtHospital($healCost);
+
+header("Location: $serverRoot/hospital.php");
 ?>
