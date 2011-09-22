@@ -5,6 +5,7 @@
 
 <?php include_once($_SERVER['DOCUMENT_ROOT'] . "/topmenu.php"); 
 include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/User.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/Item.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/Bounty.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/classes/Utils.php");
 
@@ -59,10 +60,20 @@ function displayBountyAttack($user) {
 	}
 }
 
+function listItems($itemObjs, $itemIDsToQuantity) {	
+	if (count($itemObjs) <= 0) echo "Nothing.";
+	foreach ($itemObjs as $item) {
+		echo $itemIDsToQuantity[$item->getID()] . "x " . $item->getName() . " ";
+	}
+	echo "<br>";
+}
+
 /*
  * TODO: if first time here, have them choose their class/type
 	dont make this db call tho..
  */
+
+$user = User::getUser($_SESSION['userID']);
 
 // Level up
 if (isset($_SESSION['levelUp'])) {
@@ -95,6 +106,32 @@ if (isset($_SESSION['won'])) {
 		echo "Sorry, you lost. <br>";
 	}
 	unset($_SESSION['won']);
+}
+
+function ItemAtkCmp($item1, $item2) {
+	return $item1->getAtkBoost() - $item2->getAtkBoost();
+}
+
+// display the items used in the battle
+if (isset($_SESSION['userUsedItems']) && isset($_SESSION['otherUserUsedItems'])) {
+	$userItemObjs = Item::getItems(array_keys($_SESSION['userUsedItems']));
+	$otherUserItemObjs = Item::getItems(array_keys($_SESSION['otherUserUsedItems']));
+
+	// usort returns a bool
+	usort($userItemObjs, "Item::ItemAtkCmp");
+	usort($otherUserItemObjs, "Item::ItemDefCmp");
+	
+	echo "Your mob of " . $user->getAgencySize() . " used <br>";
+	listItems($userItemObjs, $_SESSION['userUsedItems']);
+	
+	$otherUser = User::getUser($_SESSION['otherUserID']);
+	// TODO make this a link to the other user's profile page
+	echo $otherUser->getName() . "'s mob of " . $otherUser->getAgencySize() . " used <br>";
+	listItems($otherUserItemObjs, $_SESSION['otherUserUsedItems']);
+		
+	unset($_SESSION['userUsedItems']);
+	unset($_SESSION['otherUserUsedItems']);
+	unset($_SESSION['otherUserID']);
 }
 
 $user = User::getUser($_SESSION['userID']);

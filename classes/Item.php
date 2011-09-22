@@ -65,6 +65,14 @@ class Item {
 		return $toreturn;
 	}
 	
+	public static function ItemAtkCmp($item1, $item2) {
+		return $item1->getAtkBoost() - $item2->getAtkBoost();
+	}
+	
+	public static function ItemDefCmp($item1, $item2) {
+		return $item1->getDefBoost() - $item2->getDefBoost();
+	}
+	
 	/*
 	 should not be used because item objects do not encapsulate quantity by themselves
 	public static function getItemsForUser($userID) {
