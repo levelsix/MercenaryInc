@@ -157,7 +157,7 @@ class User {
 			$query = "SELECT users_items.quantity AS quantity, items.id AS id" . 
 					" FROM users_items JOIN items ON (users_items.item_id = items.id)" .
 					" WHERE users_items.user_id = ? AND items.type = ?" .
-					" ORDER BY " . $orderBy . " LIMIT " . $n;
+					" ORDER BY " . $orderBy . " DESC LIMIT " . $n;
 			$values = array($userID, $i);
 			
 			$itemSth = ConnectionFactory::SelectAsStatementHandler($query, $values);

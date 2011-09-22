@@ -10,8 +10,7 @@ function computeStat($skillPoints, $itemPoints) {
 	return $randomizedStat + $skillPoints;
 }
 
-function getItemStats($userID, $agencySize, $statType) {
-	$topItems = User::getUsersTopItemsByStatIDsToQuantity($userID, $agencySize, $statType);
+function getItemStats($topItems, $statType) {
 	$itemObjs = Item::getItems(array_keys($topItems));
 	
 	$totalStat = 0;
@@ -60,9 +59,11 @@ if ($otherUserHealth < $maxDamage + 1) {
 	exit;
 }
 
+$userUsedItems = User::getUsersTopItemsByStatIDsToQuantity($id, $user->getAgencySize(), "attack");
+$otherUserUsedItems = User::getUsersTopItemsByStatIDsToQuantity($otherUserID, $otherUser->getAgencySize(), "defense");
 
-$userAttack = computeStat($user->getAttack(), getItemStats($id, $user->getAgencySize(), "attack"));
-$otherUserDefense = computeStat($otherUser->getDefense(), getItemStats($otherUserID, $otherUser->getAgencySize(), "defense"));
+$userAttack = computeStat($user->getAttack(), getItemStats($userUsedItems, "attack"));
+$otherUserDefense = computeStat($otherUser->getDefense(), getItemStats($otherUserUsedItems, "defense"));
 
 $healthLoss = -15;
 
@@ -88,17 +89,18 @@ if ($userAttack > $otherUserDefense) { // user wins
 	$otherUser->updateHealthStaminaFightsExperience($healthLoss, 0, 1, 0, $expGained);
 }
 
-// Level up check
-$userLevel = $user->getLevel();
-// The user's exp attribute in the user object should be updated to reflect this battle
-$userExp = $user->getExperience();
+$_SESSION['userUsedItems'] = $userUsedItems;
+$_SESSION['otherUserUsedItems'] = $otherUserUsedItems;
 
-$skillPointsGained = checkLevelUp($userLevel, $userExp);
+// Level up check
+$skillPointsGained = checkLevelUp($user);
 if ($skillPointsGained > 0) {	
 	$_SESSION['levelUp'] = 1;
 	$_SESSION['newLevel'] = $user->getLevel();
 	$_SESSION['skillPointsGained'] = $skillPointsGained;
 }
+
+$_SESSION['otherUserID'] = $otherUserID;
 
 header("Location: $serverRoot/battle.php");
 exit;
