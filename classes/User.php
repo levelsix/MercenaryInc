@@ -778,7 +778,7 @@ class User {
 	}
 	
 	public function getEnergyMax() {
-		return $this->experience;
+		return $this->energy_max;
 	}
 	
 	public function getAgencyCode() {

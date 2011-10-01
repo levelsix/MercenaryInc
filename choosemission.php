@@ -118,7 +118,9 @@ function displayMissionInfo($mission, $playerLevel, $cityRank) {
 			$cityRank=3;
 		} else {
 			$userTimesMissionDoneInThisRank = 0;
-			if ($userMissionData) $userMissionData->getRankTimes($cityRank);
+			if ($userMissionData) {
+				$userTimesMissionDoneInThisRank = $userMissionData->getRankTimes($cityRank);
+			}
 			$missionTimesToMasterRank = $mission->getRankReqTimes($cityRank);
 			if ($userTimesMissionDoneInThisRank >= $missionTimesToMasterRank) {
 				$completionPercent = 100; 
